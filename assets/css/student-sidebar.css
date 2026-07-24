@@ -1,0 +1,616 @@
+/* ==========================
+   STUDENT SIDEBAR
+========================== */
+
+
+*{
+    box-sizing:border-box;
+}
+
+
+.student-sidebar{
+
+    width:270px;
+
+    height:100vh;
+
+    background:#111827;
+
+    position:fixed;
+
+    left:0;
+
+    top:0;
+
+    padding:25px 0;
+
+    overflow-y:auto;
+
+    box-shadow:4px 0 20px rgba(0,0,0,.15);
+
+}
+
+
+
+
+
+/* ==========================
+   BRAND
+========================== */
+
+
+.sidebar-brand{
+
+    text-align:center;
+
+    padding-bottom:25px;
+
+    margin-bottom:20px;
+
+    border-bottom:1px solid rgba(255,255,255,.1);
+
+}
+
+
+.sidebar-brand h2{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:10px;
+
+    color:white;
+
+    font-size:24px;
+
+    margin:0;
+
+}
+
+
+.portal-logo{
+
+    width:45px;
+
+    height:45px;
+
+    object-fit:contain;
+
+}
+
+
+
+.sidebar-brand p{
+
+    color:#9ca3af;
+
+    font-size:14px;
+
+    margin-top:8px;
+
+}
+
+
+
+
+
+/* ==========================
+   MENU LINKS
+========================== */
+
+
+.student-sidebar a{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+
+    margin:6px 15px;
+
+
+    padding:14px 18px;
+
+
+    border-radius:12px;
+
+
+    color:#d1d5db;
+
+
+    text-decoration:none;
+
+
+    font-size:15px;
+
+
+    transition:.3s;
+
+
+}
+
+
+
+.student-sidebar a i{
+
+    width:22px;
+
+    text-align:center;
+
+    font-size:18px;
+
+    color:#a5b4fc;
+
+}
+
+
+
+
+
+/* HOVER EFFECT */
+
+
+.student-sidebar a:hover{
+
+
+    background:#312e81;
+
+    color:white;
+
+    transform:translateX(5px);
+
+}
+
+
+
+.student-sidebar a:hover i{
+
+    color:white;
+
+}
+
+
+
+
+
+
+/* ==========================
+   ACTIVE MENU
+========================== */
+
+
+.student-sidebar a.active{
+
+
+    background:#4f46e5;
+
+    color:white;
+
+
+    box-shadow:0 5px 15px rgba(79,70,229,.4);
+
+}
+
+
+
+.student-sidebar a.active i{
+
+    color:white;
+
+}
+
+
+
+
+
+
+/* ==========================
+   PAYMENT SECTION
+========================== */
+
+
+.student-sidebar a[href*="payment"],
+.student-sidebar a[href*="invoice"]{
+
+
+    color:#fde68a;
+
+
+}
+
+
+
+.student-sidebar a[href*="payment"] i,
+.student-sidebar a[href*="invoice"] i{
+
+
+    color:#facc15;
+
+
+}
+
+
+
+.student-sidebar a[href*="payment"]:hover,
+.student-sidebar a[href*="invoice"]:hover{
+
+
+    background:#78350f;
+
+    color:white;
+
+
+}
+
+
+
+
+
+
+/* ==========================
+   DIVIDER
+========================== */
+
+
+.sidebar-divider{
+
+    height:1px;
+
+    background:rgba(255,255,255,.15);
+
+    margin:25px 20px;
+
+}
+
+
+
+
+
+
+/* ==========================
+   LOGOUT
+========================== */
+
+
+.student-sidebar .logout{
+
+
+    color:#fca5a5;
+
+}
+
+
+
+.student-sidebar .logout i{
+
+    color:#ef4444;
+
+}
+
+
+
+.student-sidebar .logout:hover{
+
+
+    background:#7f1d1d;
+
+    color:white;
+
+
+}
+
+
+
+
+
+/* ==========================
+   SCROLLBAR
+========================== */
+
+
+.student-sidebar::-webkit-scrollbar{
+
+    width:6px;
+
+}
+
+
+.student-sidebar::-webkit-scrollbar-thumb{
+
+    background:#4f46e5;
+
+    border-radius:10px;
+
+}
+
+/* ==========================
+   GLOBAL
+========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+
+body{
+
+    background:#f5f7fb;
+
+}
+
+
+
+/* ==========================
+   MAIN CONTENT
+========================== */
+
+
+.main-content{
+
+    margin-left:270px;
+
+    padding:40px;
+
+    min-height:100vh;
+
+}
+
+
+
+.main-content h1{
+
+    font-size:32px;
+
+    color:#111827;
+
+    margin-bottom:25px;
+
+}
+
+
+
+/* ==========================
+   CARD STYLE
+========================== */
+
+
+.card{
+
+    background:white;
+
+    padding:30px;
+
+    border-radius:15px;
+
+    box-shadow:0 8px 25px rgba(0,0,0,.08);
+
+    border:1px solid #e5e7eb;
+
+    max-width:900px;
+
+}
+
+
+
+.card h3{
+
+    color:#4f46e5;
+
+    margin-bottom:15px;
+
+    font-size:22px;
+
+}
+
+
+
+.card p{
+
+    color:#6b7280;
+
+    line-height:1.8;
+
+    margin-bottom:10px;
+
+}
+
+
+
+/* ==========================
+   BUTTON
+========================== */
+
+
+.card button{
+
+    margin-top:20px;
+
+    background:#4f46e5;
+
+    color:white;
+
+    border:none;
+
+    padding:12px 25px;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    font-size:15px;
+
+}
+
+
+
+.card button:hover{
+
+    background:#3730a3;
+
+}
+
+
+
+
+
+/* ==========================
+   SETTINGS LINKS
+========================== */
+
+
+.card a{
+
+    display:inline-block;
+
+    margin-top:15px;
+
+    padding:10px 20px;
+
+    background:#4f46e5;
+
+    color:white;
+
+    text-decoration:none;
+
+    border-radius:8px;
+
+}
+
+
+
+.card a:hover{
+
+    background:#3730a3;
+
+}
+
+
+
+
+
+/* ==========================
+   TABLE STYLE
+========================== */
+
+
+table{
+
+    width:100%;
+
+    background:white;
+
+    border-collapse:collapse;
+
+    border-radius:10px;
+
+    overflow:hidden;
+
+}
+
+
+
+table th{
+
+    background:#4f46e5;
+
+    color:white;
+
+    padding:15px;
+
+    text-align:left;
+
+}
+
+
+
+table td{
+
+    padding:15px;
+
+    border-bottom:1px solid #eee;
+
+    color:#555;
+
+}
+
+
+
+
+
+/* ==========================
+   STATUS BADGE
+========================== */
+
+
+.status{
+
+    padding:6px 15px;
+
+    border-radius:20px;
+
+    font-size:13px;
+
+    font-weight:bold;
+
+}
+
+
+
+.status.pending{
+
+    background:#fef3c7;
+
+    color:#92400e;
+
+}
+
+
+
+.status.completed{
+
+    background:#dcfce7;
+
+    color:#166534;
+
+}
+
+
+
+.status.failed{
+
+    background:#fee2e2;
+
+    color:#991b1b;
+
+}
+
+
+
+
+
+/* ==========================
+   RESPONSIVE
+========================== */
+
+
+@media(max-width:900px){
+
+
+    .main-content{
+
+        margin-left:0;
+
+        padding:20px;
+
+    }
+
+
+}
