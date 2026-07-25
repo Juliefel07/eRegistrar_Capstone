@@ -15,9 +15,7 @@ if(!isset($_SESSION['user_id'])){
 
 
 $user_id = $_SESSION['user_id'];
-
-
-$sql = "
+$stmt = mysqli_prepare($conn, "
 
 SELECT
 
@@ -33,26 +31,26 @@ r.uploaded_file
 
 FROM requests r
 
-JOIN users u 
+JOIN users u
 ON r.user_id = u.user_id
 
-JOIN documents d 
+JOIN documents d
 ON r.document_id = d.document_id
+
+WHERE r.user_id = ?
 
 ORDER BY r.request_date DESC
 
-";
+");
 
+mysqli_stmt_bind_param($stmt, "i", $user_id);
 
+mysqli_stmt_execute($stmt);
 
-$result = mysqli_query($conn,$sql);
-
-
+$result = mysqli_stmt_get_result($stmt);
 
 if(!$result){
-
     die(mysqli_error($conn));
-
 }
 
 

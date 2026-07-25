@@ -33,7 +33,25 @@ if(!isset($_SESSION['user_id'])){
 
 
 <div class="settings-card">
+<div class="settings-item">
 
+<div>
+
+<h3>
+<i class="fa-solid fa-moon"></i>
+Night Mode
+</h3>
+
+<p>
+Switch between light and dark appearance.
+</p>
+
+</div>
+
+
+<input type="checkbox" id="darkModeToggle">
+
+</div>
 
 <h2>
 Notification Settings

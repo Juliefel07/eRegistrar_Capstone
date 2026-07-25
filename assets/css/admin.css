@@ -95,22 +95,25 @@ table tr:hover {
 /* Buttons */
 
 .btn {
+    display: inline-block;
     padding: 7px 12px;
     text-decoration: none;
     border-radius: 5px;
     color: white;
     font-size: 13px;
+    margin-bottom: 5px;
 }
-
 
 .approve {
     background: #16a34a;
-     margin-right: 8px;
+    margin-bottom: 5px;
+    
 }
 
 
 .reject {
     background: #dc2626;
+    
 }
 
 
