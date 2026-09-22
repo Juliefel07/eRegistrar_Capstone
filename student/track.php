@@ -83,7 +83,7 @@ if(isset($_POST['tracking_no'])){
 
 
 <link rel="stylesheet" href="../assets/css/student.css">
-
+<link rel="stylesheet" href="../assets/css/navbar.css">
 
 </head>
 
@@ -92,10 +92,8 @@ if(isset($_POST['tracking_no'])){
 <body>
 
 
-<?php include("sidebar.php"); ?>
-
-
-<?php include("header.php"); ?>
+<?php include("navbar.php"); ?>
+<link rel="stylesheet" href="../assets/css/navbar.css">
 
 
 

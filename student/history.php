@@ -73,7 +73,7 @@ if(!$result){
 
 
 <link rel="stylesheet" href="../assets/css/student.css">
-
+<link rel="stylesheet" href="../assets/css/navbar.css">
 
 </head>
 
@@ -83,10 +83,10 @@ if(!$result){
 
 
 
-<?php include("sidebar.php"); ?>
+
+<?php include("navbar.php"); ?>
 
 
-<?php include("header.php"); ?>
 
 
 
@@ -159,6 +159,9 @@ Date
 
 <th>
 Requirement File
+</th>
+<th>Action
+    
 </th>
 
 
@@ -282,7 +285,17 @@ No File
 
 
 </td>
+<td>
 
+<a
+class="btn approve"
+href="request_details.php?id=<?= $row['request_id']; ?>">
+
+View Details
+
+</a>
+
+</td>
 
 
 </tr>

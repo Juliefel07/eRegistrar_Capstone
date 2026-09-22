@@ -17,22 +17,14 @@ body{
 /* MAIN LAYOUT */
 
 .request-container{
-
-    margin-left:250px;
-
-    /* space below fixed header */
-    margin-top:100px;
-
-    padding:30px;
-
     display:grid;
-
-    grid-template-columns:1fr 330px;
-
+    grid-template-columns:2.3fr 1fr;
     gap:25px;
-
+    width:95%;
+    max-width:1400px;
+    margin:25px auto;
+    align-items:start;
 }
-
 
 
 .request-card,
@@ -356,9 +348,9 @@ textarea:focus{
     background:#2563eb;
 
     color:white;
-
+    margin-left: 5px;
     border:none;
-
+    
     padding:13px 30px;
 
     border-radius:12px;
@@ -569,7 +561,77 @@ textarea:focus{
 
 
 
+/* ERROR MODAL */
 
+.error-modal-box{
+
+    background:#fff;
+    width:380px;
+    padding:35px;
+    border-radius:20px;
+    text-align:center;
+    box-shadow:0 20px 50px rgba(0,0,0,.2);
+    animation:popup .3s ease;
+
+}
+
+.error-icon{
+
+    width:70px;
+    height:70px;
+    margin:0 auto 20px;
+    border-radius:50%;
+    background:#fee2e2;
+    color:#dc2626;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:34px;
+    font-weight:bold;
+
+}
+
+.error-modal-box h2{
+
+    color:#dc2626;
+    margin-bottom:10px;
+    font-size:28px;
+
+}
+
+.error-modal-box p{
+
+    color:#64748b;
+    margin-bottom:25px;
+    line-height:1.6;
+
+}
+
+.error-modal-box .confirm-btn{
+
+    width:180px;
+    padding:13px;
+    font-size:15px;
+
+}
+
+@keyframes popup{
+
+    from{
+
+        opacity:0;
+        transform:scale(.85);
+
+    }
+
+    to{
+
+        opacity:1;
+        transform:scale(1);
+
+    }
+
+}
 
 
 @media(max-width:900px){
@@ -592,4 +654,64 @@ textarea:focus{
 }
 
 
+}
+
+.request-hero{
+background:linear-gradient(135deg,#2563eb,#3b82f6);
+color:#fff;
+padding:30px;
+border-radius:0px;
+margin-bottom:25px;
+}
+
+.request-hero h1{
+font-size:32px;
+margin-bottom:10px;
+}
+
+.student-info-card{
+background:#f8fbff;
+border:1px solid #dbeafe;
+padding:20px;
+border-radius:15px;
+margin-bottom:25px;
+}
+
+.info-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+}
+
+.summary-card{
+position:sticky;
+top:100px;
+}
+
+.total{
+background:#2563eb;
+color:#fff;
+padding:20px;
+border-radius:15px;
+text-align:center;
+margin-top:20px;
+}
+
+.total strong{
+font-size:34px;
+display:block;
+margin:10px 0;
+}
+
+.tips-card{
+background:#fff8e6;
+border:1px solid #ffe08a;
+padding:18px;
+border-radius:12px;
+margin-top:20px;
+}
+
+.tips-card ul{
+padding-left:18px;
+line-height:1.8;
 }

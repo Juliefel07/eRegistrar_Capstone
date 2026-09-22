@@ -28,7 +28,7 @@ Help & Support
 
 
 <link rel="stylesheet" href="../assets/css/student.css">
-
+<link rel="stylesheet" href="../assets/css/navbar.css">
 
 </head>
 
@@ -36,9 +36,8 @@ Help & Support
 <body>
 
 
-<?php include("sidebar.php"); ?>
+<?php include("navbar.php"); ?>
 
-<?php include("header.php"); ?>
 
 
 

@@ -177,145 +177,67 @@ if(!$result){
 
 
 
+
+
+
 <td>
-
-
 
 <?php if($row['status']=="Pending"){ ?>
 
-
-
-<a class="btn approve"
-
-href="approve.php?id=<?php echo $row['request_id']; ?>">
-
-Approve
-
-</a>
-
-
-
-<a class="btn reject"
-
-href="reject.php?id=<?php echo $row['request_id']; ?>">
-
-Reject
-
-</a>
-
-
+    <a class="btn approve"
+    href="view_request.php?id=<?php echo $row['request_id']; ?>">
+    View Request
+    </a>
 
 <?php } ?>
-
-
-
-
 
 <?php if($row['status']=="Approved"){ ?>
 
-
-
-<a class="btn approve"
-
-href="processing.php?id=<?php echo $row['request_id']; ?>">
-
-Start Processing
-
-</a>
-
-
+    <a class="btn approve"
+    href="processing.php?id=<?php echo $row['request_id']; ?>">
+    Start Processing
+    </a>
 
 <?php } ?>
-
-
-
-
 
 <?php if($row['status']=="Processing"){ ?>
 
-
-
-<a class="btn approve"
-
-href="ready.php?id=<?php echo $row['request_id']; ?>">
-
-Ready for Claim
-
-</a>
-
-
+    <a class="btn approve"
+    href="ready.php?id=<?php echo $row['request_id']; ?>">
+    Ready for Claim
+    </a>
 
 <?php } ?>
-
-
-
-
 
 <?php if($row['status']=="Ready for Claim"){ ?>
 
-
-
-<a class="btn approve"
-
-href="claimed.php?id=<?php echo $row['request_id']; ?>">
-
-Claimed
-
-</a>
-
-
+    <a class="btn approve"
+    href="claimed.php?id=<?php echo $row['request_id']; ?>">
+    Claimed
+    </a>
 
 <?php } ?>
-
-
-
-
 
 <?php if($row['status']=="Claimed"){ ?>
 
-
-
-<span class="no-action">
-
-Completed
-
-</span>
-
-
+    <span class="no-action">
+        Completed
+    </span>
 
 <?php } ?>
-
-
-
-
 
 <?php if($row['status']=="Rejected"){ ?>
 
-
-
-<span class="no-action">
-
-Rejected
-
-</span>
-
-
+    <span class="no-action">
+        Rejected
+    </span>
 
 <?php } ?>
-
-
 
 </td>
-
-
 </tr>
 
-
-
 <?php } ?>
-
-
-
 </table>
 
 

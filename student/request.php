@@ -66,33 +66,41 @@ if(!$documents){
 
 $documentData = [];
 
-
-
 $docQuery = mysqli_query($conn,"
     SELECT *
     FROM documents
     WHERE status='Available'
 ");
 
-
-
 while($doc = mysqli_fetch_assoc($docQuery)){
 
+    $requirements = [];
+
+    $reqQuery = mysqli_query($conn,"
+        SELECT *
+        FROM document_requirements
+        WHERE document_id = {$doc['document_id']}
+        ORDER BY requirement_id ASC
+    ");
+
+    while($req = mysqli_fetch_assoc($reqQuery)){
+
+        $requirements[] = [
+            "id"=>$req['requirement_id'],
+            "name"=>$req['requirement_name']
+        ];
+
+    }
 
     $documentData[$doc['document_id']] = [
 
         "name"=>$doc['document_name'],
-
         "fee"=>$doc['fee'],
-
         "days"=>$doc['processing_days'],
-
         "description"=>$doc['description'],
-
-        "requirements"=>$doc['requirements']
+        "requirements"=>$requirements
 
     ];
-
 
 }
 
@@ -117,7 +125,7 @@ while($doc = mysqli_fetch_assoc($docQuery)){
 
 <link rel="stylesheet" href="../assets/css/student.css">
 <link rel="stylesheet" href="../assets/css/request.css">
-
+<link rel="stylesheet" href="../assets/css/navbar.css">
 
 </head>
 
@@ -126,11 +134,22 @@ while($doc = mysqli_fetch_assoc($docQuery)){
 
 
 
-<?php include("sidebar.php"); ?>
+<?php include("navbar.php"); ?>
 
+<div class="request-hero">
 
-<?php include("header.php"); ?>
+    <div>
 
+        <h1>📄 Request Documents</h1>
+
+        <p>
+            Submit your official document requests online.
+            Complete the form below and track the status anytime.
+        </p>
+
+    </div>
+
+</div>
 
 
 <div class="request-container">
@@ -317,21 +336,13 @@ Fee
 
 <div class="requirements">
 
+    <h4>Requirements</h4>
 
-<h4>
-Requirements
-</h4>
+    <div id="requirementsContainer">
 
+        <p>Select a document first.</p>
 
-<ul id="requirementsList">
-
-<li>
-Select document first
-</li>
-
-
-</ul>
-
+    </div>
 
 </div>
 
@@ -420,29 +431,6 @@ On the Counter
 
 
 </div>
-
-
-
-
-
-<div class="form-group">
-
-
-<label>
-Upload Requirements
-</label>
-
-
-<input
-type="file"
-name="requirements"
-accept=".pdf,.jpg,.png,.jpeg,.doc,.docx"
->
-
-
-</div>
-
-
 
 <button 
 type="button"
@@ -1134,8 +1122,32 @@ Yes Submit
 
 
 
+<!-- ERROR MODAL -->
+<!-- ERROR MODAL -->
 
+<div class="modal" id="errorModal">
 
+    <div class="success-modal-box">
+
+        <h2 style="color:#dc2626;">
+            Missing Information
+        </h2>
+
+        <p id="errorText">
+            Please complete all required fields before submitting your request.
+        </p>
+
+        <button
+        class="confirm-btn"
+        onclick="closeError()">
+
+            OK
+
+        </button>
+
+    </div>
+
+</div>
 
 
 
@@ -1143,10 +1155,9 @@ Yes Submit
 <!-- SUCCESS MODAL -->
 
 
-<div class="modal" id="successModal">
+<div class="modal success-modal" id="successModal">
 
-
-<div class="modal-box success">
+    <div class="success-modal-box">
 
 
 <h2>
@@ -1221,32 +1232,37 @@ documents[id].days+" Days";
 
 let req = documents[id].requirements;
 
+let html = "";
 
-let html="";
+if(req.length > 0){
 
+    req.forEach(function(item){
 
-if(req){
+        html += `
+        <div class="requirement-item">
 
-let list=req.split(",");
+            <label>
+                ${item.name}
+            </label>
 
+            <input
+                type="file"
+                name="requirements[${item.id}]"
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                required>
 
-list.forEach(function(item){
+        </div>
+        `;
 
-html += "<li>✔ "+item+"</li>";
-
-});
-
+    });
 
 }else{
 
-
-html="<li>No requirements</li>";
+    html = "<p>No requirements.</p>";
 
 }
 
-
-document.getElementById("requirementsList").innerHTML=html;
-
+document.getElementById("requirementsContainer").innerHTML = html;
 
 
 updateTotal();
@@ -1400,8 +1416,20 @@ nextStep(step);
 
 function confirmRequest(){
 
-document.getElementById("confirmModal")
-.style.display="flex";
+    let form = document.getElementById("requestForm");
+
+    if(!form.checkValidity()){
+
+        document.getElementById("errorText").innerHTML =
+        "Please complete all required fields before submitting.";
+
+        document.getElementById("errorModal").style.display = "flex";
+
+        return;
+
+    }
+
+    document.getElementById("confirmModal").style.display = "flex";
 
 }
 
@@ -1436,7 +1464,11 @@ document.getElementById("successModal")
 }
 
 
+function closeError(){
 
+    document.getElementById("errorModal").style.display = "none";
+
+}
 
 <?php if($showSuccess){ ?>
 

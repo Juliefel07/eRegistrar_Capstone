@@ -3,7 +3,7 @@
 session_start();
 
 require_once __DIR__ . "/../includes/db.php";
-
+require_once __DIR__ . "/../includes/notification.php";
 
 if(!isset($_SESSION['user_id'])){
 
@@ -25,7 +25,11 @@ if(
     empty($_POST['payment_method'])
 ){
 
-    die("Required fields missing.");
+    $_SESSION['request_error'] = "Please fill in all required fields.";
+
+    header("Location: request.php");
+
+    exit();
 
 }
 
@@ -72,89 +76,7 @@ $email = $_POST['email'] ?? '';
 
 $tracking = "REQ" . date("YmdHis");
 
-
-
-// FILE UPLOAD
-// FILE UPLOAD
-
 $file = NULL;
-
-
-if(
-    isset($_FILES['requirements']) &&
-    $_FILES['requirements']['error'] == 0
-){
-
-
-    $allowed = [
-        "pdf",
-        "jpg",
-        "jpeg",
-        "png",
-        "doc",
-        "docx"
-    ];
-
-
-    $originalName = $_FILES['requirements']['name'];
-
-
-    $ext = strtolower(
-        pathinfo($originalName, PATHINFO_EXTENSION)
-    );
-
-
-    if(!in_array($ext,$allowed)){
-
-        die("Invalid file type.");
-
-    }
-
-
-
-    $file = time() . "_" . basename($originalName);
-
-
-
-    $uploadDir = __DIR__ . "/../assets/uploads/";
-
-
-
-    if(!is_dir($uploadDir)){
-
-        mkdir($uploadDir,0777,true);
-
-    }
-
-
-
-    $uploadPath = $uploadDir . $file;
-
-
-
-    if(move_uploaded_file(
-
-        $_FILES['requirements']['tmp_name'],
-
-        $uploadPath
-
-    )){
-
-
-       
-
-
-    }
-    else{
-
-
-        die("Upload failed.");
-
-    }
-
-
-}
-
 
 
 // INSERT REQUEST
@@ -218,14 +140,84 @@ $payment_method
 
 
 if(mysqli_stmt_execute($stmt)){
+$request_id = mysqli_insert_id($conn);
+if(isset($_FILES['requirements'])){
 
+    $uploadDir = __DIR__ . "/../assets/uploads/requirements/";
 
-    $_SESSION['request_success'] = true;
+    if(!is_dir($uploadDir)){
+        mkdir($uploadDir,0777,true);
+    }
 
+    foreach($_FILES['requirements']['name'] as $requirement_id => $originalName){
 
-    header("Location: request.php");
+        if($_FILES['requirements']['error'][$requirement_id] != 0){
+            continue;
+        }
 
-    exit();
+        $ext = strtolower(pathinfo($originalName,PATHINFO_EXTENSION));
+
+        $allowed = [
+            "pdf",
+            "jpg",
+            "jpeg",
+            "png",
+            "doc",
+            "docx"
+        ];
+
+        if(!in_array($ext,$allowed)){
+            continue;
+        }
+
+        $newName = time()."_".$requirement_id."_".basename($originalName);
+
+        move_uploaded_file(
+
+            $_FILES['requirements']['tmp_name'][$requirement_id],
+
+            $uploadDir.$newName
+
+        );
+
+        mysqli_query($conn,"
+            INSERT INTO request_requirement_files
+            (
+                request_id,
+                requirement_id,
+                file_name,
+                file_path
+            )
+            VALUES
+            (
+                '$request_id',
+                '$requirement_id',
+                '$newName',
+                'assets/uploads/requirements/$newName'
+            )
+        ");
+
+    }
+
+}
+// Notify the student
+createNotification(
+    $conn,
+    $user_id,
+    "Your request $tracking has been submitted successfully."
+);
+
+// Notify the administrator
+createNotification(
+    $conn,
+    1,
+    "$fullname submitted a new document request ($tracking)."
+);
+
+$_SESSION['request_success'] = true;
+
+header("Location: request.php");
+exit();
 
 
 }

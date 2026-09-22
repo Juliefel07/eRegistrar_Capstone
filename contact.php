@@ -235,7 +235,16 @@
 
 <?php include "footer.php"; ?>
 
+<script>
+const toggle = document.getElementById("menu-toggle");
+const menu = document.getElementById("nav-menu");
 
+toggle.addEventListener("click", () => {
+    menu.classList.toggle("show");
+
+    toggle.innerHTML = menu.classList.contains("show") ? "✕" : "☰";
+});
+</script>
 </body>
 
 </html>

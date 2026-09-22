@@ -11,11 +11,14 @@ session_start();
 
 <meta charset="UTF-8">
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>eRegistrar Login</title>
 
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css?v=999">
 
 </head>
+
 
 
 <body>
@@ -23,7 +26,7 @@ session_start();
 
 <?php
 
-// ERROR MODAL
+// ERROR MODAL - LOGIN FAILED
 
 if(isset($_SESSION['error'])){
 
@@ -60,6 +63,42 @@ unset($_SESSION['error']);
 }
 
 
+// SUCCESS MODAL - EMAIL VERIFICATION
+
+if(isset($_SESSION['success'])){
+
+?>
+
+<div class="success-modal" id="successModal">
+
+    <div class="success-box">
+
+        <h3>
+            Success
+        </h3>
+
+
+        <p>
+            <?php echo $_SESSION['success']; ?>
+        </p>
+
+
+        <button onclick="closeSuccessModal()">
+            OK
+        </button>
+
+
+    </div>
+
+</div>
+
+
+<?php
+
+unset($_SESSION['success']);
+
+}
+
 
 // SUCCESS MODAL - REGISTRATION
 
@@ -94,7 +133,6 @@ if(isset($_GET['success'])){
 <?php
 
 }
-
 
 
 // SUCCESS MODAL - RESET PASSWORD
@@ -136,9 +174,11 @@ if(isset($_GET['reset'])){
 
 
 <div class="login-wrapper">
-        <a href="index.php" class="back-button">
-            Back 
-        </a>
+
+
+    <a href="index.php" class="back-button">
+        Back
+    </a>
 
 
 
@@ -150,6 +190,7 @@ if(isset($_GET['reset'])){
              alt="Login Illustration">
 
     </div>
+
 
 
 
@@ -181,10 +222,10 @@ if(isset($_GET['reset'])){
 
 
             <input 
-            type="email"
-            name="email"
-            placeholder="Enter your email"
-            required>
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                required>
 
 
 
@@ -195,10 +236,10 @@ if(isset($_GET['reset'])){
 
 
             <input 
-            type="password"
-            name="password"
-            placeholder="Enter your password"
-            required>
+                type="password"
+                name="password"
+                placeholder="Enter your password"
+                required>
 
 
 

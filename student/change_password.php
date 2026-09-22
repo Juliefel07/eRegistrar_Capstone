@@ -84,16 +84,13 @@ if(isset($_POST['change_password'])){
 <title>Change Password</title>
 
 <link rel="stylesheet" href="../assets/css/student.css">
-
+<link rel="stylesheet" href="../assets/css/navbar.css">
 </head>
 
 
 <body>
 
-
-<?php include "sidebar.php"; ?>
-
-<?php include "header.php"; ?>
+<?php include("navbar.php"); ?>
 
 
 <div class="student-main">

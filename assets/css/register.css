@@ -1,0 +1,2515 @@
+/* ==========================================
+   GOOGLE FONT
+========================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+
+/* ==========================================
+   RESET
+========================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+
+    background:#eef5ff;
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:40px;
+
+}
+
+
+/* ==========================================
+   CONTAINER
+========================================== */
+
+.register-container{
+
+    width:1200px;
+
+    min-height:750px;
+
+    background:#fff;
+
+    border-radius:25px;
+
+    overflow:hidden;
+
+    display:flex;
+
+    box-shadow:0 20px 60px rgba(0,0,0,.12);
+
+}
+
+
+/* ==========================================
+   LEFT PANEL
+========================================== */
+
+.left-panel{
+
+    width:38%;
+
+    background:#547A95;
+
+    color:#fff;
+
+    padding:60px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    text-align:center;
+
+}
+
+.logo{
+
+    width:90px;
+
+    margin-bottom:30px;
+
+}
+
+.left-panel h1{
+
+    font-size:38px;
+
+    font-weight:700;
+
+    margin-bottom:15px;
+
+}
+
+.left-panel p{
+
+    font-size:17px;
+
+    line-height:1.7;
+
+    opacity:.9;
+
+    margin-bottom:45px;
+
+}
+
+.illustration{
+
+    width:90%;
+
+}
+
+
+/* ==========================================
+   RIGHT PANEL
+========================================== */
+
+.right-panel{
+
+    width:62%;
+
+    padding:50px 60px;
+
+}
+
+
+/* ==========================================
+   STEP
+========================================== */
+
+.form-step{
+
+    display:none;
+
+}
+
+.form-step.active{
+
+    display:block;
+
+}
+
+
+/* ==========================================
+   HEADER
+========================================== */
+
+.step-header{
+
+    margin-bottom:35px;
+
+}
+
+.step-header h2{
+
+    font-size:30px;
+
+    color:#1e3a8a;
+
+    margin-bottom:8px;
+
+}
+
+.step-header p{
+
+    color:#6b7280;
+
+    font-size:15px;
+
+}
+
+
+/* ==========================================
+   PROGRESS BAR
+========================================== */
+
+.progress{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    margin-bottom:50px;
+
+}
+
+.step{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    flex:1;
+
+}
+@media (max-width:768px){
+
+.circle{
+    width:38px;
+    height:38px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    border-radius:50%;
+    border:2px solid #dbeafe;
+
+    background:#fff;
+    color:#94a3b8;
+
+    font-size:15px;
+    font-weight:700;
+
+    line-height:1;
+    flex-shrink:0;
+}
+
+.step.active .circle{
+    background:#2563eb;
+    border-color:#2563eb;
+    color:#fff;
+}
+
+.step.completed .circle{
+    background:#22c55e;
+    border-color:#22c55e;
+    color:#fff;
+}
+
+}
+
+.step span{
+
+    margin-top:10px;
+
+    font-size:13px;
+
+    color:#6b7280;
+
+}
+
+.line{
+
+    height:3px;
+
+    flex:1;
+
+    background:#dbe4f3;
+
+    margin:0 10px;
+
+}
+
+
+/* ==========================================
+   ACCOUNT CARDS
+========================================== */
+
+.account-selection{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:25px;
+
+}
+
+.account-card{
+
+    cursor:pointer;
+
+}
+
+.account-card input{
+
+    display:none;
+
+}
+
+.card-content{
+
+    border:2px solid #e5e7eb;
+
+    border-radius:18px;
+
+    padding:35px;
+
+    text-align:center;
+
+    transition:.35s;
+
+    background:#fff;
+
+}
+
+.card-content:hover{
+
+    border-color:#2563eb;
+
+    transform:translateY(-5px);
+
+    box-shadow:0 15px 35px rgba(37,99,235,.15);
+
+}
+
+.account-card input:checked + .card-content{
+
+    border-color:#2563eb;
+
+    background:#eff6ff;
+
+}
+
+.icon{
+
+    width:75px;
+
+    height:75px;
+
+    margin:auto;
+
+    border-radius:50%;
+
+    background:#dbeafe;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    margin-bottom:20px;
+
+}
+
+.icon i{
+
+    color:#2563eb;
+
+    font-size:32px;
+
+}
+
+.card-content h3{
+
+    margin-bottom:10px;
+
+    color:#1f2937;
+
+}
+
+.card-content p{
+
+    color:#6b7280;
+
+    font-size:14px;
+
+    line-height:1.6;
+
+}
+
+
+/* ==========================================
+   BUTTONS
+========================================== */
+
+.step-buttons{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-top:45px;
+
+}
+
+.btn-back,
+.btn-secondary,
+.btn-next,
+.btn-submit{
+
+    border:none;
+
+    padding:14px 32px;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    transition:.3s;
+
+    text-decoration:none;
+
+}
+
+.btn-back,
+.btn-secondary{
+
+    background:#f3f4f6;
+
+    color:#374151;
+
+}
+
+.btn-back:hover,
+.btn-secondary:hover{
+
+    background:#e5e7eb;
+
+}
+
+.btn-next,
+.btn-submit{
+
+    background:#2563eb;
+
+    color:#fff;
+
+}
+
+.btn-next:hover,
+.btn-submit:hover{
+
+    background:#1d4ed8;
+
+}
+
+/* ==========================================
+   LEVEL SELECTION
+========================================== */
+
+.level-selection{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:22px;
+
+}
+
+.level-card{
+
+    cursor:pointer;
+
+}
+
+.level-card input{
+
+    display:none;
+
+}
+
+.level-card .card-content{
+
+    border:2px solid #e5e7eb;
+
+    border-radius:18px;
+
+    padding:30px;
+
+    text-align:center;
+
+    transition:.3s;
+
+    background:#fff;
+
+}
+
+.level-card .card-content:hover{
+
+    border-color:#2563eb;
+
+    transform:translateY(-5px);
+
+    box-shadow:0 15px 35px rgba(37,99,235,.15);
+
+}
+
+.level-card input:checked + .card-content{
+
+    background:#eff6ff;
+
+    border-color:#2563eb;
+
+}
+
+
+/* ==========================================
+   FORM GRID
+========================================== */
+
+.form-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:20px;
+
+}
+
+.form-group{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.form-group label{
+
+    font-size:14px;
+
+    font-weight:600;
+
+    color:#374151;
+
+    margin-bottom:8px;
+
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+
+    width:100%;
+
+    padding:14px 16px;
+
+    border:2px solid #dbe4f3;
+
+    border-radius:12px;
+
+    outline:none;
+
+    font-size:15px;
+
+    transition:.3s;
+
+    background:#fff;
+
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
+
+    border-color:#2563eb;
+
+    box-shadow:0 0 0 4px rgba(37,99,235,.15);
+
+}
+
+.form-group textarea{
+
+    resize:vertical;
+
+}
+
+
+/* ==========================================
+   FULL WIDTH
+========================================== */
+
+.form-group.full{
+
+    grid-column:1 / -1;
+
+}
+
+
+/* ==========================================
+   REVIEW PAGE
+========================================== */
+
+.review-page{
+
+    width:100%;
+
+}
+
+.review-card{
+
+    background:#fff;
+
+    border:1px solid #e5e7eb;
+
+    border-radius:16px;
+
+    padding:22px;
+
+    margin-bottom:20px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.05);
+
+}
+
+.review-card h3{
+
+    color:#1e3a8a;
+
+    margin-bottom:18px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+}
+
+.review-item{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:12px 0;
+
+    border-bottom:1px solid #edf2f7;
+
+}
+
+.review-item:last-child{
+
+    border-bottom:none;
+
+}
+
+.review-item span{
+
+    color:#6b7280;
+
+}
+
+.review-item strong{
+
+    color:#111827;
+
+}
+
+
+/* ==========================================
+   AGREEMENT
+========================================== */
+
+.agreement-box{
+
+    background:#eff6ff;
+
+    border:1px solid #bfdbfe;
+
+    padding:18px;
+
+    border-radius:12px;
+
+    margin-top:20px;
+
+    margin-bottom:20px;
+
+}
+
+.agreement-box label{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:12px;
+
+    cursor:pointer;
+
+    color:#374151;
+
+    line-height:1.6;
+
+}
+
+.agreement-box input{
+
+    width:18px;
+
+    height:18px;
+
+    margin-top:2px;
+
+}
+
+
+/* ==========================================
+   PARENT FORM
+========================================== */
+
+.divider{
+
+    margin:35px 0;
+
+    border:none;
+
+    border-top:1px solid #e5e7eb;
+
+}
+
+.student-note{
+
+    color:#6b7280;
+
+    margin-bottom:20px;
+
+}
+
+.student-card{
+
+    background:#f9fbff;
+
+    border:2px dashed #bfdbfe;
+
+    border-radius:15px;
+
+    padding:20px;
+
+    margin-bottom:20px;
+
+}
+
+
+/* ==========================================
+   ADD STUDENT BUTTON
+========================================== */
+
+.btn-add-student{
+
+    width:100%;
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#dbeafe;
+
+    color:#1d4ed8;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+    margin-top:10px;
+
+}
+
+.btn-add-student:hover{
+
+    background:#bfdbfe;
+
+}
+
+
+/* ==========================================
+   ERROR MODAL
+========================================== */
+
+.modal-error{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.45);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:9999;
+
+}
+
+.modal-box{
+
+    width:420px;
+
+    background:#fff;
+
+    padding:35px;
+
+    border-radius:20px;
+
+    text-align:center;
+
+    animation:popup .35s ease;
+
+}
+
+.error-icon{
+
+    font-size:60px;
+
+    color:#ef4444;
+
+    margin-bottom:20px;
+
+}
+
+.modal-box h3{
+
+    color:#ef4444;
+
+    margin-bottom:12px;
+
+}
+
+.modal-box p{
+
+    color:#6b7280;
+
+    margin-bottom:25px;
+
+    line-height:1.6;
+
+}
+
+.modal-box button{
+
+    width:130px;
+
+    padding:12px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#2563eb;
+
+    color:#fff;
+
+    cursor:pointer;
+
+}
+
+.modal-box button:hover{
+
+    background:#1d4ed8;
+
+}
+
+
+/* ==========================================
+   ANIMATION
+========================================== */
+
+@keyframes popup{
+
+    from{
+
+        opacity:0;
+
+        transform:scale(.85);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:scale(1);
+
+    }
+
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+========================================== */
+
+@media (max-width:1200px){
+
+    .register-container{
+
+        width:100%;
+
+        margin:20px;
+
+    }
+
+}
+
+@media (max-width:992px){
+
+    .register-container{
+
+        flex-direction:column;
+
+        min-height:auto;
+
+    }
+
+    .left-panel{
+
+        width:100%;
+
+        padding:40px 30px;
+
+    }
+
+    .right-panel{
+
+        width:100%;
+
+        padding:40px 30px;
+
+    }
+
+    .illustration{
+
+        width:320px;
+
+        max-width:100%;
+
+    }
+
+}
+
+@media (max-width:768px){
+
+    .progress{
+
+        overflow-x:auto;
+
+        gap:15px;
+
+        margin-bottom:35px;
+
+    }
+
+    .line{
+
+        min-width:60px;
+
+    }
+
+    .account-selection{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .level-selection{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .form-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .step-buttons{
+
+        flex-direction:column;
+
+        gap:15px;
+
+    }
+
+    .btn-back,
+    .btn-secondary,
+    .btn-next,
+    .btn-submit{
+
+        width:100%;
+
+    }
+
+}
+
+@media (max-width:480px){
+
+    body{
+
+        padding:15px;
+
+    }
+
+    .left-panel{
+
+        padding:30px 20px;
+
+    }
+
+    .right-panel{
+
+        padding:25px 20px;
+
+    }
+
+    .left-panel h1{
+
+        font-size:28px;
+
+    }
+
+    .step-header h2{
+
+        font-size:24px;
+
+    }
+
+    .card-content{
+
+        padding:25px;
+
+    }
+
+    .icon{
+
+        width:60px;
+        height:60px;
+
+    }
+
+    .icon i{
+
+        font-size:24px;
+
+    }
+
+}
+
+
+/* ==========================================
+   ACTIVE STEP
+========================================== */
+
+.step.completed .circle{
+
+    background:#22c55e;
+
+    border-color:#22c55e;
+
+    color:#fff;
+
+}
+
+.step.completed span{
+
+    color:#22c55e;
+
+    font-weight:600;
+
+}
+
+.step.active span{
+
+    color:#2563eb;
+
+    font-weight:700;
+
+}
+
+
+/* ==========================================
+   INPUT VALIDATION
+========================================== */
+
+input:invalid{
+
+    box-shadow:none;
+
+}
+
+input.error,
+select.error{
+
+    border-color:#ef4444 !important;
+
+}
+
+input.success,
+select.success{
+
+    border-color:#22c55e !important;
+
+}
+
+
+/* ==========================================
+   CARD ANIMATION
+========================================== */
+
+.account-card .card-content,
+.level-card .card-content{
+
+    transition:
+    transform .3s ease,
+    box-shadow .3s ease,
+    border-color .3s ease,
+    background .3s ease;
+
+}
+
+.account-card:hover .card-content,
+.level-card:hover .card-content{
+
+    transform:translateY(-6px);
+
+}
+
+.account-card input:checked + .card-content,
+.level-card input:checked + .card-content{
+
+    transform:translateY(-6px);
+
+}
+
+
+/* ==========================================
+   BUTTON ICONS
+========================================== */
+
+.btn-next i,
+.btn-secondary i,
+.btn-submit i,
+.btn-back i{
+
+    margin-left:8px;
+
+}
+
+.btn-secondary i{
+
+    margin-left:0;
+    margin-right:8px;
+
+}
+
+.btn-back i{
+
+    margin-left:0;
+    margin-right:8px;
+
+}
+
+
+/* ==========================================
+   LINKS
+========================================== */
+
+a{
+
+    text-decoration:none;
+
+}
+
+a:hover{
+
+    text-decoration:none;
+
+}
+
+
+/* ==========================================
+   SCROLLBAR
+========================================== */
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#eef5ff;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#2563eb;
+
+    border-radius:50px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:#1d4ed8;
+
+}
+
+
+/* ==========================================
+   UTILITIES
+========================================== */
+
+.text-center{
+
+    text-align:center;
+
+}
+
+.mt-20{
+
+    margin-top:20px;
+
+}
+
+.mt-30{
+
+    margin-top:30px;
+
+}
+
+.mb-20{
+
+    margin-bottom:20px;
+
+}
+
+.hidden{
+
+    display:none !important;
+
+}
+
+.show{
+
+    display:block !important;
+
+}
+
+
+/* ==========================================
+   LOADING EFFECT
+========================================== */
+
+.loading{
+
+    opacity:.6;
+
+    pointer-events:none;
+
+}
+
+
+/* ==========================================
+   FADE ANIMATION
+========================================== */
+
+.fade-in{
+
+    animation:fade .4s ease;
+
+}
+
+@keyframes fade{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(15px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/* =====================================
+   REGISTER MOBILE FINAL FIX
+===================================== */
+
+
+html,body{
+
+    width:100%;
+
+    overflow-x:hidden;
+
+}
+
+
+/* MAIN CONTAINER */
+
+.register-container{
+
+    width:100% !important;
+
+    max-width:1400px;
+
+    min-height:auto !important;
+
+}
+
+
+
+/* TABLET */
+
+@media(max-width:992px){
+
+
+    body{
+
+        padding:20px;
+
+    }
+
+
+    .register-container{
+
+        flex-direction:column !important;
+
+    }
+
+
+    .left-panel{
+
+        width:100% !important;
+
+        padding:40px 25px;
+
+    }
+
+
+    .right-panel{
+
+        width:100% !important;
+
+        padding:35px 25px;
+
+    }
+
+
+    .illustration{
+
+        width:300px;
+
+        max-width:90%;
+
+    }
+
+
+}
+
+
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+
+    body{
+
+        padding:10px;
+
+        align-items:flex-start;
+
+    }
+
+
+    .register-container{
+
+        width:100% !important;
+
+        border-radius:15px;
+
+    }
+
+
+    .left-panel{
+
+        padding:25px 15px;
+
+    }
+
+
+    .left-panel .logo{
+
+        width:70px;
+
+    }
+
+
+    .left-panel h1{
+
+        font-size:24px;
+
+    }
+
+
+    .left-panel p{
+
+        font-size:14px;
+
+    }
+
+
+    .illustration{
+
+        width:220px;
+
+    }
+
+
+
+    .right-panel{
+
+        padding:20px 15px;
+
+    }
+
+
+
+    /* Progress */
+
+    .progress{
+
+        overflow-x:auto;
+
+        justify-content:flex-start;
+
+        padding-bottom:10px;
+
+    }
+
+
+    .step{
+
+        min-width:70px;
+
+    }
+
+
+    .circle{
+
+        width:35px;
+
+        height:35px;
+
+        font-size:14px;
+
+    }
+
+
+    .step span{
+
+        font-size:11px;
+
+    }
+
+
+    .line{
+
+        min-width:35px;
+
+    }
+
+
+
+    /* Cards */
+
+    .card-content{
+
+        padding:20px;
+
+    }
+
+
+
+    /* Buttons */
+
+    .step-buttons{
+
+        flex-direction:column;
+
+    }
+
+
+    .btn-back,
+    .btn-secondary,
+    .btn-next,
+    .btn-submit{
+
+        width:100%;
+
+        padding:13px;
+
+    }
+
+
+
+    /* Modal */
+
+    .modal-box{
+
+        width:90%;
+
+        padding:25px;
+
+    }
+
+
+}
+
+
+
+
+@media(max-width:600px){
+
+.mobile-step-title{
+
+    display:block;
+
+}
+
+}
+
+/* ================================
+   CLEAN MOBILE STEPS
+================================ */
+
+.progress{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+}
+
+
+.step{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    position:relative;
+}
+
+
+.circle{
+
+    width:42px;
+    height:42px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:#fff;
+    border:3px solid #dbe4f3;
+
+    color:#9ca3af;
+
+    font-weight:700;
+
+}
+
+
+.step.active .circle{
+
+    background:#2563eb;
+    border-color:#2563eb;
+    color:white;
+
+}
+
+
+.step.completed .circle{
+
+    background:#22c55e;
+    border-color:#22c55e;
+    color:white;
+
+}
+
+
+.step span{
+
+    margin-top:8px;
+    font-size:12px;
+
+}
+
+
+.line{
+
+    height:3px;
+    background:#dbe4f3;
+
+    flex:1;
+
+    margin:0 12px;
+
+}
+
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+
+    .progress{
+
+        margin-bottom:25px;
+
+    }
+
+
+    .circle{
+
+        width:34px;
+        height:34px;
+
+        font-size:13px;
+
+    }
+
+
+    .step span{
+
+        display:none;
+
+    }
+
+
+    .line{
+
+        min-width:25px;
+
+        margin:0 5px;
+
+    }
+
+
+}
+.mobile-header{
+    display:none;
+}
+
+@media (max-width:768px){
+
+.mobile-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.mobile-back{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    background:#f5f5f5;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    color:#333;
+    font-size:18px;
+    text-decoration:none;
+}
+
+.mobile-counter{
+    color:#777;
+    font-size:15px;
+}
+
+}
+@media (max-width:768px){
+
+body{
+    background:#fff;
+    padding:0;
+}
+
+.register-container{
+    width:100%;
+    border-radius:0;
+    box-shadow:none;
+    min-height:100vh;
+}
+
+.right-panel{
+    padding:25px;
+}
+
+.step-header h2{
+    font-size:38px;
+    margin-bottom:8px;
+}
+
+.step-header p{
+    font-size:16px;
+    color:#777;
+}
+
+.form-group input,
+.form-group select{
+    height:56px;
+    border-radius:14px;
+    font-size:16px;
+}
+
+.form-group textarea{
+    border-radius:14px;
+}
+
+.step-buttons{
+    flex-direction:column;
+    gap:12px;
+}
+
+.btn-next,
+.btn-submit,
+.btn-back,
+.btn-secondary{
+    width:100%;
+    height:56px;
+    border-radius:14px;
+    font-size:16px;
+}
+
+}
+/* ===========================================
+   MOBILE REGISTRATION
+===========================================*/
+@media (max-width:600px){
+
+body{
+    background:#fff;
+    padding:0;
+    display:block;
+}
+
+.register-container{
+    width:100%;
+    box-shadow:none;
+    border-radius:0;
+    display:block;
+}
+
+.left-panel{
+    display:none;
+}
+
+.right-panel{
+    width:100%;
+    padding:25px;
+}
+
+/* Progress */
+
+.progress{
+    margin-top:10px;
+    margin-bottom:30px;
+}
+
+.circle{
+    width:32px;
+    height:32px;
+    font-size:13px;
+}
+
+.line{
+    margin:0 5px;
+}
+
+.step span{
+    display:none;
+}
+
+/* Heading */
+
+.step-header{
+    margin-bottom:25px;
+}
+
+.step-header h2{
+    font-size:38px;
+    line-height:1.2;
+}
+
+.step-header p{
+    font-size:16px;
+    color:#666;
+}
+
+/* Cards */
+
+.account-selection,
+.level-selection{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+}
+
+.card-content{
+    padding:30px 20px;
+    border-radius:18px;
+}
+
+.icon{
+    width:70px;
+    height:70px;
+}
+
+.icon i{
+    font-size:30px;
+}
+
+.card-content h3{
+    font-size:26px;
+}
+
+.card-content p{
+    font-size:15px;
+}
+
+/* Forms */
+
+.form-grid{
+    grid-template-columns:1fr;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+    padding:16px;
+    font-size:16px;
+}
+
+/* Buttons */
+
+.step-buttons{
+    flex-direction:column;
+    gap:15px;
+}
+
+.btn-next,
+.btn-back,
+.btn-submit{
+    width:100%;
+    height:55px;
+    border-radius:14px;
+    font-size:17px;
+}
+
+}
+
+/* ==========================
+   DESKTOP / MOBILE SWITCH
+========================== */
+
+.mobile-register{
+    display:none;
+}
+
+.desktop-register{
+    display:flex;
+}
+
+@media(max-width:768px){
+
+.desktop-register{
+    display:none;
+}
+
+.mobile-register{
+    display:block;
+    min-height:100vh;
+    background:#fff;
+}
+
+}
+
+/* =========================================
+   STEP 1 - MOBILE LAYOUT
+========================================= */
+
+.mobile-header{
+    display:none;
+}
+
+@media (max-width:768px){
+
+    body{
+        padding:0;
+        background:#f5f7fb;
+    }
+
+    .register-container{
+        width:100%;
+        min-height:100vh;
+        border-radius:0;
+        display:block;
+        box-shadow:none;
+    }
+
+    /* Hide blue panel */
+    .left-panel{
+        display:none;
+    }
+
+    /* Registration takes whole screen */
+    .right-panel{
+        width:100%;
+        padding:20px;
+    }
+
+    /* Show mobile header */
+    .mobile-header{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        margin-bottom:25px;
+    }
+
+    .mobile-back{
+        width:40px;
+        height:40px;
+        border-radius:50%;
+        background:#eef3ff;
+        color:#2563eb;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        font-size:18px;
+    }
+
+    .mobile-counter{
+        font-size:14px;
+        font-weight:600;
+        color:#666;
+    }
+
+}
+
+/* ======================================
+   MOBILE REGISTER
+====================================== */
+@media (max-width:768px){
+
+body{
+    background:#f5f7fb;
+    padding:0;
+}
+
+.register-container{
+    display:block;
+    width:100%;
+    min-height:100vh;
+    border-radius:0;
+    box-shadow:none;
+}
+
+.left-panel{
+    display:none;
+}
+
+.right-panel{
+    width:100%;
+    padding:20px;
+}
+
+/* Header */
+
+.mobile-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.mobile-back{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:#eef4ff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#2563eb;
+    font-size:18px;
+}
+
+.mobile-counter{
+    font-size:15px;
+    font-weight:600;
+}
+
+/* Progress */
+
+.progress{
+    margin-bottom:25px;
+}
+
+.circle{
+    width:32px;
+    height:32px;
+    font-size:13px;
+}
+
+.step span{
+    display:none;
+}
+
+.line{
+    margin:0 5px;
+}
+
+/* Heading */
+
+.step-header h2{
+    font-size:30px;
+}
+
+.step-header p{
+    font-size:15px;
+}
+
+/* Cards */
+
+.account-selection,
+.level-selection{
+    grid-template-columns:1fr;
+}
+
+.card-content{
+    padding:20px;
+}
+
+/* Form */
+
+.form-grid{
+    grid-template-columns:1fr;
+}
+
+/* Buttons */
+
+.step-buttons{
+    flex-direction:column;
+    gap:12px;
+}
+
+.btn-back,
+.btn-next,
+.btn-secondary,
+.btn-submit{
+    width:100%;
+}
+
+}
+
+@media (max-width:768px){
+
+.account-selection{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.card-content{
+
+    display:flex;
+    align-items:center;
+
+    text-align:left;
+
+    padding:18px;
+
+    border-radius:18px;
+}
+
+.icon{
+
+    width:60px;
+    height:60px;
+
+    margin:0;
+    flex-shrink:0;
+}
+
+.card-text{
+
+    flex:1;
+
+    margin-left:15px;
+}
+
+.card-text h3{
+
+    font-size:20px;
+
+    margin-bottom:6px;
+}
+
+.card-text p{
+
+    font-size:14px;
+
+    line-height:1.5;
+}
+
+.card-arrow{
+
+    font-size:18px;
+
+    color:#2563eb;
+}
+
+}
+
+.mobile-header{
+    display:none;
+}
+
+@media (max-width:768px){
+
+.mobile-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+}
+
+.mobile-hero{
+    display:none;
+}
+
+@media(max-width:768px){
+
+.left-panel{
+    display:none;
+}
+
+.right-panel{
+    width:100%;
+}
+
+.mobile-hero{
+    display:block;
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.mobile-logo{
+    width:70px;
+    margin-bottom:15px;
+}
+
+.mobile-hero h2{
+    color:#1d4ed8;
+    font-size:28px;
+    margin-bottom:10px;
+}
+
+.mobile-hero p{
+    color:#666;
+    font-size:15px;
+    margin-bottom:20px;
+}
+
+.mobile-illustration{
+    width:220px;
+    max-width:100%;
+}
+
+}
+
+@media (max-width:768px){
+
+.mobile-illustration{
+    display:none;
+}
+
+}
+
+@media (max-width:768px){
+
+.mobile-hero{
+
+    margin-bottom:15px;
+    padding-bottom:10px;
+
+}
+
+.mobile-logo{
+
+    width:65px;
+    margin-bottom:15px;
+
+}
+
+.mobile-hero h2{
+
+    font-size:32px;
+    margin-bottom:8px;
+
+}
+
+.mobile-hero p{
+
+    font-size:15px;
+    margin-bottom:0;
+
+}
+
+}
+
+/* ======================================
+   MOBILE PROGRESS DESIGN
+====================================== */
+
+@media (max-width:768px){
+
+.progress{
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    margin:20px 0 30px;
+    padding:0 5px;
+
+}
+
+.step{
+
+    flex:none;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.circle{
+
+    width:38px;
+    height:38px;
+
+    border-radius:50%;
+    font-size:14px;
+    font-weight:600;
+
+    border:2px solid #dbeafe;
+    background:#fff;
+    color:#94a3b8;
+
+    transition:.3s;
+}
+
+.step.active .circle{
+
+    background:#2563eb;
+    border-color:#2563eb;
+    color:#fff;
+
+    box-shadow:0 4px 12px rgba(37,99,235,.25);
+
+}
+
+.step.completed .circle{
+
+    background:#22c55e;
+    border-color:#22c55e;
+    color:#fff;
+
+}
+
+.step span{
+
+    display:none;
+
+}
+
+.line{
+
+    width:45px;
+    height:2px;
+
+    background:#dbeafe;
+
+    margin:0 8px;
+
+}
+
+}
+
+@media (max-width:768px){
+
+.register-container{
+
+    width:100%;
+    max-width:100%;
+
+    display:block;
+
+    background:transparent;
+
+    box-shadow:none;
+
+    border-radius:0;
+
+    overflow:visible;
+
+    min-height:auto;
+
+}
+
+}
+
+/* ==========================================
+   FINAL MOBILE FIX
+   (Place this at the very bottom)
+========================================== */
+
+@media only screen and (max-width:768px){
+
+    html,
+    body{
+        width:100%;
+        overflow-x:hidden;
+        background:#f5f7fb;
+        padding:0;
+    }
+
+    .register-container{
+        width:100% !important;
+        max-width:100% !important;
+        display:block !important;
+        border-radius:0;
+        box-shadow:none;
+        overflow:hidden;
+    }
+
+    /* Hide desktop panel */
+    .left-panel{
+        display:none !important;
+    }
+
+    /* Show mobile welcome */
+    .mobile-hero{
+        display:block !important;
+    }
+
+    .right-panel{
+        width:100% !important;
+        padding:20px !important;
+    }
+
+    /* Progress */
+
+    .progress{
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        overflow-x:auto;
+        padding-bottom:10px;
+        margin:20px 0 30px;
+    }
+
+    .step{
+        min-width:55px;
+    }
+
+    .step span{
+        display:none;
+    }
+
+    .circle{
+        width:36px;
+        height:36px;
+        font-size:14px;
+    }
+
+    .line{
+        min-width:30px;
+        margin:0 6px;
+    }
+
+    /* Cards */
+
+    .account-selection,
+    .level-selection{
+        display:flex;
+        flex-direction:column;
+        gap:15px;
+    }
+
+    .card-content{
+        padding:18px;
+    }
+
+    /* Forms */
+
+    .form-grid{
+        display:grid;
+        grid-template-columns:1fr;
+        gap:15px;
+    }
+
+    .form-group.full{
+        grid-column:auto;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea{
+        width:100%;
+        font-size:16px;
+        padding:15px;
+    }
+
+    /* Buttons */
+
+    .step-buttons{
+        display:flex;
+        flex-direction:column;
+        gap:12px;
+    }
+
+    .btn-back,
+    .btn-next,
+    .btn-secondary,
+    .btn-submit{
+        width:100%;
+        height:52px;
+        font-size:16px;
+    }
+
+    /* Modal */
+
+    .modal-box{
+        width:90%;
+        max-width:360px;
+    }
+
+}
+
+.account-selection{
+    display: flex;
+    gap: 20px;
+}
+
+.account-card{
+    flex: 1;
+    display: flex;
+}
+
+.card-content{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 230px; /* Adjust as needed */
+    padding: 20px;
+}
+
+.login-link{
+    text-align:center;
+    margin-top:20px;
+}
+
+.login-link p{
+    color:#666;
+    font-size:15px;
+}
+
+.login-link a{
+    color:#0d6efd;
+    text-decoration:none;
+    font-weight:600;
+}
+
+.login-link a:hover{
+    text-decoration:none;
+}

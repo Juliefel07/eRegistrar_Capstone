@@ -1,3 +1,16 @@
+<?php
+
+$notifResult = mysqli_query($conn,"
+SELECT COUNT(*) AS total
+FROM notifications
+WHERE user_id='1'
+");
+
+$notifCount = mysqli_fetch_assoc($notifResult)['total'];
+
+?>
+
+
 <div class="admin-header">
 
     <div class="brand">
@@ -9,21 +22,37 @@
         </div>
     </div>
 
-    <div class="header-right">
+  <div class="header-right">
 
-        <div class="student-info">
+    <a href="notifications.php" class="admin-bell">
 
-            <div class="avatar">
-                <?= strtoupper(substr($_SESSION['fullname'], 0, 1)); ?>
-            </div>
+        🔔
 
-            <div class="student-name">
-                <strong><?= htmlspecialchars($_SESSION['fullname']); ?></strong>
-                <small>Administrator</small>
-            </div>
+        <?php if($notifCount > 0){ ?>
 
+        <span class="notif-count">
+
+            <?= $notifCount; ?>
+
+        </span>
+
+        <?php } ?>
+
+    </a>
+
+    <div class="student-info">
+
+        <div class="avatar">
+            <?= strtoupper(substr($_SESSION['fullname'],0,1)); ?>
+        </div>
+
+        <div class="student-name">
+            <strong><?= htmlspecialchars($_SESSION['fullname']); ?></strong>
+            <small>Administrator</small>
         </div>
 
     </div>
+
+</div>
 
 </div>

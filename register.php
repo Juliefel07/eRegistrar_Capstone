@@ -1,7 +1,5 @@
 <?php
-
 session_start();
-
 ?>
 
 <!DOCTYPE html>
@@ -9,33 +7,34 @@ session_start();
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Student Registration</title>
+    <title>eRegistrar | Registration</title>
 
-<link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/register.css?v=999">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
 </head>
 
-
 <body>
 
-
 <?php
-
 if(isset($_SESSION['error'])){
-
 ?>
 
 <div class="modal-error" id="errorModal">
 
     <div class="modal-box">
 
+        <i class="fa-solid fa-circle-xmark error-icon"></i>
+
         <h3>Registration Failed</h3>
 
-        <p>
-            <?php echo $_SESSION['error']; ?>
-        </p>
+        <p><?php echo $_SESSION['error']; ?></p>
 
         <button onclick="closeModal()">
             OK
@@ -46,139 +45,174 @@ if(isset($_SESSION['error'])){
 </div>
 
 <?php
-
 unset($_SESSION['error']);
-
 }
-
 ?>
-<div class="register-wrapper">
-        <a href="index.php" class="back-button">
-            Back 
-        </a>
-    <!-- LEFT IMAGE -->
-    <div class="register-image">
-        <img src="assets/images/register.png" alt="Student Registration">
+
+<div class="register-container">
+
+    <!-- LEFT PANEL -->
+
+    <div class="left-panel">
+
+        <img src="assets/images/logosss.png" class="logo">
+
+        <h1>Welcome to eRegistrar</h1>
+
+        <p>
+            Register your account to request school documents online.
+        </p>
+
+        <img src="assets/images/register.png"
+             class="illustration">
+
     </div>
 
 
-    <!-- RIGHT FORM -->
-    <div class="register-form">
-    <img src="assets/images/logosss.png" alt="eRegistrar Logo" class="logo">
-        <h2>Student Registration</h2>
+    <!-- RIGHT PANEL -->
 
-        <form action="register_process.php" method="POST">
-
-
-            <div class="form-row">
-
-                <div>
-                    <label>Student Number</label>
-                    <input type="text" name="student_no" required>
-                </div>
-
-
-                <div>
-                    <label>Full Name</label>
-                    <input type="text" name="fullname" required>
-                </div>
-
-            </div>
+    <div class="right-panel">
+        <div class="mobile-header">
 
 
 
-            <div class="form-row">
+</div>
+<div class="mobile-hero">
 
-                <div>
-                    <label>Course</label>
-                    <input type="text" name="course" required>
-                </div>
+    <img src="assets/images/logosss.png" class="mobile-logo">
+
+    <h2>Welcome to eRegistrar</h2>
+
+    <p>
+        Register your account to request school documents online.
+    </p>
+
+    <img src="assets/images/register.png"
+         class="mobile-illustration">
+
+</div>
+        <form
+            action="register_process.php"
+            method="POST"
+            id="registerForm">
+
+            <!-- Progress -->
+
+            <div class="progress">
 
 
-                <div>
-                    <label>Year Level</label>
-                    <select name="year_level" required>
+                <div class="step active">
 
-                        <option value="">
-                            Select Year Level
-                        </option>
+                    <div class="circle">1</div>
 
-                        <option>1st Year</option>
-                        <option>2nd Year</option>
-                        <option>3rd Year</option>
-                        <option>4th Year</option>
-
-                    </select>
+                    <span>Account</span>
 
                 </div>
 
-            </div>
+                <div class="line"></div>
 
+                <div class="step">
 
+                    <div class="circle">2</div>
 
-            <div class="form-row">
+                    <span>Level</span>
 
-                <div>
-                    <label>Contact Number</label>
-                    <input type="text" name="contact_no" required>
                 </div>
 
+                <div class="line"></div>
 
-                <div>
-                    <label>Email Address</label>
-                    <input type="email" name="email" required>
+                <div class="step">
+
+                    <div class="circle">3</div>
+
+                    <span>Details</span>
+
                 </div>
 
-            </div>
+                <div class="line"></div>
 
+                <div class="step">
 
+                    <div class="circle">4</div>
 
-            <div class="form-row">
+                    <span>Review</span>
 
-                <div>
-                    <label>Password</label>
-                    <input type="password" name="password" required>
-                </div>
-
-
-                <div>
-                    <label>Confirm Password</label>
-                    <input type="password" name="confirm_password" required>
                 </div>
 
             </div>
 
 
+            <!-- ===========================
+                 STEP 1
+            ============================ -->
 
-            <button type="submit">
-                Register
-            </button>
+            <div
+                class="form-step active"
+                id="step1">
 
+                <?php include "includes/register/step1_account.php"; ?>
+
+            </div>
+
+
+            <!-- ===========================
+                 STEP 2
+            ============================ -->
+
+            <div
+                class="form-step"
+                id="step2">
+
+                <?php include "includes/register/step2_level.php"; ?>
+
+            </div>
+
+
+            <!-- ===========================
+                 STEP 3
+            ============================ -->
+
+            <div
+                class="form-step"
+                id="step3">
+
+                <?php include "includes/register/step3_student.php"; ?>
+
+                <?php include "includes/register/step3_parent.php"; ?>
+
+            </div>
+
+
+            <!-- ===========================
+                 STEP 4
+            ============================ -->
+
+            <div
+                class="form-step"
+                id="step4">
+
+                <?php include "includes/register/step4_review.php"; ?>
+
+            </div>
 
         </form>
-
-
-        <p class="text-center">
-            Already have an account?
-            <a href="login.php">
-                Login Here
-            </a>
-        </p>
-
 
     </div>
 
 </div>
+
+<script src="assets/js/register.js"></script>
 
 <script>
 
 function closeModal(){
 
     document.getElementById("errorModal").style.display="none";
+    
 
 }
 
 </script>
-</body>
 
+</body>
 </html>

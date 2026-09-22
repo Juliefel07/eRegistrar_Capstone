@@ -19,16 +19,15 @@ if(!isset($_SESSION['user_id'])){
 <link rel="stylesheet" href="../assets/css/student.css">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
+<link rel="stylesheet" href="../assets/css/navbar.css">
 </head>
 
 
 <body>
 
 
-<?php include "sidebar.php"; ?>
-
-<?php include "header.php"; ?>
+<?php include("navbar.php"); ?>
+<link rel="stylesheet" href="../assets/css/navbar.css">
 
 
 <div class="student-main">

@@ -25,7 +25,15 @@ if(mysqli_num_rows($result) == 1){
 
 
     if(password_verify($password, $user['password'])){
+// Only students need email verification
+if ($user['role'] != "Admin" && $user['is_verified'] == 0) {
 
+    $_SESSION['error'] = "Please verify your email before logging in. Check your inbox.";
+
+    header("Location: login.php");
+    exit();
+
+}
 
 $_SESSION['user_id'] = $user['user_id'];
 

@@ -153,7 +153,7 @@ Messages
 
 
 <link rel="stylesheet" href="../assets/css/student.css">
-
+<link rel="stylesheet" href="../assets/css/navbar.css">
 
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -164,13 +164,14 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
 <body>
 
-
-<?php include("sidebar.php"); ?>
-
-<?php include("header.php"); ?>
+<?php include("navbar.php"); ?>
 
 
 
+<div class="chat-user-info">
+    <h3>Registrar Office</h3>
+    <small>Usually replies within office hours</small>
+</div>
 
 
 <div class="student-main">

@@ -17,16 +17,16 @@ if(!isset($_SESSION['user_id'])){
 <title>Notification Settings</title>
 
 <link rel="stylesheet" href="../assets/css/student.css">
-
+<link rel="stylesheet" href="../assets/css/navbar.css">
 </head>
 
 
 <body>
 
 
-<?php include "sidebar.php"; ?>
+<?php include "navbar.php"; ?>
 
-<?php include "header.php"; ?>
+
 
 
 <div class="student-main">

@@ -106,7 +106,7 @@ a{
 }
 
 a:hover{
-    text-decoration:underline;
+    text-decoration:none;
 }
 
 /* ==========================
@@ -171,7 +171,7 @@ a:hover{
 }
 
 .back-button a:hover {
-    text-decoration: underline;
+    text-decoration: none;
 }
 /* REGISTER PAGE */
 
@@ -1113,5 +1113,518 @@ a:hover{
     to{
         transform:scale(1);
         opacity:1;
+    }
+}
+/* ==========================
+   CLEAN LOGIN RESPONSIVE
+========================== */
+
+.login-wrapper{
+
+    width:1100px;
+    max-width:100%;
+
+    min-height:650px;
+
+    background:white;
+
+    display:flex;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
+
+    position:relative;
+
+}
+
+
+/* BACK BUTTON */
+
+.login-wrapper .back-button{
+
+    position:absolute;
+
+    top:20px;
+
+    left:20px;
+
+    z-index:10;
+
+}
+
+
+/* IMAGE SIDE */
+
+.login-image{
+
+    width:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:#faf7ff;
+
+}
+
+
+.login-image img{
+
+    width:90%;
+
+    max-width:450px;
+
+    height:auto;
+
+}
+
+
+/* FORM SIDE */
+
+.login-card{
+
+    width:50%;
+
+    padding:50px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+}
+
+
+.logo{
+
+    width:80px;
+
+    margin:0 auto 15px;
+
+}
+
+
+.login-card h2{
+
+    text-align:center;
+
+    color:#184899;
+
+}
+
+
+.login-card input{
+
+    width:100%;
+
+    padding:12px;
+
+    margin-top:8px;
+
+    border:1px solid #ddd;
+
+    border-radius:8px;
+
+}
+
+
+
+.login-card button{
+
+    width:100%;
+
+    padding:13px;
+
+    margin-top:20px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:#161e95;
+
+    color:white;
+
+}
+
+
+/* ==========================
+   TABLET
+========================== */
+
+@media(max-width:900px){
+
+    .login-wrapper{
+
+        width:95%;
+
+    }
+
+
+    .login-image{
+
+        display:none;
+
+    }
+
+
+    .login-card{
+
+        width:100%;
+
+    }
+
+}
+
+
+
+/* ==========================
+   MOBILE
+========================== */
+
+@media(max-width:480px){
+
+
+    body{
+
+        padding:10px;
+
+        align-items:center;
+
+    }
+
+
+    .login-wrapper{
+
+        width:100%;
+
+        min-height:auto;
+
+        display:block;
+
+    }
+
+
+    .login-card{
+
+        width:100%;
+
+        padding:25px 20px;
+
+    }
+
+
+    .logo{
+
+        width:65px;
+
+    }
+
+
+    .login-card h2{
+
+        font-size:22px;
+
+    }
+
+
+    .login-card input{
+
+        height:45px;
+
+        font-size:16px;
+
+    }
+
+
+    .login-card button{
+
+        height:45px;
+
+        font-size:16px;
+
+    }
+
+
+    .back-button{
+
+        position:fixed !important;
+
+        top:15px;
+
+        left:15px;
+
+    }
+
+}
+/* ==========================================
+   FORGOT PASSWORD RESPONSIVE
+========================================== */
+
+.description{
+    text-align:center;
+    color:#666;
+    margin-bottom:25px;
+    font-size:15px;
+    line-height:1.5;
+}
+
+/* Tablet */
+@media (max-width:900px){
+
+    body{
+        padding:20px;
+    }
+
+    .login-wrapper{
+        width:95%;
+        min-height:auto;
+    }
+
+    .login-image{
+        display:none;
+    }
+
+    .login-card{
+        width:100%;
+        padding:40px 35px;
+    }
+
+}
+
+/* Mobile */
+@media (max-width:480px){
+
+    body{
+        padding:15px;
+        min-height:100vh;
+        align-items:center;
+    }
+
+    .login-wrapper{
+        width:100%;
+        min-height:auto;
+        border-radius:15px;
+        box-shadow:0 8px 20px rgba(0,0,0,.15);
+    }
+
+    .login-card{
+        width:100%;
+        padding:30px 20px;
+    }
+
+    .logo{
+        width:65px;
+        margin:0 auto 15px;
+    }
+
+    .login-card h2{
+        font-size:24px;
+        margin-bottom:10px;
+    }
+
+    .description{
+        font-size:14px;
+        margin-bottom:20px;
+    }
+
+    .login-card label{
+        font-size:14px;
+    }
+
+    .login-card input{
+        width:100%;
+        height:48px;
+        font-size:16px;
+        margin-bottom:18px;
+    }
+
+    .login-card button{
+        width:100%;
+        height:48px;
+        font-size:16px;
+        margin-top:5px;
+    }
+
+    .text-center{
+        margin-top:20px;
+    }
+
+    .modal-box{
+        width:90%;
+        max-width:330px;
+    }
+}
+
+/* ===========================
+   FORCE MOBILE LAYOUT
+=========================== */
+@media only screen and (max-width:768px){
+
+    body{
+        padding:15px !important;
+        display:block !important;
+    }
+
+    .login-wrapper{
+        width:100% !important;
+        display:block !important;
+        min-height:auto !important;
+        height:auto !important;
+    }
+
+    .login-image{
+        display:none !important;
+        width:0 !important;
+    }
+
+    .login-card{
+        width:100% !important;
+        padding:25px !important;
+        display:block !important;
+    }
+
+    .login-card h2{
+        font-size:30px !important;
+    }
+
+    .description{
+        font-size:16px !important;
+        line-height:1.6;
+    }
+
+    .login-card input{
+        width:100% !important;
+        font-size:16px !important;
+    }
+
+    .login-card button{
+        width:100% !important;
+    }
+
+    .logo{
+        width:80px !important;
+        display:block;
+        margin:auto;
+    }
+}
+
+/* ==========================================
+   RESET PASSWORD MOBILE FRIENDLY
+========================================== */
+
+.description{
+    text-align:center;
+    color:#666;
+    margin-bottom:25px;
+    line-height:1.6;
+}
+
+@media only screen and (max-width:768px){
+
+    body{
+        padding:15px !important;
+        display:block !important;
+        min-height:100vh;
+    }
+
+    .reset-wrapper{
+        width:100% !important;
+        height:auto !important;
+        min-height:auto !important;
+        display:block !important;
+        border-radius:15px;
+    }
+
+    .login-image{
+        display:none !important;
+    }
+
+    .reset-card{
+        width:100% !important;
+        padding:25px !important;
+    }
+
+    .logo{
+        width:75px !important;
+        display:block;
+        margin:0 auto 15px;
+    }
+
+    .reset-card h2{
+        text-align:center;
+        font-size:28px;
+        margin-bottom:10px;
+    }
+
+    .description{
+        text-align:center;
+        font-size:15px;
+        margin-bottom:25px;
+    }
+
+    .reset-card label{
+        font-size:14px;
+    }
+
+    .reset-card input{
+        width:100% !important;
+        height:48px;
+        font-size:16px;
+    }
+
+    .reset-card button{
+        width:100% !important;
+        height:48px;
+        font-size:16px;
+    }
+
+    .captcha-box{
+        display:flex;
+        flex-direction:column;
+        align-items:stretch;
+        gap:12px;
+    }
+
+    .captcha{
+        width:100%;
+        text-align:center;
+        padding:12px;
+        font-size:20px;
+        letter-spacing:4px;
+    }
+
+    .robot-box{
+        width:100% !important;
+        height:60px;
+    }
+
+    .captcha-logo{
+        width:30px;
+        height:30px;
+    }
+
+    .back-button{
+        position:static !important;
+        display:inline-flex;
+        margin-bottom:20px;
+    }
+
+    .login-footer{
+        text-align:center;
+        margin-top:20px;
+    }
+
+    .modal-box,
+    .success-box,
+    .modal-content{
+        width:90%;
+        max-width:350px;
     }
 }

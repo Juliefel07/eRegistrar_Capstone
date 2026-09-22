@@ -67,7 +67,7 @@ Payments
 
 
 <link rel="stylesheet" href="../assets/css/student.css">
-
+<link rel="stylesheet" href="../assets/css/navbar.css">
 
 </head>
 
@@ -77,11 +77,8 @@ Payments
 
 
 
-<?php include("sidebar.php"); ?>
-
-
-<?php include("header.php"); ?>
-
+<?php include("navbar.php"); ?>
+<link rel="stylesheet" href="../assets/css/navbar.css">
 
 
 

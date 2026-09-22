@@ -17,7 +17,24 @@ if(!isset($_GET['id'])){
 
 $id = intval($_GET['id']);
 
+$check = mysqli_query($conn,"
+SELECT
+    COUNT(*) AS total,
+    SUM(CASE WHEN status='Verified' THEN 1 ELSE 0 END) AS verified
+FROM request_requirement_files
+WHERE request_id='$id'
+");
 
+$counts = mysqli_fetch_assoc($check);
+
+if($counts['total'] != $counts['verified']){
+
+    $_SESSION['error'] = "All requirements must be verified before approval.";
+
+header("Location: view_request.php?id=".$id);
+exit();
+
+}
 
 
 // Get request owner information

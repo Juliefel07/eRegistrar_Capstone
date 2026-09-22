@@ -44,7 +44,13 @@ if(isset($_POST['update'])){
     $course = mysqli_real_escape_string($conn, $_POST['course']);
     $year_level = mysqli_real_escape_string($conn, $_POST['year_level']);
     $contact_no = mysqli_real_escape_string($conn, $_POST['contact_no']);
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
+  
+    $birthdate = mysqli_real_escape_string($conn, $_POST['birthdate']);
+    $gender = mysqli_real_escape_string($conn, $_POST['gender']);
+    $address = mysqli_real_escape_string($conn, $_POST['address']);
+    $guardian_name = mysqli_real_escape_string($conn, $_POST['guardian_name']);
+    $emergency_contact = mysqli_real_escape_string($conn, $_POST['emergency_contact']);
+    $bio = mysqli_real_escape_string($conn, $_POST['bio']);
 
 
     // Keep old image
@@ -110,7 +116,13 @@ if(isset($_POST['update'])){
     course='$course',
     year_level='$year_level',
     contact_no='$contact_no',
-    email='$email',
+    
+    birthdate='$birthdate',
+    gender='$gender',
+    address='$address',
+    guardian_name='$guardian_name',
+    emergency_contact='$emergency_contact',
+    bio='$bio',
     profile_image='$profile_image'
 
     WHERE user_id='$user_id'
@@ -128,9 +140,11 @@ if($update){
 
     $_SESSION['success'] = "Profile updated successfully.";
 
-    header("Location: profile.php");
-
-    exit();
+  echo "
+<script>
+    window.parent.location.href='profile.php';
+</script>";
+exit();
 
 }else{
 
@@ -148,58 +162,32 @@ if($update){
 
 
 
-<!DOCTYPE html>
 
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
 
+    <meta charset="UTF-8">
 
-<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Edit Profile</title>
+    <title>Edit Profile</title>
 
-
-<link rel="stylesheet" href="../assets/css/student.css">
-
-
-<style>
-
-.profile-avatar img{
-
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    border-radius:50%;
-
-}
-
-
-.profile-avatar{
-
-    overflow:hidden;
-
-}
-
-
-</style>
-
+    <link rel="stylesheet" href="../assets/css/edit.css">
 
 </head>
 
-
-
 <body>
-
-
-
-<?php include("sidebar.php"); ?>
-
-
-<?php include("header.php"); ?>
-
-
-
 
 <div class="student-main">
 
@@ -404,43 +392,111 @@ Email Address
 </label>
 
 
-<input 
-type="email"
-name="email"
-value="<?php echo htmlspecialchars($user['email']); ?>"
-required>
-
-
-</div>
-
+<input
+    type="email"
+    value="<?php echo htmlspecialchars($user['email']); ?>"
+    readonly>
 
 
 
 </div>
 
 
+<div class="profile-item">
+    <label>Birthdate</label>
+
+    <input
+        type="date"
+        name="birthdate"
+        value="<?php echo htmlspecialchars($user['birthdate']); ?>">
+</div>
+
+<div class="profile-item">
+    <label>Gender</label>
+
+    <select name="gender">
+
+        <option value="">Select Gender</option>
+
+        <option value="Male"
+            <?php if($user['gender']=="Male") echo "selected"; ?>>
+            Male
+        </option>
+
+        <option value="Female"
+            <?php if($user['gender']=="Female") echo "selected"; ?>>
+            Female
+        </option>
+
+    </select>
+
+</div>
+<div class="profile-item">
+
+    <label>Address</label>
+
+    <textarea
+        name="address"
+        rows="3"><?php echo htmlspecialchars($user['address']); ?></textarea>
+
+</div>
+
+<div class="profile-item">
+
+    <label>Guardian Name</label>
+
+    <input
+        type="text"
+        name="guardian_name"
+        value="<?php echo htmlspecialchars($user['guardian_name']); ?>">
+
+</div>
+
+<div class="profile-item">
+
+    <label>Emergency Contact</label>
+
+    <input
+        type="text"
+        name="emergency_contact"
+        value="<?php echo htmlspecialchars($user['emergency_contact']); ?>">
+
+</div>
+
+<div class="profile-item">
+
+    <label>Bio</label>
+
+    <textarea
+        name="bio"
+        rows="4"><?php echo htmlspecialchars($user['bio']); ?></textarea>
+
+</div>
+
+</div>
 
 
 
 
 
-<button 
-type="submit"
-name="update"
-class="profile-btn">
-
-Save Changes
-
-</button>
 
 
+<div class="button-group">
 
 
-<a href="profile.php" class="profile-btn">
+    <button
+        type="submit"
+        name="update"
+        class="save-btn">
+        Save Changes
+    </button>
+    <a href="profile.php" class="cancel-btn">
+        Cancel
+    </a>
 
-Cancel
 
-</a>
+
+</div>
 
 
 
@@ -456,7 +512,5 @@ Cancel
 </div>
 
 
-
 </body>
-
 </html>
