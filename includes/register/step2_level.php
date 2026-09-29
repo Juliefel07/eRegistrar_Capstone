@@ -65,34 +65,6 @@
 
     </label>
 
-
-    <!-- ALUMNI -->
-
-    <label class="level-card">
-
-        <input
-            type="radio"
-            name="student_level"
-            value="Alumni">
-
-        <div class="card-content">
-
-            <div class="icon">
-
-                <i class="fa-solid fa-user-graduate"></i>
-
-            </div>
-
-            <h3>Alumni</h3>
-
-            <p>
-                Former student requesting alumni services
-            </p>
-
-        </div>
-
-    </label>
-
 </div>
 
 

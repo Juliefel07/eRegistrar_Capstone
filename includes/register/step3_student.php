@@ -54,37 +54,47 @@
 
         </div>
 
-        <!-- Course -->
+        <!-- Course (Updated to Dropdown) -->
 
         <div class="form-group college-only">
 
             <label>Course</label>
 
-            <input
-                type="text"
+            <select
                 name="course"
-                id="course"
-                placeholder="Program/Department">
+                id="course">
+
+                <option value="" disabled selected>Select Program/Department</option>
+                <option value="BSIT">Bachelor of Science in Information Technology (BSIT)</option>
+                <option value="BSED">Bachelor of Secondary Education (BSED)</option>
+                <option value="BEED">Bachelor of Elementary Education (BEED)</option>
+                <option value="BSHM">Bachelor of Science in Hospitality Management (BSHM)</option>
+
+            </select>
 
         </div>
 
-        <!-- Graduation Course -->
+        <!-- Status (College Only) -->
 
-        <div class="form-group alumni-only" style="display:none;">
+        <div class="form-group college-only">
 
-            <label>Course Graduated</label>
+            <label>Status</label>
 
-            <input
-                type="text"
-                name="course_graduated"
-                id="course_graduated"
-                placeholder="Course Graduated">
+            <select
+                name="student_status"
+                id="student_status"
+                onchange="toggleStudentStatus()">
+
+                <option value="Enrolled" selected>Currently Enrolled</option>
+                <option value="Graduated">Graduated / Alumni</option>
+
+            </select>
 
         </div>
 
         <!-- Year Level -->
 
-        <div class="form-group college-only">
+        <div class="form-group college-only" id="year_level_group">
 
             <label>Year Level</label>
 
@@ -92,11 +102,32 @@
                 name="year_level"
                 id="year_level">
 
-                <option value="">Select Year Level</option>
-                <option>1st Year</option>
-                <option>2nd Year</option>
-                <option>3rd Year</option>
-                <option>4th Year</option>
+                <option value="" disabled selected>Select Year Level</option>
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year">2nd Year</option>
+                <option value="3rd Year">3rd Year</option>
+                <option value="4th Year">4th Year</option>
+
+            </select>
+
+        </div>
+
+        <!-- School Year -->
+
+        <div class="form-group">
+
+            <label id="school_year_label">School Year</label>
+
+            <select
+                name="school_year"
+                id="school_year"
+                required>
+
+                <option value="" disabled selected>Select School Year</option>
+                <option value="2023-2024">2023–2024</option>
+                <option value="2024-2025">2024–2025</option>
+                <option value="2025-2026">2025–2026</option>
+                <option value="2026-2027">2026–2027</option>
 
             </select>
 
@@ -112,7 +143,7 @@
                 name="grade_level"
                 id="grade_level">
 
-                <option value="">Select Grade Level</option>
+                <option value="" disabled selected>Select Grade Level</option>
 
                 <option>Kindergarten</option>
 
@@ -149,21 +180,6 @@
 
         </div>
 
-        <!-- Graduation Year -->
-
-        <div class="form-group alumni-only" style="display:none;">
-
-            <label>Graduation Year</label>
-
-            <input
-                type="number"
-                name="graduation_year"
-                id="graduation_year"
-                min="1980"
-                max="2100">
-
-        </div>
-
         <!-- Contact -->
 
         <div class="form-group">
@@ -174,8 +190,7 @@
                 type="text"
                 name="contact_no"
                 id="contact_no"
-                placeholder="09XXXXXXXXX"
-                >
+                placeholder="09XXXXXXXXX">
 
         </div>
 
@@ -202,8 +217,7 @@
             <input
                 type="password"
                 name="password"
-                id="password"
-                >
+                id="password">
 
         </div>
 
@@ -216,8 +230,7 @@
             <input
                 type="password"
                 name="confirm_password"
-                id="confirm_password"
-                >
+                id="confirm_password">
 
         </div>
 
@@ -250,3 +263,19 @@
     </div>
 
 </div>
+
+<script>
+function toggleStudentStatus() {
+    const status = document.getElementById('student_status').value;
+    const yearLevelGroup = document.getElementById('year_level_group');
+    const schoolYearLabel = document.getElementById('school_year_label');
+
+    if (status === 'Graduated') {
+        yearLevelGroup.style.display = 'none';
+        schoolYearLabel.textContent = 'Graduation School Year';
+    } else {
+        yearLevelGroup.style.display = 'block';
+        schoolYearLabel.textContent = 'School Year';
+    }
+}
+</script>

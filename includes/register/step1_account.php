@@ -21,27 +21,26 @@
             value="Student"
             required>
 
-<div class="card-content">
+        <div class="card-content">
 
-    <div class="icon">
-        <i class="fa-solid fa-user-graduate"></i>
-    </div>
+            <div class="icon">
+                <i class="fa-solid fa-user-graduate"></i>
+            </div>
 
-    <div class="card-text">
-        <h3>I'm a Student</h3>
+            <div class="card-text">
+                <h3>I'm a Student</h3>
 
-        <p>
-            Register as a currently enrolled student,
-            basic education learner, college student,
-            or alumni..
-        </p>
-    </div>
+                <p>
+                    Register as a currently enrolled student,
+                    basic education learner, or college student.
+                </p>
+            </div>
 
-    <div class="card-arrow">
-        
-    </div>
+            <div class="card-arrow">
+                
+            </div>
 
-</div>
+        </div>
 
     </label>
 
@@ -55,30 +54,31 @@
             name="account_type"
             value="Parent">
 
-       <div class="card-content">
+        <div class="card-content">
 
-    <div class="icon">
-        <i class="fa-solid fa-people-roof"></i>
-    </div>
+            <div class="icon">
+                <i class="fa-solid fa-people-roof"></i>
+            </div>
 
-    <div class="card-text">
-        <h3>I'm a Parent / Guardian</h3>
+            <div class="card-text">
+                <h3>I'm a Parent / Guardian</h3>
 
-        <p>
-            Register to request and monitor documents
-            for your child or children.
-        </p>
-    </div>
+                <p>
+                    Register to request and monitor documents
+                    for your child or children.
+                </p>
+            </div>
 
-    <div class="card-arrow">
-        
-    </div>
+            <div class="card-arrow">
+                
+            </div>
 
-</div>
+        </div>
 
     </label>
 
 </div>
+
 <div class="login-link">
     <p>
         Already have an account?

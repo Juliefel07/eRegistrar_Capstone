@@ -2513,3 +2513,321 @@ body{
 .login-link a:hover{
     text-decoration:none;
 }
+/* ==========================================
+   MOBILE RESPONSIVE FIX FOR LOGIN PAGE
+   ========================================== */
+
+@media screen and (max-width: 768px) {
+
+    /* Stack elements vertically and add top padding for space */
+    .login-wrapper {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        width: 100% !important;
+        min-height: 100vh !important;
+        padding: 20px 15px !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+    }
+
+    /* Keep Back button positioned top-left outside the card */
+    .back-button {
+        position: absolute !important;
+        top: 15px !important;
+        left: 15px !important;
+        z-index: 20 !important;
+        padding: 8px 16px !important;
+        background-color: #ffffff !important;
+        color: #334155 !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 20px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        text-decoration: none !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    /* Hide heavy desktop illustration on mobile */
+    .login-image {
+        display: none !important;
+    }
+
+    /* Push card down below Back button */
+    .login-card {
+        width: 100% !important;
+        max-width: 400px !important;
+        margin-top: 55px !important; /* Prevents button overlap */
+        padding: 25px 20px !important;
+        box-sizing: border-box !important;
+        background: #ffffff !important;
+        border-radius: 16px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .login-card .logo {
+        max-width: 60px !important;
+        height: auto !important;
+        display: block !important;
+        margin: 0 auto 10px auto !important;
+    }
+
+    .login-card h2 {
+        font-size: 22px !important;
+        text-align: center !important;
+        margin-bottom: 20px !important;
+    }
+
+    /* Form Fields & Submit Button */
+    .login-card form {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    .login-card input[type="email"],
+    .login-card input[type="password"] {
+        width: 100% !important;
+        height: 45px !important;
+        padding: 10px 12px !important;
+        font-size: 14px !important;
+        box-sizing: border-box !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+    }
+
+    .login-card button[type="submit"] {
+        width: 100% !important;
+        height: 45px !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        margin-top: 8px !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+    }
+}
+/* ==========================================
+   FIX OFF-CENTER / SHIFTED CONTENT ON MOBILE
+   ========================================== */
+
+@media screen and (max-width: 768px) {
+
+    /* 1. Reset root containers to prevent off-screen overflow */
+    html, body {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* 2. Completely eliminate the desktop left panel from space calculation */
+    .left-panel {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* 3. Force main container to occupy 100% full width, centered */
+    .register-container {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        padding: 10px !important;
+        box-sizing: border-box !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    /* 4. Force right panel (form) to fill screen width with equal side padding */
+    .right-panel {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 10px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 5. Center and fit cards perfectly inside screen */
+    .account-selection,
+    .account-card,
+    .card-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 6. Prevent step indicator line from pushing screen out */
+    .progress {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 0 10px !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
+/* ==========================================
+   MOBILE RESPONSIVE STYLING
+   ========================================== */
+
+@media (max-width: 768px) {
+    /* Container setup */
+    body {
+        padding: 0;
+        margin: 0;
+        background-color: #f4f6f9;
+    }
+
+    .register-container {
+        flex-direction: column !important;
+        width: 100% !important;
+        min-height: 100vh !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    /* Hide desktop left side panel on mobile screens */
+    .left-panel {
+        display: none !important;
+    }
+
+    /* Adjust right panel container */
+    .right-panel {
+        width: 100% !important;
+        padding: 20px 15px !important;
+    }
+
+    /* Mobile Hero/Header adjustments */
+    .mobile-hero {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .mobile-logo {
+        max-width: 70px;
+        height: auto;
+    }
+
+    .mobile-illustration {
+        max-width: 180px;
+        height: auto;
+        margin: 10px auto;
+    }
+
+    /* Responsive Progress Stepper */
+    .progress {
+        width: 100% !important;
+        justify-content: space-between !important;
+        padding: 0 5px !important;
+        margin-bottom: 25px !important;
+    }
+
+    .step .circle {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 13px !important;
+    }
+
+    .step span {
+        font-size: 10px !important;
+    }
+
+    .line {
+        flex-grow: 1 !important;
+        margin: 0 4px !important;
+    }
+
+    /* Option Cards (Student vs Parent) stacked vertically */
+    .cards-container,
+    .account-cards,
+    .options-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 15px !important;
+    }
+
+    .card,
+    .option-card {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    /* Form Fields & Inputs */
+    .form-group, 
+    .input-group {
+        width: 100% !important;
+    }
+
+    input, select, textarea {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Form Action Buttons */
+    .btn-group,
+    .button-container {
+        display: flex !important;
+        flex-direction: column-reverse !important;
+        gap: 10px !important;
+        width: 100% !important;
+    }
+
+    .btn, button {
+        width: 100% !important;
+    }
+}
+
+/* ==========================================
+   FIX TERMS / CERTIFICATION CHECKBOX ON MOBILE
+   ========================================== */
+
+@media screen and (max-width: 768px) {
+
+    /* Keep the terms container aligned horizontally */
+    .terms-container,
+    .checkbox-container,
+    .certify-wrapper,
+    label:has(input[type="checkbox"]) {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+        width: 100% !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 5px 0 !important;
+    }
+
+    /* Force the checkbox to stay normal size and not stretch */
+    input[type="checkbox"] {
+        width: 20px !important;
+        height: 20px !important;
+        min-width: 20px !important;
+        min-height: 20px !important;
+        max-width: 20px !important;
+        max-height: 20px !important;
+        flex-shrink: 0 !important;
+        margin-top: 2px !important;
+        cursor: pointer;
+    }
+
+    /* Allow the agreement text to wrap cleanly next to the checkbox */
+    .terms-text,
+    .checkbox-label,
+    label:has(input[type="checkbox"]) span,
+    label:has(input[type="checkbox"]) p {
+        flex: 1 !important;
+        width: auto !important;
+        font-size: 13px !important;
+        line-height: 1.4 !important;
+        color: #334155 !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+    }
+}

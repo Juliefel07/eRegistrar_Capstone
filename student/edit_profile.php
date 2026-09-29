@@ -40,7 +40,6 @@ $user = mysqli_fetch_assoc($result);
 if(isset($_POST['update'])){
 
 
-    $fullname = mysqli_real_escape_string($conn, $_POST['fullname']);
     $course = mysqli_real_escape_string($conn, $_POST['course']);
     $year_level = mysqli_real_escape_string($conn, $_POST['year_level']);
     $contact_no = mysqli_real_escape_string($conn, $_POST['contact_no']);
@@ -112,7 +111,6 @@ if(isset($_POST['update'])){
 
     UPDATE users SET
 
-    fullname='$fullname',
     course='$course',
     year_level='$year_level',
     contact_no='$contact_no',
@@ -135,8 +133,7 @@ if(isset($_POST['update'])){
 
 if($update){
 
-    $_SESSION['fullname'] = $fullname;
-    $_SESSION['profile_image'] = $profile_image; // <-- Add this line
+    $_SESSION['profile_image'] = $profile_image;
 
     $_SESSION['success'] = "Profile updated successfully.";
 
@@ -306,9 +303,8 @@ Full Name
 
 <input 
 type="text"
-name="fullname"
 value="<?php echo htmlspecialchars($user['fullname']); ?>"
-required>
+readonly>
 
 
 </div>

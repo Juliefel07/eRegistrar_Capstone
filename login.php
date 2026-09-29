@@ -176,9 +176,9 @@ if(isset($_GET['reset'])){
 <div class="login-wrapper">
 
 
-    <a href="index.php" class="back-button">
-        Back
-    </a>
+   <a href="index.php" class="back-button" style="position: absolute !important; top: 15px !important; left: 15px !important; z-index: 99 !important;">
+    Back
+</a>
 
 
 
@@ -197,7 +197,7 @@ if(isset($_GET['reset'])){
 
     <!-- LOGIN CARD -->
 
-    <div class="login-card">
+    <div class="login-card" style="margin-top: 60px !important;">
 
 
         <img src="assets/images/logosss.png"

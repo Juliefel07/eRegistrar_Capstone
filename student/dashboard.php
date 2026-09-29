@@ -1,452 +1,414 @@
 <?php
-
 session_start();
 require_once __DIR__ . "/../includes/db.php";
 
 if(!isset($_SESSION['user_id'])){
-
     header("Location: ../login.php");
     exit();
-
 }
-
-// Get all available documents from the admin
-$documents = mysqli_query($conn,"
-    SELECT *
-    FROM documents
-    ORDER BY document_id DESC
-");
-/* ==========================================
-   DASHBOARD STATISTICS
-========================================== */
 
 $user_id = $_SESSION['user_id'];
 
-$pending = mysqli_fetch_assoc(mysqli_query($conn,"
-SELECT COUNT(*) total
-FROM requests
-WHERE user_id='$user_id'
-AND status='Pending'
-"))['total'];
+// Get all available documents
+$documents = mysqli_query($conn,"SELECT * FROM documents ORDER BY document_id DESC");
 
-$processing = mysqli_fetch_assoc(mysqli_query($conn,"
-SELECT COUNT(*) total
-FROM requests
-WHERE user_id='$user_id'
-AND status='Processing'
-"))['total'];
+// Get statistics
+$pending = mysqli_fetch_assoc(mysqli_query($conn,"SELECT COUNT(*) total FROM requests WHERE user_id='$user_id' AND status='Pending'"))['total'];
+$processing = mysqli_fetch_assoc(mysqli_query($conn,"SELECT COUNT(*) total FROM requests WHERE user_id='$user_id' AND status='Processing'"))['total'];
+$ready = mysqli_fetch_assoc(mysqli_query($conn,"SELECT COUNT(*) total FROM requests WHERE user_id='$user_id' AND status='Ready'"))['total'];
+$completed = mysqli_fetch_assoc(mysqli_query($conn,"SELECT COUNT(*) total FROM requests WHERE user_id='$user_id' AND status='Completed'"))['total'];
 
-$ready = mysqli_fetch_assoc(mysqli_query($conn,"
-SELECT COUNT(*) total
-FROM requests
-WHERE user_id='$user_id'
-AND status='Ready'
-"))['total'];
-
-$completed = mysqli_fetch_assoc(mysqli_query($conn,"
-SELECT COUNT(*) total
-FROM requests
-WHERE user_id='$user_id'
-AND status='Completed'
-"))['total'];
-if(!$documents){
-    die(mysqli_error($conn));
-}
-/* ==========================================
-   RECENT REQUESTS
-========================================== */
-
+// Recent requests
 $recentRequests = mysqli_query($conn,"
-SELECT
-    r.request_id,
-    r.tracking_no,
-    d.document_name,
-    r.status,
-    r.request_date
-FROM requests r
-INNER JOIN documents d
-ON r.document_id = d.document_id
-WHERE r.user_id='$user_id'
-ORDER BY r.request_date DESC
-LIMIT 5
+    SELECT r.request_id, r.tracking_no, d.document_name, r.status, r.request_date
+    FROM requests r
+    INNER JOIN documents d ON r.document_id = d.document_id
+    WHERE r.user_id='$user_id'
+    ORDER BY r.request_date DESC
+    LIMIT 5
 ");
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eRegistrar - Student Portal</title>
 
-<meta charset="UTF-8">
+    <style>
+        /* RESET & SYSTEM STYLING */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        :root {
+            --primary: #0056b3;
+            --primary-dark: #002d62;
+            --bg-body: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-dark: #333333;
+            --text-muted: #6c757d;
+            --border: #e9ecef;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            padding-bottom: 70px; /* Space for Mobile Bottom Bar */
+        }
 
-<title>Student Dashboard</title>
+        @media (min-width: 992px) {
+            body { padding-bottom: 0; }
+        }
 
+        /* MAIN CONTAINER & DASHBOARD LAYOUT */
+        .container {
+            max-width: 1250px;
+            margin: 0 auto;
+            padding: 20px 16px;
+        }
 
-<link rel="stylesheet" href="../assets/css/student.css">
-<link rel="stylesheet" href="../assets/css/navbar.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+        /* Hero Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, #0056b3, #002d62);
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 14px rgba(0,86,179,0.15);
+        }
 
+        .hero-text h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .hero-text p {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 20px;
+            max-width: 500px;
+            line-height: 1.4;
+        }
+
+        .btn-request {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffffff;
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        /* Statistics Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .stat-icon.pending { background: #fff8e6; color: #d97706; }
+        .stat-icon.processing { background: #e0f2fe; color: #0284c7; }
+        .stat-icon.ready { background: #dcfce7; color: #16a34a; }
+        .stat-icon.completed { background: #f3e8ff; color: #9333ea; }
+
+        .stat-info h3 { font-size: 20px; }
+        .stat-info span { font-size: 12px; color: var(--text-muted); }
+
+        /* Multi-Column Main Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title a {
+            font-size: 12px;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* Responsive Table */
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table.custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        table.custom-table th, table.custom-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-badge.pending { background: #fff3cd; color: #856404; }
+        .status-badge.processing { background: #cce5ff; color: #004085; }
+        .status-badge.ready { background: #d4edda; color: #155724; }
+        .status-badge.completed { background: #e2e3e5; color: #383d41; }
+
+        /* MEDIA QUERIES */
+        @media (max-width: 992px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero-banner {
+                padding: 20px 16px;
+                text-align: center;
+                flex-direction: column;
+            }
+
+            .hero-text h1 {
+                font-size: 18px;
+            }
+
+            .btn-request {
+                width: 100%;
+                justify-content: center;
+            }
+
+            table.custom-table thead { display: none; }
+            table.custom-table, table.custom-table tbody, table.custom-table tr, table.custom-table td {
+                display: block;
+                width: 100%;
+            }
+            table.custom-table tr {
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                margin-bottom: 10px;
+                padding: 10px;
+                background: #fff;
+            }
+            table.custom-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 6px 0;
+                border-bottom: 1px dashed #eee;
+            }
+            table.custom-table td:last-child { border-bottom: none; }
+            table.custom-table td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                color: var(--text-muted);
+            }
+        }
+    </style>
 </head>
-
-
 <body>
 
-
-<?php include("navbar.php"); ?>
-
-
-
-
-
-<div class="student-main">
-
-
-
-<!-- HERO SECTION -->
-<!-- HERO -->
-
-<div class="dashboard-hero">
-
-    <div class="banner-overlay"></div>
-
-    <div class="banner-content">
-
-        <h1>
-            Welcome back,
-            <?= htmlspecialchars($_SESSION['fullname']); ?> 
-        </h1>
-
-        <p>
-            Manage your document requests, monitor progress,
-            and receive updates from the Registrar's Office.
-        </p>
-
-        <a href="request.php" class="hero-btn">
-            📄 Request Document
-        </a>
-
-    </div>
-
-</div>
-<div class="stats-grid">
-
-    <div class="stat-card">
-
-        <div class="stat-icon pending">
-            🚫
-        </div>
-
-        <div>
-
-            <h2><?= $pending ?></h2>
-
-            <span>Pending</span>
-
-        </div>
-
-    </div>
-
-    <div class="stat-card">
-
-        <div class="stat-icon processing">
-            ⌛
-        </div>
-
-        <div>
-
-            <h2><?= $processing ?></h2>
-
-            <span>Processing</span>
-
-        </div>
-
-    </div>
-
-    <div class="stat-card">
-
-        <div class="stat-icon ready">
-            📝
-        </div>
-
-        <div>
-
-            <h2><?= $ready ?></h2>
-
-            <span>Ready</span>
-
-        </div>
-
-    </div>
-
-    <div class="stat-card">
-
-        <div class="stat-icon completed">
-            ☑️
-        </div>
-
-        <div>
-
-            <h2><?= $completed ?></h2>
-
-            <span>Completed</span>
-
-        </div>
-
-    </div>
-
-</div>
-
-<div class="dashboard-row">
-
-    <div class="dashboard-card recent-card">
-
-        <div class="card-header">
-
-            <h2> Recent Requests</h2>
-
-            <a href="history.php">View All</a>
-
-        </div>
-
-        <table class="recent-table">
-
-            <thead>
-
-            <tr>
-
-                <th>Tracking</th>
-                <th>Document</th>
-                <th>Status</th>
-                <th></th>
-
-            </tr>
-
-            </thead>
-
-            <tbody>
-
-            <?php while($row=mysqli_fetch_assoc($recentRequests)){ ?>
-
-                <tr>
-
-                    <td><?= htmlspecialchars($row['tracking_no']); ?></td>
-
-                    <td><?= htmlspecialchars($row['document_name']); ?></td>
-
-                    <td>
-
-                        <span class="status <?= strtolower($row['status']); ?>">
-
-                            <?= htmlspecialchars($row['status']); ?>
-
-                        </span>
-
-                    </td>
-
-                    <td>
-
-                        <a href="history.php">
-
-                            View
-
-                        </a>
-
-                    </td>
-
-                </tr>
-
-            <?php } ?>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-<div class="dashboard-card">
-
-<h2>📢 Announcements</h2>
-
-<div class="announcement">
-
-<h4>Registrar Office</h4>
-
-<p>
-Online document requests are now available.
-</p>
-
-</div>
-
-<div class="announcement">
-
-<h4>Office Hours</h4>
-
-<p>
-
-Monday-Friday
-
-8:00 AM - 5:00 PM
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-
-
-<!-- SCHOOL INFORMATION -->
-<!-- MAIN GRID -->
-
-<div class="dashboard-grid">
-
-    <!-- LEFT -->
-
-    <div class="dashboard-card">
-
-        <h2>Available Documents</h2>
-
-        <table class="services-table">
-
-            <thead>
-
-                <tr>
-
-                    <th>Document</th>
-
-                    <th>Fee</th>
-
-                    <th>Days</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-            <?php while($doc=mysqli_fetch_assoc($documents)){ ?>
-
-                <tr>
-
-                    <td><?= htmlspecialchars($doc['document_name']); ?></td>
-
-                    <td>₱<?= number_format($doc['fee'],2); ?></td>
-
-                    <td><?= $doc['processing_days']; ?></td>
-
-                </tr>
-
-            <?php } ?>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-
-
-    <!-- RIGHT -->
-
-    <div>
-
-        <div class="dashboard-card">
-
-            <h2> Quick Actions</h2>
-
-            <div class="quick-grid">
-
-                <a href="request.php" class="quick-btn">
-                    
-                    <span>Request</span>
-                </a>
-
-                <a href="history.php" class="quick-btn">
-                    
-                    <span>History</span>
-                </a>
-
-                <a href="track.php" class="quick-btn">
-                    
-                    <span>Track</span>
-                </a>
-
-                <a href="messages.php" class="quick-btn">
-                    
-                    <span>Messages</span>
-                </a>
-
+    <!-- INCLUDE SHARED NAVIGATION BAR -->
+    <?php require_once __DIR__ . "/navbar.php"; ?>
+
+    <!-- MAIN BODY CONTENT -->
+    <main class="container">
+
+        <!-- Hero Section -->
+        <section class="hero-banner">
+            <div class="hero-text">
+                <h1>Welcome back, <?= htmlspecialchars($_SESSION['fullname']); ?></h1>
+                <p>Manage your document requests, monitor progress, and receive real-time updates from the Registrar's Office.</p>
+                <a href="request.php" class="btn-request"><i class="fa-solid fa-file-circle-plus"></i> Request Document</a>
+            </div>
+        </section>
+
+        <!-- Stats Grid -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon pending"><i class="fa-solid fa-ban"></i></div>
+                <div class="stat-info">
+                    <h3><?= $pending ?></h3>
+                    <span>Pending</span>
+                </div>
             </div>
 
+            <div class="stat-card">
+                <div class="stat-icon processing"><i class="fa-solid fa-hourglass-half"></i></div>
+                <div class="stat-info">
+                    <h3><?= $processing ?></h3>
+                    <span>Processing</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon ready"><i class="fa-solid fa-file-lines"></i></div>
+                <div class="stat-info">
+                    <h3><?= $ready ?></h3>
+                    <span>Ready</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon completed"><i class="fa-solid fa-square-check"></i></div>
+                <div class="stat-info">
+                    <h3><?= $completed ?></h3>
+                    <span>Completed</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Grid Layout for Tables & Widgets -->
+        <div class="dashboard-grid">
+            <!-- Left Main Column -->
+            <div>
+                <!-- Recent Requests Card -->
+                <div class="card">
+                    <div class="card-title">
+                        Recent Requests
+                        <a href="history.php">View All</a>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Tracking No.</th>
+                                    <th>Document</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if(mysqli_num_rows($recentRequests) > 0) { ?>
+                                    <?php while($row = mysqli_fetch_assoc($recentRequests)) { ?>
+                                        <tr>
+                                            <td data-label="Tracking No."><strong><?= htmlspecialchars($row['tracking_no']); ?></strong></td>
+                                            <td data-label="Document"><?= htmlspecialchars($row['document_name']); ?></td>
+                                            <td data-label="Status">
+                                                <span class="status-badge <?= strtolower($row['status']); ?>">
+                                                    <?= htmlspecialchars($row['status']); ?>
+                                                </span>
+                                            </td>
+                                            <td data-label="Action"><a href="history.php" style="color:var(--primary);">View</a></td>
+                                        </tr>
+                                    <?php } ?>
+                                <?php } else { ?>
+                                    <tr><td colspan="4" style="text-align:center;">No recent requests found.</td></tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Available Documents Card -->
+                <div class="card">
+                    <div class="card-title">Available Documents</div>
+                    <div class="table-wrap">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Document Name</th>
+                                    <th>Fee</th>
+                                    <th>Processing Days</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while($doc = mysqli_fetch_assoc($documents)) { ?>
+                                    <tr>
+                                        <td data-label="Document"><?= htmlspecialchars($doc['document_name']); ?></td>
+                                        <td data-label="Fee">₱<?= number_format($doc['fee'], 2); ?></td>
+                                        <td data-label="Processing"><?= $doc['processing_days']; ?> Working Days</td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar Column -->
+            <div>
+                <div class="card">
+                    <div class="card-title">📢 Announcements</div>
+                    <p style="font-size:13px; color:#555;">Online document requests are now active. Standard processing schedules apply.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Office Information</div>
+                    <div style="font-size:13px; display:flex; flex-direction:column; gap:10px;">
+                        <div>
+                            <strong>Office Hours:</strong>
+                            <p style="color:#666;">Monday – Friday (8:00 AM – 5:00 PM)</p>
+                        </div>
+                        <div>
+                            <strong>Location:</strong>
+                            <p style="color:#666;">Registrar's Office, Main Campus</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-<div class="dashboard-card office-card">
-
-    <div class="office-header">
-        <div class="office-header-icon">
-            <i class="fa-solid fa-building"></i>
-        </div>
-        <h2>Office Information</h2>
-    </div>
-
-    <div class="office-item">
-        <div class="office-icon">
-            <i class="fa-solid fa-clock"></i>
-        </div>
-
-        <div class="office-details">
-            <h4>Office Hours</h4>
-            <p>Monday - Friday</p>
-            <span>8:00 AM – 5:00 PM</span>
-        </div>
-    </div>
-
-    <div class="office-item">
-        <div class="office-icon">
-            <i class="fa-solid fa-hourglass-half"></i>
-        </div>
-
-        <div class="office-details">
-            <h4>Processing Time</h4>
-            <p>3–5 Working Days</p>
-            <span>Depending on the requested document.</span>
-        </div>
-    </div>
-
-    <div class="office-item">
-        <div class="office-icon">
-            <i class="fa-solid fa-location-dot"></i>
-        </div>
-
-        <div class="office-details">
-            <h4>Office Location</h4>
-            <p>Registrar's Office</p>
-            <span>University Campus</span>
-        </div>
-    </div>
-
-</div>
-
-
-    </div>
-
-</div>
-
-
-
-
-
-
-
-
-
+    </main>
 
 </body>
-
 </html>

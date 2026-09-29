@@ -162,7 +162,29 @@ a:hover{
     left: 20px;
     z-index: 1000;
 }
+@media screen and (max-width: 768px) {
 
+    /* Sleek Mobile Back Button */
+    .back-button {
+        position: absolute !important;
+        top: 15px !important;
+        left: 15px !important;
+        z-index: 99 !important;
+        
+        /* Adjusted sizing */
+        padding: 5px 12px !important;    /* Smaller padding */
+        font-size: 12px !important;      /* Smaller text */
+        border-radius: 6px !important;   /* Sleeker rounded corners */
+        
+        background-color: #ffffff !important;
+        color: #475569 !important;
+        border: 1px solid #cbd5e1 !important;
+        font-weight: 500 !important;
+        text-decoration: none !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+    }
+
+}
 .back-button a {
     color: #0d6efd;
     text-decoration: none;
@@ -455,7 +477,100 @@ text-decoration:none;
 
 }
 
+/* ==========================================
+   MOBILE RESPONSIVE FIX FOR LOGIN PAGE
+   ========================================== */
 
+@media screen and (max-width: 768px) {
+
+    /* Stack elements vertically and add top padding for space */
+    .login-wrapper {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        width: 100% !important;
+        min-height: 100vh !important;
+        padding: 20px 15px !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+    }
+
+    /* Keep Back button positioned top-left outside the card */
+    .back-button {
+        position: absolute !important;
+        top: 15px !important;
+        left: 15px !important;
+        z-index: 20 !important;
+        padding: 8px 16px !important;
+        background-color: #ffffff !important;
+        color: #334155 !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 20px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        text-decoration: none !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    /* Hide heavy desktop illustration on mobile */
+    .login-image {
+        display: none !important;
+    }
+
+    /* Push card down below Back button */
+    .login-card {
+        width: 100% !important;
+        max-width: 400px !important;
+        margin-top: 55px !important; /* Prevents button overlap */
+        padding: 25px 20px !important;
+        box-sizing: border-box !important;
+        background: #ffffff !important;
+        border-radius: 16px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .login-card .logo {
+        max-width: 60px !important;
+        height: auto !important;
+        display: block !important;
+        margin: 0 auto 10px auto !important;
+    }
+
+    .login-card h2 {
+        font-size: 22px !important;
+        text-align: center !important;
+        margin-bottom: 20px !important;
+    }
+
+    /* Form Fields & Submit Button */
+    .login-card form {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    .login-card input[type="email"],
+    .login-card input[type="password"] {
+        width: 100% !important;
+        height: 45px !important;
+        padding: 10px 12px !important;
+        font-size: 14px !important;
+        box-sizing: border-box !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+    }
+
+    .login-card button[type="submit"] {
+        width: 100% !important;
+        height: 45px !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        margin-top: 8px !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+    }
+}
 
 /* RIGHT IMAGE */
 
@@ -480,6 +595,124 @@ align-items:center;
 width:150%;
 
 }
+/* ==========================================
+   MOBILE RESPONSIVE FIX FOR LOGIN PAGE
+   ========================================== */
+
+@media screen and (max-width: 768px) {
+
+    /* Body & Main Layout */
+    body {
+        padding: 0 !important;
+        margin: 0 !important;
+        background-color: #f8fafc !important;
+    }
+
+    .login-wrapper {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        min-height: 100vh !important;
+        padding: 15px !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+    /* Floating Responsive Back Button */
+    .back-button {
+        position: absolute !important;
+        top: 15px !important;
+        left: 15px !important;
+        z-index: 10 !important;
+        padding: 8px 16px !important;
+        background-color: #ffffff !important;
+        color: #334155 !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        text-decoration: none !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+    }
+
+    /* Hide heavy desktop illustration on mobile */
+    .login-image {
+        display: none !important;
+    }
+
+    /* Card Box Adjustment */
+    .login-card {
+        width: 100% !important;
+        max-width: 400px !important;
+        margin-top: 50px !important; /* Space for top back button */
+        padding: 25px 20px !important;
+        box-sizing: border-box !important;
+        background: #ffffff !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .login-card .logo {
+        max-width: 65px !important;
+        height: auto !important;
+        display: block !important;
+        margin: 0 auto 10px auto !important;
+    }
+
+    .login-card h2 {
+        font-size: 22px !important;
+        text-align: center !important;
+        margin-bottom: 20px !important;
+    }
+
+    /* Inputs & Buttons full width */
+    .login-card form {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    .login-card label {
+        font-size: 13px !important;
+        margin-bottom: -4px !important;
+    }
+
+    .login-card input[type="email"],
+    .login-card input[type="password"] {
+        width: 100% !important;
+        height: 45px !important;
+        padding: 10px 12px !important;
+        font-size: 14px !important;
+        box-sizing: border-box !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+    }
+
+    .login-card button[type="submit"] {
+        width: 100% !important;
+        height: 45px !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        margin-top: 8px !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+    }
+
+    /* Modals for Mobile */
+    .modal-box,
+    .success-box {
+        width: 90% !important;
+        max-width: 350px !important;
+        padding: 20px !important;
+        box-sizing: border-box !important;
+    }
+}
+
 
 /* LOGIN STYLE WRAPPER */
 

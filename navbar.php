@@ -16,7 +16,6 @@
     <nav id="nav-menu">
         <a href="index.php">Home</a>
         <a href="about.php">About</a>
-        <a href="features.php">Features</a>
         <a href="how-it-works.php">How It Works</a>
         <a href="contact.php">Contact</a>
         <a href="login.php" class="login-btn">Login</a>
