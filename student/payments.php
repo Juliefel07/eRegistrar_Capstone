@@ -34,7 +34,7 @@ $result = mysqli_stmt_get_result($stmt);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payments - eRegistrar</title>
-    <link rel="icon" type="image/png" href="/eRegistrar/assets/images/logooo.png">
+     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/student.css">

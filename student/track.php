@@ -66,7 +66,7 @@ $current_step = $request ? ($status_steps[$request['status']] ?? 1) : 0;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="/eRegistrar/assets/images/logooo.png">
+     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <title>Track Document - eRegistrar</title>
 
     <style>

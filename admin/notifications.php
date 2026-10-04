@@ -76,7 +76,7 @@ $_SESSION['unread_notifications'] = $unread_count;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Notifications - CCTC eRegistrar</title>
-    <link rel="icon" type="image/png" href="/eRegistrar/assets/images/logooo.png">
+     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <link rel="stylesheet" href="../assets/css/dashboard.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
