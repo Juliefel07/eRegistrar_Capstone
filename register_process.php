@@ -16,7 +16,7 @@ function sendOTPEmail($recipientEmail, $recipientName, $otpCode) {
 
     try {
         // Disable debug output for live redirect flow
-        $mail->SMTPDebug = 2; 
+        $mail->SMTPDebug = 0; 
 
         // SMTP Server Configuration
         $mail->isSMTP();
