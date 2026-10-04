@@ -114,9 +114,19 @@ function sendOTPEmail($recipientEmail, $recipientName, $otpCode) {
 $account_type = $_POST['account_type'] ?? '';
 
 // Generate 6-digit OTP & 10-minute expiry
-$otp = sprintf("%06d", mt_rand(100000, 999999));
-$expires_at = date("Y-m-d H:i:s", strtotime("+10 minutes"));
+// Generate 6-digit OTP
+$otp = sprintf("%06d", mt_rand(0, 999999));
 
+// Save user to database
+if (mysqli_query($conn, $sql)) {
+    $_SESSION['pending_email'] = $email;
+    
+    // TEMPORARY FOR TESTING: Display the code on screen
+    $_SESSION['success'] = "Test OTP Code: " . $otp;
+    
+    header("Location: verify_otp.php");
+    exit();
+}
 // ===============================
 // STUDENT REGISTRATION
 // ===============================
