@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>eRegistrar Login</title>
-    <link rel="icon" type="image/png" href="assets/images/logooo.png">
+    <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <link rel="stylesheet" href="assets/css/style.css?v=999">
 </head>
 

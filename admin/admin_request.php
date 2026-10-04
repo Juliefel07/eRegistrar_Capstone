@@ -14,7 +14,7 @@ $result = mysqli_query($conn, $query);
 <head>
     <meta charset="UTF-8">
     <title>Admin - Document Requests & Payments</title>
-    <link rel="icon" type="image/png" href="assets/images/logooo.png">
+    <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <link rel="stylesheet" href="../assets/css/student.css">
     <style>
         .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }

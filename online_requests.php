@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 
 <title>Online Requests | eRegistrar</title>
-<link rel="icon" type="image/png" href="assets/images/logooo.png">
+<link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
 <link rel="stylesheet" href="assets/css/public.css">
 
 </head>

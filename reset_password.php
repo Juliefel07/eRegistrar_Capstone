@@ -36,7 +36,7 @@ $_SESSION['captcha'] = $captcha;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Reset Password</title>
-    <link rel="icon" type="image/png" href="assets/images/logooo.png">
+    <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <link rel="stylesheet" href="assets/css/style.css">
 
 </head>
