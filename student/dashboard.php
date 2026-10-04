@@ -33,7 +33,7 @@ $recentRequests = mysqli_query($conn,"
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="/eRegistrar/assets/images/logooo.png">
+    <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <title>eRegistrar - Student Portal</title>
     
     <style>
