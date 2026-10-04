@@ -16,12 +16,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = mysqli_fetch_assoc($result);
 
         // Check password against hashed password in database
+        // Check password against hashed password in database
         if (password_verify($password, $user['password'])) {
 
             // Check email verification for non-admin accounts
             if ($user['role'] !== "Admin" && (int)$user['is_verified'] === 0) {
-                $_SESSION['error'] = "Please verify your email before logging in. Check your inbox.";
-                header("Location: login.php");
+                $_SESSION['pending_email'] = $user['email'];
+                header("Location: verify_otp.php");
                 exit();
             }
 
@@ -60,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>eRegistrar Login</title>
+    <link rel="icon" type="image/png" href="assets/images/logooo.png">
     <link rel="stylesheet" href="assets/css/style.css?v=999">
 </head>
 

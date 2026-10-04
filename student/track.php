@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tracking_no'])) {
         // SQL Injection Protection using Prepared Statements
         $sql = "
             SELECT 
+                r.request_id,
                 r.tracking_no,
                 d.document_name,
                 r.status,
@@ -53,7 +54,9 @@ $status_steps = [
     'Pending' => 1,
     'Processing' => 2,
     'Ready' => 3,
+    'Ready for Claim' => 3,
     'Completed' => 4,
+    'Claimed' => 4,
     'Rejected' => 0
 ];
 $current_step = $request ? ($status_steps[$request['status']] ?? 1) : 0;
@@ -63,6 +66,7 @@ $current_step = $request ? ($status_steps[$request['status']] ?? 1) : 0;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/eRegistrar/assets/images/logooo.png">
     <title>Track Document - eRegistrar</title>
 
     <style>
@@ -237,6 +241,53 @@ $current_step = $request ? ($status_steps[$request['status']] ?? 1) : 0;
             color: var(--text-dark);
         }
 
+        /* CLAIM STUB CALLOUT BOX */
+        .claim-stub-alert {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: var(--radius-md);
+            padding: 18px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .claim-stub-info h4 {
+            font-size: 15px;
+            color: #166534;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .claim-stub-info p {
+            font-size: 13px;
+            color: #15803d;
+            margin: 0;
+        }
+
+        .btn-stub-download {
+            background-color: #16a34a;
+            color: #ffffff;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .btn-stub-download:hover {
+            background-color: #15803d;
+        }
+
         /* TIMELINE TRACKER */
         .status-timeline {
             display: flex;
@@ -316,6 +367,16 @@ $current_step = $request ? ($status_steps[$request['status']] ?? 1) : 0;
             .step-label {
                 font-size: 10px;
             }
+
+            .claim-stub-alert {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .btn-stub-download {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -381,6 +442,19 @@ $current_step = $request ? ($status_steps[$request['status']] ?? 1) : 0;
                             <span class="value"><?= date("F j, Y", strtotime($request['request_date'])) ?></span>
                         </div>
                     </div>
+
+                    <!-- Claim Stub Download Action (Triggered when Ready for Claim or Claimed/Completed) -->
+                    <?php if ($request['status'] === 'Ready for Claim' || $request['status'] === 'Ready' || $request['status'] === 'Claimed' || $request['status'] === 'Completed'): ?>
+                        <div class="claim-stub-alert">
+                            <div class="claim-stub-info">
+                                <h4><i class="fa-solid fa-circle-check"></i> Document is Ready for Pickup!</h4>
+                                <p>Your claim stub is ready. Please download or print it and present it to the Registrar Office.</p>
+                            </div>
+                            <a href="claim_stub.php?id=<?= $request['request_id'] ?>" target="_blank" class="btn-stub-download">
+                                <i class="fa-solid fa-ticket"></i> Print Claim Stub
+                            </a>
+                        </div>
+                    <?php endif; ?>
 
                     <!-- Visual Timeline Progress -->
                     <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--primary-dark);">Progress Tracking</h3>

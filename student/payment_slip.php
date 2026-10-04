@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $ref = $_GET['ref'] ?? '';
 
-// Fetch request and document details
+// Fetch request and document details securely
 $stmt = mysqli_prepare($conn, "
     SELECT r.*, d.document_name, d.fee 
     FROM requests r 
@@ -24,6 +24,11 @@ $request = mysqli_fetch_assoc($result);
 if (!$request) {
     die("Payment slip not found or unauthorized access.");
 }
+
+// Calculate total due safely since total_amount column might not be in table
+$fee = floatval($request['fee'] ?? 0);
+$quantity = intval($request['quantity'] ?? 1);
+$total_due = $fee * $quantity;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -100,7 +105,7 @@ if (!$request) {
     </div>
 
     <div class="badge-notice">
-        <strong>Instruction:</strong> Present this printed assessment slip to the <strong>Accounting / Cashier Office (Teller)</strong> to pay your requested fees before processing[cite: 3].
+        <strong>Instruction:</strong> Print this assessment slip and present it to the <strong>Accounting / Cashier Office (Teller)</strong> to pay your requested fees.
     </div>
 
     <div class="info-grid">
@@ -117,7 +122,7 @@ if (!$request) {
             <strong><?php echo htmlspecialchars($request['fullname']); ?></strong>
         </div>
         <div class="info-item">
-            <label>Course & Year / Address</label>
+            <label>Course & Year / Details</label>
             <strong><?php echo htmlspecialchars($request['course'] . ' ' . $request['year_level']); ?></strong>
         </div>
     </div>
@@ -134,20 +139,20 @@ if (!$request) {
         <tbody>
             <tr>
                 <td><?php echo htmlspecialchars($request['document_name']); ?></td>
-                <td><?php echo htmlspecialchars($request['quantity']); ?></td>
-                <td>₱<?php echo number_format($request['fee'], 2); ?></td>
-                <td style="text-align: right;">₱<?php echo number_format($request['fee'] * $request['quantity'], 2); ?></td>
+                <td><?php echo $quantity; ?></td>
+                <td>₱<?php echo number_format($fee, 2); ?></td>
+                <td style="text-align: right;">₱<?php echo number_format($total_due, 2); ?></td>
             </tr>
             <tr class="total-row">
                 <td colspan="3" style="text-align: right;">TOTAL ASSESSMENT DUE:</td>
-                <td style="text-align: right; color: #b91c1c;">₱<?php echo number_format($request['total_amount'], 2); ?></td>
+                <td style="text-align: right; color: #b91c1c;">₱<?php echo number_format($total_due, 2); ?></td>
             </tr>
         </tbody>
     </table>
 
     <!-- CASHIER / TELLER SECTION -->
     <div class="cashier-section">
-        <h4>To be filled by Teller / Accounting Office[cite: 3]</h4>
+        <h4>To be filled by Teller / Accounting Office</h4>
         <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
             <div>
                 <p>Official Receipt (O.R.) No.: ____________________</p>
@@ -155,7 +160,7 @@ if (!$request) {
             </div>
             <div>
                 <div class="signature-line">
-                    Teller's Signature / Stamp[cite: 3]
+                    Teller's Signature / Stamp
                 </div>
             </div>
         </div>
@@ -163,7 +168,7 @@ if (!$request) {
 
     <div class="actions">
         <button class="btn btn-print" onclick="window.print()">🖨 Print Payment Slip</button>
-        <button class="btn btn-close" onclick="window.close()">Close</button>
+        <button class="btn btn-close" onclick="window.close()">Close Window</button>
     </div>
 </div>
 

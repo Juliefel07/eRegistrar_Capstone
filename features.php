@@ -12,7 +12,7 @@
 eRegistrar Features
 </title>
 
-
+<link rel="icon" type="image/png" href="assets/images/logooo.png">
 <link rel="stylesheet" href="assets/css/public.css">
 
 

@@ -37,7 +37,7 @@ function displayValue($value)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - CCTC eRegistrar</title>
-
+    <link rel="icon" type="image/png" href="/eRegistrar/assets/images/logooo.png">
     <!-- Base Stylesheets -->
     <link rel="stylesheet" href="../assets/css/student.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
