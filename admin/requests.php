@@ -2,8 +2,8 @@
 session_start();
 require_once __DIR__ . "/../includes/db.php";
 
-// Check admin login
-if (!isset($_SESSION['user_id'])) {
+// Check admin/staff login and role
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array($_SESSION['role'], ['Admin', 'Staff'])) {
     header("Location: ../login.php");
     exit();
 }
@@ -20,10 +20,12 @@ SELECT
     r.quantity,
     r.status,
     r.request_date,
-    r.payment_proof
+    r.payment_proof,
+    p.fullname AS processor_name
     FROM requests r
     JOIN users u ON r.user_id = u.user_id
     JOIN documents d ON r.document_id = d.document_id
+    LEFT JOIN users p ON r.processed_by = p.user_id
     WHERE LOWER(r.status) NOT IN ('completed', 'claimed')
     ORDER BY r.request_date DESC
 ";
@@ -150,7 +152,7 @@ if (!$result) {
             white-space: nowrap;
         }
 
-        .badge-pending          { background-color: #fef3c7; color: #b45309; }
+        .badge-pending           { background-color: #fef3c7; color: #b45309; }
         .badge-approved         { background-color: #d1fae5; color: #047857; }
         .badge-processing       { background-color: #e0f2fe; color: #0369a1; }
         .badge-payment-uploaded { background-color: #ede9fe; color: #7c3aed; }
@@ -402,6 +404,7 @@ if (!$result) {
                         <th>Qty</th>
                         <th>Status</th>
                         <th>Payment Proof</th>
+                        <th>Processed By</th>
                         <th>Date</th>
                         <th>Action</th>
                     </tr>
@@ -457,6 +460,17 @@ if (!$result) {
                                     <?php endif; ?>
                                 </td>
 
+                                <!-- Handled By Column -->
+                                <td data-label="Handled By">
+                                    <?php if (!empty($row['processor_name'])): ?>
+                                        <span style="font-weight: 600; color: #0284c7;">
+                                            <i class="fa-solid fa-user-shield"></i> <?php echo htmlspecialchars($row['processor_name']); ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="text-muted">Unassigned</span>
+                                    <?php endif; ?>
+                                </td>
+
                                 <td data-label="Date">
                                     <?php echo date("M d, Y", strtotime($row['request_date'])); ?>
                                 </td>
@@ -476,7 +490,8 @@ if (!$result) {
                                                 '<?php echo htmlspecialchars($row['purpose'] ?? 'N/A', ENT_QUOTES); ?>',
                                                 '<?php echo (int)$row['quantity']; ?>',
                                                 '<?php echo htmlspecialchars($row['status'], ENT_QUOTES); ?>',
-                                                '<?php echo date("M d, Y h:i A", strtotime($row['request_date'])); ?>'
+                                                '<?php echo date("M d, Y h:i A", strtotime($row['request_date'])); ?>',
+                                                '<?php echo htmlspecialchars($row['processor_name'] ?? 'None', ENT_QUOTES); ?>'
                                             )">
                                                 <i class="fa-solid fa-eye"></i> View Details
                                             </button>
@@ -517,7 +532,7 @@ if (!$result) {
                         <?php endwhile; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="9" class="empty-state">
+                            <td colspan="10" class="empty-state">
                                 <i class="fa-solid fa-inbox" style="font-size: 2rem; color: #cbd5e1; display: block; margin-bottom: 8px;"></i>
                                 No document requests found.
                             </td>
@@ -548,7 +563,7 @@ if (!$result) {
 </div>
 
 <script>
-    function openDetailsModal(trackingNo, studentName, documentName, purpose, quantity, status, date) {
+    function openDetailsModal(trackingNo, studentName, documentName, purpose, quantity, status, date, processorName) {
         const content = `
             <div class="modal-row"><span class="label">Tracking No:</span> <span>${trackingNo}</span></div>
             <div class="modal-row"><span class="label">Student Name:</span> <span>${studentName}</span></div>
@@ -556,6 +571,7 @@ if (!$result) {
             <div class="modal-row"><span class="label">Purpose:</span> <span>${purpose}</span></div>
             <div class="modal-row"><span class="label">Quantity:</span> <span>${quantity}</span></div>
             <div class="modal-row"><span class="label">Current Status:</span> <span><strong>${status}</strong></span></div>
+            <div class="modal-row"><span class="label">Handled By:</span> <span>${processorName}</span></div>
             <div class="modal-row" style="border-bottom:none;"><span class="label">Request Date:</span> <span>${date}</span></div>
         `;
         document.getElementById('modalBodyContent').innerHTML = content;

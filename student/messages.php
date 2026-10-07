@@ -305,6 +305,7 @@ $chat_result = mysqli_stmt_get_result($chat_stmt);
             padding: 16px;
         }
 
+        
         .edit-modal.active {
             display: flex;
         }

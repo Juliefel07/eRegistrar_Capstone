@@ -15,8 +15,7 @@ $user_id = $_SESSION['user_id'];
 if (
     empty($_POST['documents']) || 
     !is_array($_POST['documents']) ||
-    empty($_POST['purpose']) ||
-    empty($_POST['payment_method'])
+    empty($_POST['purpose'])
 ) {
     $_SESSION['request_error'] = "Please fill in all required fields.";
     header("Location: request.php");
@@ -25,44 +24,27 @@ if (
 
 $purpose        = mysqli_real_escape_string($conn, $_POST['purpose']);
 $remarks        = mysqli_real_escape_string($conn, $_POST['remarks'] ?? '');
-$payment_method = mysqli_real_escape_string($conn, $_POST['payment_method']);
+$payment_method = mysqli_real_escape_string($conn, $_POST['payment_method'] ?? 'On the Counter');
 
 // STUDENT INFORMATION FROM FORM
-$last_name    = $_POST['last_name'] ?? '';
-$first_name   = $_POST['first_name'] ?? '';
-$middle_name  = $_POST['middle_name'] ?? '';
-$fullname     = trim("$last_name, $first_name $middle_name");
+$last_name   = $_POST['last_name'] ?? '';
+$first_name  = $_POST['first_name'] ?? '';
+$middle_name = $_POST['middle_name'] ?? '';
+$fullname    = trim("$last_name, $first_name $middle_name");
 
 $address          = $_POST['address'] ?? '';
 $course_year      = $_POST['course_year'] ?? '';
 $contact_no       = $_POST['contact_no'] ?? '';
 $email            = $_POST['email'] ?? '';
 $is_graduate      = $_POST['is_graduate'] ?? 'No';
-$last_sy_attended = $_POST['last_sy_attended'] ?? '';
+$last_sy_attended = $_POST['last_school_year'] ?? '';
 
 // Fallbacks
 $student_no = $_POST['student_no'] ?? '';
 $course     = $course_year; 
 $year_level = ''; 
 
-// HANDLE E-PAYMENT PROOF UPLOAD (IF E-PAYMENT SELECTED)
 $proof_file_path = NULL;
-if ($payment_method === 'E-Payment' && isset($_FILES['proof_of_payment']) && $_FILES['proof_of_payment']['error'] === 0) {
-    $proofDir = __DIR__ . "/../assets/uploads/payments/";
-    if (!is_dir($proofDir)) {
-        mkdir($proofDir, 0777, true);
-    }
-
-    $proofExt = strtolower(pathinfo($_FILES['proof_of_payment']['name'], PATHINFO_EXTENSION));
-    $allowedProof = ["pdf", "jpg", "jpeg", "png"];
-
-    if (in_array($proofExt, $allowedProof)) {
-        $proofName = time() . "_proof_" . basename($_FILES['proof_of_payment']['name']);
-        if (move_uploaded_file($_FILES['proof_of_payment']['tmp_name'], $proofDir . $proofName)) {
-            $proof_file_path = "assets/uploads/payments/" . $proofName;
-        }
-    }
-}
 
 // SHARED TRACKING NUMBER OR GROUP TRACKING ID
 $tracking = "REQ" . date("YmdHis");
@@ -107,7 +89,7 @@ foreach ($_POST['documents'] as $index => $docItem) {
 
     mysqli_stmt_bind_param(
         $stmt,
-        "sisssssisisis",
+        "sisssssisssss",
         $itemTracking,
         $user_id,
         $fullname,
@@ -127,44 +109,94 @@ foreach ($_POST['documents'] as $index => $docItem) {
         $request_id = mysqli_insert_id($conn);
         $submittedRequests[] = $itemTracking;
 
-        // HANDLE REQUIREMENT FILES FOR THIS DOCUMENT ITEM
+        // FETCH A VALID REQUIREMENT ID FOR THIS DOCUMENT TO SATISFY NOT NULL FOREIGN KEY
+        $default_req_id = 0;
+        $reqCheckQuery = mysqli_query($conn, "SELECT requirement_id FROM document_requirements WHERE document_id = {$document_id} LIMIT 1");
+        if ($reqCheckQuery && $reqRow = mysqli_fetch_assoc($reqCheckQuery)) {
+            $default_req_id = intval($reqRow['requirement_id']);
+        } else {
+            // Fallback to any valid requirement_id in table if document has no specific requirement
+            $anyReqQuery = mysqli_query($conn, "SELECT requirement_id FROM document_requirements LIMIT 1");
+            if ($anyReqQuery && $anyRow = mysqli_fetch_assoc($anyReqQuery)) {
+                $default_req_id = intval($anyRow['requirement_id']);
+            }
+        }
+
+        // HANDLE FRONT OF ID UPLOAD
+        if (isset($_FILES['valid_id_front']) && $_FILES['valid_id_front']['error'] === UPLOAD_ERR_OK) {
+            $frontName = $_FILES['valid_id_front']['name'];
+            $frontExt  = strtolower(pathinfo($frontName, PATHINFO_EXTENSION));
+            $allowed   = ["pdf", "jpg", "jpeg", "png"];
+
+            if (in_array($frontExt, $allowed)) {
+                $newFrontName = time() . "_id_front_" . preg_replace("/[^a-zA-Z0-9\._-]/", "_", $frontName);
+                if (move_uploaded_file($_FILES['valid_id_front']['tmp_name'], $reqUploadDir . $newFrontName)) {
+                    $frontPath = "assets/uploads/requirements/" . $newFrontName;
+                    $idStmt = mysqli_prepare($conn, "INSERT INTO request_requirement_files (request_id, requirement_id, file_name, file_path, status) VALUES (?, ?, 'Valid ID (Front)', ?, 'Pending')");
+                    mysqli_stmt_bind_param($idStmt, "iis", $request_id, $default_req_id, $frontPath);
+                    mysqli_stmt_execute($idStmt);
+                    mysqli_stmt_close($idStmt);
+                }
+            }
+        }
+
+        // HANDLE BACK OF ID UPLOAD
+        if (isset($_FILES['valid_id_back']) && $_FILES['valid_id_back']['error'] === UPLOAD_ERR_OK) {
+            $backName = $_FILES['valid_id_back']['name'];
+            $backExt  = strtolower(pathinfo($backName, PATHINFO_EXTENSION));
+            $allowed  = ["pdf", "jpg", "jpeg", "png"];
+
+            if (in_array($backExt, $allowed)) {
+                $newBackName = time() . "_id_back_" . preg_replace("/[^a-zA-Z0-9\._-]/", "_", $backName);
+                if (move_uploaded_file($_FILES['valid_id_back']['tmp_name'], $reqUploadDir . $newBackName)) {
+                    $backPath = "assets/uploads/requirements/" . $newBackName;
+                    $idStmt = mysqli_prepare($conn, "INSERT INTO request_requirement_files (request_id, requirement_id, file_name, file_path, status) VALUES (?, ?, 'Valid ID (Back)', ?, 'Pending')");
+                    mysqli_stmt_bind_param($idStmt, "iis", $request_id, $default_req_id, $backPath);
+                    mysqli_stmt_execute($idStmt);
+                    mysqli_stmt_close($idStmt);
+                }
+            }
+        }
+
+        // HANDLE ADDITIONAL DYNAMIC REQUIREMENT FILES FOR THIS DOCUMENT ITEM
         if (
             isset($_FILES['documents']['name'][$index]['requirements']) &&
             is_array($_FILES['documents']['name'][$index]['requirements'])
         ) {
-            $fileArray = $_FILES['documents']['name'][$index]['requirements'];
-            $tmpArray  = $_FILES['documents']['tmp_name'][$index]['requirements'];
-            $errorArray= $_FILES['documents']['error'][$index]['requirements'];
+            $fileArray  = $_FILES['documents']['name'][$index]['requirements'];
+            $tmpArray   = $_FILES['documents']['tmp_name'][$index]['requirements'];
+            $errorArray = $_FILES['documents']['error'][$index]['requirements'];
 
-            foreach ($fileArray as $requirement_id => $originalName) {
-                if ($errorArray[$requirement_id] !== 0 || empty($originalName)) {
+            foreach ($fileArray as $reqKey => $originalName) {
+                if ($errorArray[$reqKey] !== 0 || empty($originalName)) {
                     continue;
                 }
 
-                $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+                $ext     = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
                 $allowed = ["pdf", "jpg", "jpeg", "png", "doc", "docx"];
 
                 if (!in_array($ext, $allowed)) {
                     continue;
                 }
 
-                $newName = time() . "_" . $index . "_" . $requirement_id . "_" . basename($originalName);
+                $requirement_id = intval($reqKey);
+                $newName = time() . "_" . $index . "_" . $requirement_id . "_" . preg_replace("/[^a-zA-Z0-9\._-]/", "_", $originalName);
 
-                if (move_uploaded_file($tmpArray[$requirement_id], $reqUploadDir . $newName)) {
+                if (move_uploaded_file($tmpArray[$reqKey], $reqUploadDir . $newName)) {
                     $filePath = "assets/uploads/requirements/" . $newName;
 
                     $reqStmt = mysqli_prepare(
                         $conn,
-                        "INSERT INTO request_requirement_files (request_id, requirement_id, file_name, file_path) VALUES (?, ?, ?, ?)"
+                        "INSERT INTO request_requirement_files (request_id, requirement_id, file_name, file_path, status) VALUES (?, ?, ?, ?, 'Pending')"
                     );
-                    mysqli_stmt_bind_param($reqStmt, "iiss", $request_id, $requirement_id, $newName, $filePath);
+                    mysqli_stmt_bind_param($reqStmt, "iiss", $request_id, $requirement_id, $originalName, $filePath);
                     mysqli_stmt_execute($reqStmt);
                     mysqli_stmt_close($reqStmt);
                 }
             }
         }
     } else {
-        die(mysqli_error($conn));
+        die("Database Execution Error: " . mysqli_error($conn));
     }
 }
 

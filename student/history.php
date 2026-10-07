@@ -62,19 +62,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reupload_single_file'
         JOIN requests r ON rf.request_id = r.request_id 
         WHERE rf.id = ? AND r.user_id = ?
     ");
-    mysqli_stmt_bind_param($check_stmt, "ii", $file_table_id, $user_id);
+    mysqli_stmt_bind_param($check_stmt, "ii", $file_table_id,$user_id);
     mysqli_stmt_execute($check_stmt);
     $check_res = mysqli_stmt_get_result($check_stmt);
 
     if (mysqli_num_rows($check_res) > 0) {
-        if (isset($_FILES['new_file']) && $_FILES['new_file']['error'] === UPLOAD_ERR_OK) {
-            $tmp_name = $_FILES['new_file']['tmp_name'];
-            $filename = $_FILES['new_file']['name'];
-            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-            $allowed_exts = ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'doc'];
+        if (isset($_FILES['new_file']) && $_FILES['new_file']['error'] === UPLOAD_ERR_OK) {$tmp_name = $_FILES['new_file']['tmp_name'];$filename = $_FILES['new_file']['name'];$ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));$allowed_exts = ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'doc'];
 
-            if (in_array($ext, $allowed_exts)) {
-                $upload_dir = __DIR__ . "/../assets/uploads/requirements/";
+            if (in_array($ext, $allowed_exts)) {$upload_dir = __DIR__ . "/../assets/uploads/requirements/";
                 if (!is_dir($upload_dir)) {
                     mkdir($upload_dir, 0777, true);
                 }
@@ -82,14 +77,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reupload_single_file'
                 $new_filename = time() . "_" . $file_table_id . "_" . preg_replace("/[^a-zA-Z0-9\._-]/", "_", $filename);
                 $relative_path = "assets/uploads/requirements/" . $new_filename;
 
-                if (move_uploaded_file($tmp_name, $upload_dir . $new_filename)) {
+                if (move_uploaded_file($tmp_name, $upload_dir .$new_filename)) {
                     // Update the specific rejected row & reset status back to Pending
                     $update_file = mysqli_prepare($conn, "
                         UPDATE request_requirement_files 
                         SET file_name = ?, file_path = ?, status = 'Pending', remarks = NULL, uploaded_at = NOW() 
                         WHERE id = ?
                     ");
-                    mysqli_stmt_bind_param($update_file, "ssi", $filename, $relative_path, $file_table_id);
+                    mysqli_stmt_bind_param($update_file, "ssi", $filename, $relative_path,$file_table_id);
                     mysqli_stmt_execute($update_file);
 
                     // Reset main request status to Pending for admin re-evaluation
@@ -106,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reupload_single_file'
 }
 
 // ==========================================
-// 3. Fetch Requests with Requirement Files
+// 3. Fetch Requests with Requirement Files & Processor Name
 // ==========================================
 $stmt = mysqli_prepare($conn, "
     SELECT 
@@ -119,6 +114,7 @@ $stmt = mysqli_prepare($conn, "
         r.status AS request_status,
         r.request_date,
         r.payment_proof,
+        p.fullname AS processor_name,
         GROUP_CONCAT(rf.id ORDER BY rf.id ASC SEPARATOR '||') as file_ids,
         GROUP_CONCAT(rf.file_path ORDER BY rf.id ASC SEPARATOR '||') as file_paths,
         GROUP_CONCAT(rf.file_name ORDER BY rf.id ASC SEPARATOR '||') as file_names,
@@ -127,6 +123,7 @@ $stmt = mysqli_prepare($conn, "
     FROM requests r
     JOIN users u ON r.user_id = u.user_id
     JOIN documents d ON r.document_id = d.document_id
+    LEFT JOIN users p ON r.processed_by = p.user_id
     LEFT JOIN request_requirement_files rf ON r.request_id = rf.request_id
     WHERE r.user_id = ?
     GROUP BY r.request_id
@@ -149,7 +146,7 @@ if (!$result) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Requests - eRegistrar</title>
     <!-- FontAwesome Icons -->
-     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
+    <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/student.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
@@ -248,9 +245,6 @@ if (!$result) {
 
         .btn.approve { background: #e7f1ff; color: #0056b3; }
         .btn.approve:hover { background: #d0e1fd; }
-        
-        .btn.slip { background: #059669; color: #fff; }
-        .btn.slip:hover { background: #047857; }
 
         .btn.upload-btn { background: #7c3aed; color: #fff; }
         .btn.upload-btn:hover { background: #6d28d9; }
@@ -356,13 +350,13 @@ if (!$result) {
     <div class="student-main">
         <div class="history-card">
             <h2>My Document Requests</h2>
-            <p>Track the progress of your submitted requests and upload required documents or payment proof.</p>
+            <p>Track the progress of your submitted requests and upload payment proof once approved.</p>
 
-            <?php if (isset($_GET['success']) && $_GET['success'] === 'uploaded'): ?>
+            <?php if (isset($_GET['success']) &&$_GET['success'] === 'uploaded'): ?>
                 <div class="alert-success">
                     <i class="fas fa-check-circle"></i> Payment receipt successfully uploaded!
                 </div>
-            <?php elseif (isset($_GET['success']) && $_GET['success'] === 'file_replaced'): ?>
+            <?php elseif (isset($_GET['success']) &&$_GET['success'] === 'file_replaced'): ?>
                 <div class="alert-success">
                     <i class="fas fa-check-circle"></i> Requirement file re-uploaded successfully! Request status reset to Pending.
                 </div>
@@ -381,7 +375,6 @@ if (!$result) {
                                 <th>Date</th>
                                 <th>Requirement File</th>
                                 <th>Action</th>
-                                <th>Payment Slip</th>
                                 <th>Proof of Payment</th>
                             </tr>
                         </thead>
@@ -396,8 +389,8 @@ if (!$result) {
                                     <!-- Status Column -->
                                     <td>
                                         <?php 
-                                            $file_statuses = !empty($row['file_statuses']) ? explode('||', $row['file_statuses']) : [];
-                                            $has_rejected_file = in_array('Rejected', $file_statuses);
+                                            $file_statuses = !empty($row['file_statuses']) ? explode('\vert{}\vert{}', $row['file_statuses']) : [];
+                                            $has_rejected_file = in_array('Rejected',$file_statuses);
                                         ?>
 
                                         <?php if ($has_rejected_file): ?>
@@ -417,11 +410,11 @@ if (!$result) {
                                     <td>
                                         <?php if (!empty($row['file_paths'])): ?>
                                             <button type="button" class="btn approve" onclick="openMultiFileModal(
-                                                '<?= htmlspecialchars($row['file_ids'], ENT_QUOTES); ?>',
-                                                '<?= htmlspecialchars($row['file_paths'], ENT_QUOTES); ?>',
-                                                '<?= htmlspecialchars($row['file_names'], ENT_QUOTES); ?>',
-                                                '<?= htmlspecialchars($row['file_statuses'], ENT_QUOTES); ?>',
-                                                '<?= htmlspecialchars($row['file_remarks'], ENT_QUOTES); ?>',
+                                                '<?= htmlspecialchars($row['file_ids'] ?? '', ENT_QUOTES); ?>',
+                                                '<?= htmlspecialchars($row['file_paths'] ?? '', ENT_QUOTES); ?>',
+                                                '<?= htmlspecialchars($row['file_names'] ?? '', ENT_QUOTES); ?>',
+                                                '<?= htmlspecialchars($row['file_statuses'] ?? '', ENT_QUOTES); ?>',
+                                                '<?= htmlspecialchars($row['file_remarks'] ?? '', ENT_QUOTES); ?>',
                                                 '<?= htmlspecialchars($row['tracking_no'], ENT_QUOTES); ?>',
                                                 <?= $row['request_id']; ?>
                                             )">
@@ -440,30 +433,21 @@ if (!$result) {
                                             '<?= htmlspecialchars($row['purpose'], ENT_QUOTES); ?>',
                                             '<?= $row['quantity']; ?>',
                                             '<?= htmlspecialchars($row['request_status'], ENT_QUOTES); ?>',
-                                            '<?= date("M d, Y", strtotime($row['request_date'])); ?>' )">
+                                            '<?= date("M d, Y", strtotime($row['request_date'])); ?>',
+                                            '<?= htmlspecialchars($row['processor_name'] ?? 'Unassigned', ENT_QUOTES); ?>'
+                                        )">
                                             <i class="fas fa-eye"></i> View Details
                                         </button>
                                     </td>
 
-                                    <!-- Payment Slip Column -->
+                                    <!-- Proof of Payment Column -->
                                     <td>
                                         <?php 
                                             $status_lower = strtolower(trim($row['request_status']));
-                                            $is_ready_for_payment = !in_array($status_lower, ['pending', 'rejected']);
+                                            $is_approved_for_payment = in_array($status_lower, ['approved', 'payment uploaded', 'processing', 'completed', 'claimed']);
                                         ?>
 
-                                        <?php if ($is_ready_for_payment): ?>
-                                            <button type="button" class="btn slip" onclick="openModal('paymentSlipModal', 'modalPaymentSlipContent', 'modalPaymentSlipDownloadBtn', 'payment_slip.php?ref=<?= urlencode($row['tracking_no']); ?>', '', '<?= htmlspecialchars($row['tracking_no'], ENT_QUOTES); ?>', true)">
-                                                <i class="fa-solid fa-print"></i> View Slip
-                                            </button>
-                                        <?php else: ?>
-                                            <span class="no-action">N/A</span>
-                                        <?php endif; ?>
-                                    </td>
-
-                                    <!-- Proof of Payment Column -->
-                                    <td>
-                                        <?php if ($is_ready_for_payment): ?>
+                                        <?php if ($is_approved_for_payment): ?>
                                             <?php if (!empty($row['payment_proof'])): ?>
                                                 <button type="button" class="btn view-receipt" onclick="openModal('receiptModal', 'modalReceiptContent', 'modalReceiptDownloadBtn', '../assets/uploads/<?= htmlspecialchars($row['payment_proof'], ENT_QUOTES); ?>', '<?= htmlspecialchars($row['payment_proof'], ENT_QUOTES); ?>', '<?= htmlspecialchars($row['tracking_no'], ENT_QUOTES); ?>')">
                                                     <i class="fa-solid fa-receipt"></i> View Receipt
@@ -479,7 +463,7 @@ if (!$result) {
                                                 </form>
                                             <?php endif; ?>
                                         <?php else: ?>
-                                            <span class="no-action">N/A</span>
+                                            <span class="no-action">Awaiting Approval</span>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
@@ -510,22 +494,7 @@ if (!$result) {
         </div>
     </div>
 
-    <!-- 2. Payment Slip Modal -->
-    <div id="paymentSlipModal" class="modal-overlay">
-        <div class="modal-container" style="max-width: 650px;">
-            <div class="modal-header">
-                <h3><i class="fa-solid fa-print" style="color: #059669;"></i> Payment Slip Preview</h3>
-                <button type="button" class="modal-close-btn" onclick="closeModal('paymentSlipModal')">&times;</button>
-            </div>
-            <div class="modal-body" id="modalPaymentSlipContent" style="text-align: center; padding: 0;"></div>
-            <div class="modal-footer">
-                <a id="modalPaymentSlipDownloadBtn" href="#" target="_blank" class="btn slip" style="margin-right: 5px;"><i class="fa-solid fa-external-link-alt"></i> Open / Print Fullscreen</a>
-                <button type="button" class="btn" style="background-color: #6c757d; color: #fff;" onclick="closeModal('paymentSlipModal')">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 3. Proof of Payment Modal -->
+    <!-- 2. Proof of Payment Modal -->
     <div id="receiptModal" class="modal-overlay">
         <div class="modal-container">
             <div class="modal-header">
@@ -540,7 +509,7 @@ if (!$result) {
         </div>
     </div>
 
-    <!-- 4. Request Details Modal -->
+    <!-- 3. Request Details Modal -->
     <div id="detailsModal" class="modal-overlay">
         <div class="modal-container" style="max-width: 500px;">
             <div class="modal-header">
@@ -555,17 +524,21 @@ if (!$result) {
     </div>
 
     <script>
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
         function openMultiFileModal(fileIdsStr, filePathsStr, fileNamesStr, fileStatusesStr, fileRemarksStr, trackingNo, requestId) {
-            const ids = fileIdsStr.split('||');
-            const paths = filePathsStr.split('||');
-            const names = fileNamesStr.split('||');
-            const statuses = fileStatusesStr.split('||');
-            const remarks = fileRemarksStr.split('||');
+            const ids = fileIdsStr ? fileIdsStr.split('||') : [];
+            const paths = filePathsStr ? filePathsStr.split('||') : [];
+            const names = fileNamesStr ? fileNamesStr.split('||') : [];
+            const statuses = fileStatusesStr ? fileStatusesStr.split('||') : [];
+            const remarks = fileRemarksStr ? fileRemarksStr.split('||') : [];
 
             let htmlContent = '<div style="margin-bottom: 15px; font-weight: 600; color: #495057; font-size: 1rem;">Tracking No: ' + trackingNo + '</div>';
 
             paths.forEach((path, index) => {
-                let fileTableId = ids[index];
+                let fileTableId = ids[index] || '';
                 let cleanPath = "../" + path.trim();
                 let fileName = names[index] ? names[index].trim() : ('File ' + (index + 1));
                 let fileStatus = statuses[index] ? statuses[index].trim() : 'Pending';
@@ -625,71 +598,57 @@ if (!$result) {
             document.getElementById('requirementModal').style.display = 'flex';
         }
 
-        function openModal(modalId, contentId, downloadBtnId, filePath, fileName, trackingNo, isIframe = false) {
+        function openModal(modalId, contentId, downloadBtnId, filePath, fileName, trackingNo) {
             let previewHtml = '';
+            const fileExt = fileName.split('.').pop().toLowerCase();
             
-            if (isIframe) {
-                previewHtml = '<iframe src="' + filePath + '" style="width: 100%; height: 60vh; border: none;"></iframe>';
-            } else {
-                const fileExt = fileName.split('.').pop().toLowerCase();
-                if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
-                    previewHtml = '<img src="' + filePath + '" alt="File Preview" style="max-width: 100%; max-height: 50vh; border-radius: 6px; border: 1px solid #e9ecef;">';
-                } else if (fileExt === 'pdf') {
-                    previewHtml = '<iframe src="' + filePath + '" style="width: 100%; height: 50vh; border: none; border-radius: 6px;"></iframe>';
-                }
-                previewHtml = '<div style="margin-bottom: 10px; font-weight: 600; color: #495057;">Tracking No: ' + trackingNo + '</div>' + previewHtml;
+            if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
+                previewHtml = '<img src="' + filePath + '" alt="File Preview" style="max-width: 100%; max-height: 50vh; border-radius: 6px; border: 1px solid #e9ecef;">';
+            } else if (fileExt === 'pdf') {
+                previewHtml = '<iframe src="' + filePath + '" style="width: 100%; height: 50vh; border: none; border-radius: 6px;"></iframe>';
             }
+            previewHtml = '<div style="margin-bottom: 10px; font-weight: 600; color: #495057;">Tracking No: ' + trackingNo + '</div>' + previewHtml;
 
             document.getElementById(contentId).innerHTML = previewHtml;
             document.getElementById(downloadBtnId).href = filePath;
             document.getElementById(modalId).style.display = 'flex';
         }
 
-        function openDetailsModal(trackingNo, documentName, purpose, quantity, status, requestDate) {
+        function openDetailsModal(trackingNo, documentName, purpose, quantity, status, requestDate, processorName) {
             let htmlContent = `
                 <div style="display: flex; flex-direction: column; gap: 14px; font-size: 0.95rem;">
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
                         <span style="color: #64748b; font-weight: 500;">Tracking No:</span>
-                        <span style="color: #1e293b; font-weight: 600;">${trackingNo}</span>
+                        <span style="font-weight: 700; color: #0f172a;">${trackingNo}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
                         <span style="color: #64748b; font-weight: 500;">Document:</span>
-                        <span style="color: #1e293b; font-weight: 500; text-align: right;">${documentName}</span>
+                        <span style="font-weight: 600; color: #0f172a;">${documentName}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
                         <span style="color: #64748b; font-weight: 500;">Purpose:</span>
-                        <span style="color: #1e293b; text-align: right; max-width: 60%;">${purpose}</span>
+                        <span style="color: #334155;">${purpose}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
                         <span style="color: #64748b; font-weight: 500;">Quantity:</span>
-                        <span style="color: #1e293b;">${quantity}</span>
+                        <span style="font-weight: 600; color: #0f172a;">${quantity}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
                         <span style="color: #64748b; font-weight: 500;">Status:</span>
-                        <span style="color: #1e293b; text-transform: capitalize; font-weight: 600;">${status}</span>
+                        <span class="status ${status.toLowerCase().replace(/\s+/g, '-')}">${status}</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; padding-bottom: 4px;">
-                        <span style="color: #64748b; font-weight: 500;">Request Date:</span>
-                        <span style="color: #1e293b;">${requestDate}</span>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+                        <span style="color: #64748b; font-weight: 500;">Processed By:</span>
+                        <span style="font-weight: 600; color: #0284c7;"><i class="fa-solid fa-user-shield"></i> ${processorName}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #64748b; font-weight: 500;">Requested Date:</span>
+                        <span style="color: #334155;">${requestDate}</span>
                     </div>
                 </div>
             `;
-
             document.getElementById('modalDetailsContent').innerHTML = htmlContent;
             document.getElementById('detailsModal').style.display = 'flex';
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        window.onclick = function(event) {
-            ['requirementModal', 'paymentSlipModal', 'receiptModal', 'detailsModal'].forEach(function(modalId) {
-                const modal = document.getElementById(modalId);
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                }
-            });
         }
     </script>
 

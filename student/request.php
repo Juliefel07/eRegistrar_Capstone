@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$user_id =$_SESSION['user_id'];
+$user_id = $_SESSION['user_id'];
 
 // Get logged in user information securely
 $userStmt = mysqli_prepare($conn, "SELECT * FROM users WHERE user_id = ?");
@@ -78,13 +78,12 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {$requirements = [];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Request Document - CCTC eRegistrar</title>
-     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
+    <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <!-- Base Stylesheets -->
     <link rel="stylesheet" href="../assets/css/request.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* Container Alignment & Layout (Safe spacing below sticky navbar) */
         .request-container {
             max-width: 1000px;
             margin: 40px auto;
@@ -106,7 +105,6 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {$requirements = [];
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
         }
 
-        /* Titles inside card */
         .page-title {
             font-size: 1.5rem;
             font-weight: 700;
@@ -120,7 +118,6 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {$requirements = [];
             margin: 0 0 24px 0;
         }
 
-        /* Dynamic Multi-Document Items */
         .document-item {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
@@ -131,13 +128,13 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {$requirements = [];
         }
 
         .item-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 12px;
-    margin-bottom: 16px;
-    border-bottom: 1px solid #e2e8f0;
-}
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
 
         .btn-add-doc {
             background-color: #ecfdf5;
@@ -157,44 +154,41 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {$requirements = [];
             background-color: #d1fae5;
         }
 
-        /* Document Number Badge (Sleek Pill Style) */
-.doc-number-badge {
-    background-color: #e0f2fe;
-    color: #0369a1;
-    font-size: 0.85rem;
-    font-weight: 700;
-    padding: 4px 12px;
-    border-radius: 20px;
-    letter-spacing: 0.3px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
+        .doc-number-badge {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-/* Modern Remove Button (Soft Red Tag) */
-.btn-remove-doc {
-    background-color: #fef2f2;
-    color: #ef4444;
-    border: 1px solid #fecaca;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-}
+        .btn-remove-doc {
+            background-color: #fef2f2;
+            color: #ef4444;
+            border: 1px solid #fecaca;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
 
-.btn-remove-doc:hover {
-    background-color: #fee2e2;
-    color: #dc2626;
-    border-color: #fca5a5;
-    transform: translateY(-1px);
-}
+        .btn-remove-doc:hover {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border-color: #fca5a5;
+            transform: translateY(-1px);
+        }
 
-        /* Clean Modal Styles */
         .modal {
             position: fixed;
             top: 0;
@@ -338,8 +332,8 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {$requirements = [];
                     <!-- FIRST DOCUMENT ITEM -->
                     <div class="document-item" data-index="0">
                         <div class="item-header">
-    <span class="doc-number-badge"><i class="fa-solid fa-file-lines"></i> Document 1</span>
-</div>
+                            <span class="doc-number-badge"><i class="fa-solid fa-file-lines"></i> Document 1</span>
+                        </div>
 
                         <div class="form-group">
                             <label>Select Document</label>
@@ -397,20 +391,18 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {$requirements = [];
                     <textarea name="purpose" id="purpose" required placeholder="State your purpose (e.g., Employment, Board Exam, Transfer)..."></textarea>
                 </div>
 
-                <div class="form-group">
-                    <label>Payment Method</label>
-                    <select name="payment_method" id="payment_method" onchange="toggleEPaymentUpload(this.value)" required>
-                        <option value="">Select Payment</option>
-                        <option value="On the Counter">On the Counter (Pay at Accounting)</option>
-                        <option value="E-Payment">E-Payment (GCash / Maya Upload)</option>
-                    </select>
-                </div>
-
-                <!-- DYNAMIC E-PAYMENT PROOF UPLOAD -->
-                <div class="form-group" id="epayment_group" style="display: none; margin-top: 10px;">
-                    <label>Upload Payment Receipt / Proof</label>
-                    <input type="file" name="proof_of_payment" id="proof_of_payment" accept="image/*,.pdf">
-                    <small style="color:#666; display:block; margin-top:4px;">Upload GCash/Maya screenshot showing Ref No.</small>
+                <!-- FRONT AND BACK VALID ID UPLOADS -->
+                <div class="row" style="margin-top: 15px; gap: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label><i class="fa-solid fa-id-card"></i> Upload Front of ID <span style="color: red;">*</span></label>
+                        <input type="file" name="valid_id_front" id="valid_id_front" accept="image/*,.pdf" required>
+                        <small style="color:#666; display:block; margin-top:4px;">Upload front photo of valid school/gov't ID.</small>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label><i class="fa-solid fa-id-card"></i> Upload Back of ID <span style="color: red;">*</span></label>
+                        <input type="file" name="valid_id_back" id="valid_id_back" accept="image/*,.pdf" required>
+                        <small style="color:#666; display:block; margin-top:4px;">Upload back photo of valid school/gov't ID.</small>
+                    </div>
                 </div>
 
                 <button type="button" class="next-btn" onclick="nextStep(2)">Next</button>
@@ -458,18 +450,52 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {$requirements = [];
                 <div class="row">
                     <div class="form-group">
                         <label>Are you a CCTC Graduate?</label>
-                        <select name="is_graduate" required>
+                        <select name="is_graduate" id="is_graduate" onchange="toggleGraduateOptions(this.value)" required>
                             <option value="No">No</option>
                             <option value="Yes">Yes</option>
                         </select>
                     </div>
+                    
+                    <!-- SEMESTER SELECTOR -->
                     <div class="form-group">
-                        <label>Last Term / Semester / School Year in CCTC</label>
-                        <input type="text" name="last_sy_attended" placeholder="e.g. 1st Sem 2023-2024" required>
+                        <label>Last Semester / Term</label>
+                        <select name="last_semester" id="last_semester" required>
+                            <option value="">Select Semester</option>
+                            <option value="1st Semester">1st Semester</option>
+                            <option value="2nd Semester">2nd Semester</option>
+                            <option value="Summer">Summer</option>
+                        </select>
+                    </div>
+
+                    <!-- SCHOOL YEAR SELECTOR -->
+                    <div class="form-group">
+                        <label>Last School Year in CCTC</label>
+                        <select name="last_school_year" id="last_school_year" required>
+                            <option value="">Select School Year</option>
+                            <option value="2026-2027">2026-2027</option>
+                            <option value="2025-2026">2025-2026</option>
+                            <option value="2024-2025">2024-2025</option>
+                            <option value="2023-2024">2023-2024</option>
+                            <option value="2022-2023">2022-2023</option>
+                            <option value="2021-2022">2021-2022</option>
+                            <option value="2020-2021">2020-2021</option>
+                            <option value="Others / Earlier">Others / Earlier</option>
+                        </select>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <!-- FIRST-TIME REQUEST CHECKBOX (DYNAMICS FOR GRADUATES) -->
+                <div class="form-group" id="first_time_container" style="display: none; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 6px; margin-top: 10px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #166534; font-weight: 600;">
+                        <input type="checkbox" name="is_first_time_request" id="is_first_time_request" value="1" style="width: 18px; height: 18px; accent-color: #16a34a;">
+                        <span>Is this your First-Time Request after graduation?</span>
+                    </label>
+                    <small style="color: #15803d; display: block; margin-top: 4px; padding-left: 26px;">
+                        A first time requesting graduate must proceed to School Registrar's Office.
+                    </small>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
                     <label>Additional Remarks / Notes</label>
                     <textarea name="remarks" id="remarks" placeholder="Optional remarks..."></textarea>
                 </div>
@@ -499,14 +525,18 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {$requirements = [];
                     </div>
                     <div class="review-item">
                         <label>Payment Method</label>
-                        <p id="reviewPayment">-</p>
+                        <p id="reviewPayment">On the Counter (Pay at Accounting)</p>
+                    </div>
+                    <div class="review-item">
+                        <label>ID Uploads</label>
+                        <p id="reviewValidId">Front & Back Uploaded</p>
                     </div>
                     <div class="review-item">
                         <label>Applicant Name</label>
                         <p id="reviewApplicantName">-</p>
                     </div>
                     <div class="review-item">
-                        <label>Last SY Attended</label>
+                        <label>Last Term / SY Attended</label>
                         <p id="reviewSY">-</p>
                     </div>
                 </div>
@@ -533,7 +563,7 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {$requirements = [];
         </div>
         <div class="summary-item">
             <span>Payment</span>
-            <strong id="summaryPayment">-</strong>
+            <strong id="summaryPayment">On Counter (Accounting)</strong>
         </div>
         <hr>
         <div class="total">
@@ -566,8 +596,23 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {$requirements = [];
     </div>
 </div>
 
+<!-- REGISTRAR CLEARANCE WARNING MODAL (FIRST TIME GRADUATE) -->
+<div class="modal" id="registrarNoticeModal">
+    <div class="modal-overlay" onclick="closeRegistrarNotice()"></div>
+    <div class="modal-card">
+        <div class="modal-icon" style="font-size: 2.5rem; margin-bottom: 8px;">🏛️</div>
+        <h3 class="modal-title" style="color: #0369a1;">A first time requesting graduate must proceed to registrar office</h3>
+        <p class="modal-message">
+            Since this is your first time requesting documents after graduation, please proceed directly to the Registrar's and Accounting Office to clear any remaining accountability or obligations first.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" onclick="closeRegistrarNotice()">Understood</button>
+        </div>
+    </div>
+</div>
+
 <!-- SUCCESS MODAL: WAITING FOR APPROVAL -->
-<div class="modal success-modal" id="successModal">
+<div class="modal success-modal" id="successModal" style="<?php echo $showSuccess ? 'display:flex;' : ''; ?>">
     <div class="modal-overlay" onclick="closeSuccess()"></div>
     
     <div class="modal-card">
@@ -581,13 +626,13 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {$requirements = [];
             <div class="steps-heading">Next Steps:</div>
             <ul>
                 <li>Wait for Registrar approval.</li>
-                <li>Proceed to payment once approved.</li>
-                <li>Your Payment Slip & Claim Stub will unlock automatically.</li>
+                <li>Once approved, proceed to the Accounting Office for over-the-counter payment.</li>
+                <li>Check your history/tracking page for real-time status updates.</li>
             </ul>
         </div>
 
         <div class="modal-actions">
-            <a href="track.php" class="btn btn-primary">Track Request</a>
+            <a href="history.php" class="btn btn-primary">Track Request</a>
             <button type="button" class="btn btn-secondary" onclick="closeSuccess()">Close</button>
         </div>
     </div>
@@ -705,14 +750,13 @@ function renumberItems() {
         }
     });
 }
+
 function removeDocumentItem(button) {
     const item = button.closest('.document-item');
     item.remove();
     renumberItems();
     calculateTotal();
 }
-
-
 
 function calculateTotal() {
     let grandTotal = 0;
@@ -740,83 +784,109 @@ function calculateTotal() {
     document.getElementById("summaryTotal").innerHTML = "₱" + grandTotal.toFixed(2);
 }
 
-document.getElementById("payment_method").addEventListener("change", function(){
-    document.getElementById("summaryPayment").innerHTML = this.value;
-});
-
 document.getElementById("purpose").addEventListener("input", function(){
     document.getElementById("reviewPurpose").innerHTML = this.value;
 });
 
-function toggleEPaymentUpload(val) {
-    const group = document.getElementById("epayment_group");
-    const input = document.getElementById("proof_of_payment");
-    if (val === "E-Payment") {
-        group.style.display = "block";
-        input.required = true;
+function toggleGraduateOptions(val) {
+    const container = document.getElementById("first_time_container");
+    if (val === "Yes") {
+        container.style.display = "block";
     } else {
-        group.style.display = "none";
-        input.required = false;
+        container.style.display = "none";
+        document.getElementById("is_first_time_request").checked = false;
     }
 }
 
-function nextStep(step){
-    document.querySelectorAll(".form-step").forEach(el => el.classList.remove("active"));
-    document.getElementById("step" + step).classList.add("active");
+function nextStep(step) {
+    if (step === 2) {
+        let valid = true;
+        const selects = document.querySelectorAll('.document-select');
+        selects.forEach(s => {
+            if (!s.value) valid = false;
+        });
 
-    document.querySelectorAll(".step").forEach(el => el.classList.remove("active"));
-    document.getElementById("step" + step + "Indicator").classList.add("active");
+        const purpose = document.getElementById('purpose').value.trim();
+        const idFront = document.getElementById('valid_id_front').files.length;
+        const idBack = document.getElementById('valid_id_back').files.length;
 
-    if(step === 3){
-        document.getElementById("reviewDocument").innerHTML = document.getElementById("summaryDocument").innerHTML;
-        document.getElementById("reviewQuantity").innerHTML = document.getElementById("summaryQuantity").innerHTML;
-        document.getElementById("reviewPayment").innerHTML = document.getElementById("payment_method").value;
-
-        const lastName = document.querySelector("input[name='last_name']").value;
-        const firstName = document.querySelector("input[name='first_name']").value;
-        const middleName = document.querySelector("input[name='middle_name']").value;
-        
-        const fullName = [lastName, firstName, middleName].filter(Boolean).join(" ");
-        document.getElementById("reviewApplicantName").innerHTML = fullName;
-
-        document.getElementById("reviewSY").innerHTML = document.querySelector("input[name='last_sy_attended']").value;
+        if (!valid || !purpose || !idFront || !idBack) {
+            showError("Please complete all document selections, purpose, and upload both the front and back of your ID.");
+            return;
+        }
     }
-}
 
-function previousStep(step){
-    nextStep(step);
-}
+    if (step === 3) {
+        const lastName = document.querySelector('input[name="last_name"]').value.trim();
+        const firstName = document.querySelector('input[name="first_name"]').value.trim();
+        const address = document.querySelector('input[name="address"]').value.trim();
+        const courseYear = document.querySelector('input[name="course_year"]').value.trim();
+        const contactNo = document.querySelector('input[name="contact_no"]').value.trim();
+        const email = document.querySelector('input[name="email"]').value.trim();
+        const semester = document.getElementById('last_semester').value;
+        const sy = document.getElementById('last_school_year').value;
 
-function confirmRequest(){
-    let form = document.getElementById("requestForm");
-    if(!form.checkValidity()){
-        document.getElementById("errorText").innerHTML = "Please complete all required fields before submitting.";
-        document.getElementById("errorModal").style.display = "flex";
-        return;
+        if (!lastName || !firstName || !address || !courseYear || !contactNo || !email || !semester || !sy) {
+            showError("Please complete all student information fields before proceeding.");
+            return;
+        }
+
+        const isGraduate = document.getElementById('is_graduate').value;
+        const isFirstTime = document.getElementById('is_first_time_request').checked;
+        if (isGraduate === 'Yes' && isFirstTime) {
+            document.getElementById('registrarNoticeModal').style.display = 'flex';
+        }
+
+        // Fill review step details
+        document.getElementById('reviewDocument').innerHTML = document.getElementById('summaryDocument').innerHTML;
+        document.getElementById('reviewQuantity').innerText = document.getElementById('summaryQuantity').innerText;
+        document.getElementById('reviewApplicantName').innerText = `${firstName} ${lastName}`;
+        document.getElementById('reviewSY').innerText = `${semester}, SY ${sy}`;
     }
-    document.getElementById("confirmModal").style.display = "flex";
+
+    document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+
+    document.getElementById('step' + step).classList.add('active');
+    document.getElementById('step' + step + 'Indicator').classList.add('active');
 }
 
-function closeConfirm(){
-    document.getElementById("confirmModal").style.display = "none";
+function previousStep(step) {
+    document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+
+    document.getElementById('step' + step).classList.add('active');
+    document.getElementById('step' + step + 'Indicator').classList.add('active');
 }
 
-function submitRequest(){
-    document.getElementById("requestForm").submit();
+function confirmRequest() {
+    document.getElementById('confirmModal').style.display = 'flex';
 }
 
-function closeSuccess(){
-    document.getElementById("successModal").style.display = "none";
+function closeConfirm() {
+    document.getElementById('confirmModal').style.display = 'none';
 }
 
-function closeError(){
-    document.getElementById("errorModal").style.display = "none";
+function submitRequest() {
+    document.getElementById('requestForm').submit();
 }
 
-<?php if($showSuccess){ ?>
-document.getElementById("successModal").style.display = "flex";
-<?php } ?>
+function showError(msg) {
+    document.getElementById('errorText').innerText = msg;
+    document.getElementById('errorModal').style.display = 'flex';
+}
+
+function closeError() {
+    document.getElementById('errorModal').style.display = 'none';
+}
+
+function closeRegistrarNotice() {
+    document.getElementById('registrarNoticeModal').style.display = 'none';
+}
+
+function closeSuccess() {
+    document.getElementById('successModal').style.display = 'none';
+}
 </script>
-
 </body>
 </html>

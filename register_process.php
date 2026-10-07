@@ -24,7 +24,7 @@ function sendOTPEmail($recipientEmail, $recipientName, $otpCode) {
         $mail->SMTPAuth   = true;
         $mail->Username   = getenv('MAIL_USER') ?: 'eregistrarcctc@gmail.com';    
         $mail->Password   = getenv('MAIL_PASS') ?: 'hfxanjszjhzpcarv';        
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
         // Disable SSL Certificate Verification for XAMPP
@@ -114,19 +114,9 @@ function sendOTPEmail($recipientEmail, $recipientName, $otpCode) {
 $account_type = $_POST['account_type'] ?? '';
 
 // Generate 6-digit OTP & 10-minute expiry
-// Generate 6-digit OTP
-$otp = sprintf("%06d", mt_rand(0, 999999));
+$otp = sprintf("%06d", mt_rand(100000, 999999));
+$expires_at = date("Y-m-d H:i:s", strtotime("+10 minutes"));
 
-// Save user to database
-if (mysqli_query($conn, $sql)) {
-    $_SESSION['pending_email'] = $email;
-    
-    // TEMPORARY FOR TESTING: Display the code on screen
-    $_SESSION['success'] = "Test OTP Code: " . $otp;
-    
-    header("Location: verify_otp.php");
-    exit();
-}
 // ===============================
 // STUDENT REGISTRATION
 // ===============================

@@ -10,11 +10,12 @@ $notification_count = 0;
 $user_id = $_SESSION['user_id'] ?? 0;
 
 if ($user_id) {
+    // FIXED: Check is_read column instead of status='Unread' to match database schema
     $countQuery = mysqli_query($conn, "
         SELECT COUNT(*) AS total
         FROM notifications
         WHERE user_id='$user_id'
-        AND status='Unread'
+        AND (is_read = 0 OR is_read IS NULL)
     ");
 
     if ($countQuery) {
@@ -49,9 +50,6 @@ if (empty($nav_profile_img)) {
 
 <!-- Navbar Styles -->
 <style>
-    /* ==========================================================================
-       HEADER & NAVIGATION STYLES
-       ========================================================================== */
     .navbar {
         background: #ffffff;
         height: 65px;
@@ -65,7 +63,6 @@ if (empty($nav_profile_img)) {
         z-index: 1000;
     }
 
-    /* Force Brand Elements to stay visible across all screen sizes */
     .nav-brand {
         display: flex !important;
         align-items: center !important;
@@ -83,7 +80,7 @@ if (empty($nav_profile_img)) {
 
     .brand-text h2 {
         font-size: 16px !important;
-        font-weight: 700 !important; /* Forces "eRegistrar" to always be Bold */
+        font-weight: 700 !important;
         color: var(--primary, #0056b3) !important;
         line-height: 1.1 !important;
         margin: 0 !important;
@@ -92,7 +89,7 @@ if (empty($nav_profile_img)) {
 
     .brand-text span {
         font-size: 11px !important;
-        font-weight: 400 !important; /* Forces "Student Portal" to always be Regular */
+        font-weight: 400 !important;
         color: var(--text-muted, #6c757d) !important;
         display: block !important;
         line-height: 1 !important;
@@ -128,18 +125,16 @@ if (empty($nav_profile_img)) {
     .nav-user {
         display: flex;
         align-items: center;
-        gap: 12px; /* Keeps bell and profile close to each other */
+        gap: 12px;
     }
 
-    /* Desktop Search Styling */
     .desktop-search-form {
         display: flex;
         align-items: center;
     }
 
     .search-pill {
-        width: 280px; /* Wider search engine bar */
-        height: 20;
+        width: 280px;
         display: flex;
         align-items: center;
         background: #f1f3f5;
@@ -154,10 +149,9 @@ if (empty($nav_profile_img)) {
         background: transparent;
         outline: none;
         font-size: 13px;
-        width: 100%; /* Input fills full width of pill */
+        width: 100%;
     }
 
-    /* Mobile Drawer Search Styling */
     .mobile-search-form {
         margin-bottom: 15px;
     }
@@ -201,7 +195,6 @@ if (empty($nav_profile_img)) {
         font-weight: bold;
     }
 
-    /* User Profile Dropdown */
     .user-dropdown {
         position: relative;
         cursor: pointer;
@@ -285,7 +278,6 @@ if (empty($nav_profile_img)) {
         cursor: pointer;
     }
 
-    /* Mobile Drawer */
     .mobile-drawer {
         position: fixed;
         top: 0;
@@ -334,7 +326,6 @@ if (empty($nav_profile_img)) {
         color: var(--primary, #0056b3);
     }
 
-    /* Mobile Bottom Navigation */
     .mobile-bottom-nav {
         display: none;
         position: fixed;
@@ -364,7 +355,6 @@ if (empty($nav_profile_img)) {
 
     .mobile-bottom-nav i { font-size: 18px; }
 
-    /* Responsive Breakpoints */
     @media (max-width: 1100px) {
         .user-name-text { display: none; }
     }
@@ -413,18 +403,17 @@ if (empty($nav_profile_img)) {
             </div>
         </form>
 
-        <!-- Notification Bell -->
+        <!-- Notification Bell with explicit ID for live JS updates -->
         <a href="notifications.php" class="icon-badge" style="text-decoration: none;">
             <i class="fa-regular fa-bell"></i>
-            <?php if($notification_count > 0): ?>
-                <span class="badge"><?= $notification_count ?></span>
-            <?php endif; ?>
+            <span class="badge" id="navNotificationBadge" style="<?= $notification_count > 0 ? '' : 'display: none;'; ?>">
+                <?= $notification_count; ?>
+            </span>
         </a>
 
         <!-- Desktop User Profile Dropdown -->
         <div class="user-dropdown">
             <div class="user-profile">
-                <!-- Uses dynamic database profile image variable -->
                 <img src="<?= htmlspecialchars($nav_profile_img); ?>" class="user-avatar" alt="User">
                 <span class="user-name-text"><?= htmlspecialchars($_SESSION['fullname'] ?? 'Student'); ?> <i class="fa-solid fa-chevron-down" style="font-size:10px;"></i></span>
             </div>

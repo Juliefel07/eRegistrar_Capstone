@@ -183,23 +183,34 @@ $user_initial = !empty($_SESSION['fullname']) ? strtoupper(substr($_SESSION['ful
 .user-profile-card .user-details small {
     font-size: 0.75rem;
     color: #64748b;
-}
-
-.sidebar-footer a.logout {
+}.sidebar-logout-btn {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    color: #ef4444;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9rem;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 11px;
+    background-color: #dc2626; /* Solid bright red background */
+    color: #ffffff;            /* White text */
     border-radius: 8px;
-    transition: background 0.2s ease;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    border: none;
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
 }
 
-.sidebar-footer a.logout:hover {
-    background-color: #fef2f2;
+.sidebar-logout-btn:hover {
+    background-color: #b91c1c; /* Darker red on hover */
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(220, 38, 38, 0.45);
+}
+
+.sidebar-logout-btn i {
+    font-size: 1.05rem;
 }
 
 .mobile-header-toggle { display: none; }
@@ -309,6 +320,13 @@ $user_initial = !empty($_SESSION['fullname']) ? strtoupper(substr($_SESSION['ful
             <div class="nav-link-content">
                 <i class="fa-solid fa-clock-rotate-left"></i>
                 <span>Transaction History</span>
+            </div>
+        </a>
+
+         <a href="announcements.php" class="<?= ($current_page == 'announcements.php') ? 'active' : ''; ?>">
+            <div class="nav-link-content">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Annoucements</span>
             </div>
         </a>
 

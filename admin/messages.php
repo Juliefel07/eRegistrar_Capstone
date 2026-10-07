@@ -219,10 +219,12 @@ if ($student_id) {
 
         /* Main Chat Window */
         .admin-chat {
-            display: flex;
-            flex-direction: column;
-            background-color: #f8fafc;
-        }
+    display: flex;
+    flex-direction: column;
+    background-color: #f8fafc;
+    height: 100%; /* Ensure it takes full height of the grid cell */
+    overflow: hidden;
+}
 
         .admin-chat-header {
             padding: 14px 20px;

@@ -27,6 +27,16 @@ $recentRequests = mysqli_query($conn,"
     ORDER BY r.request_date DESC
     LIMIT 5
 ");
+
+// Fetch active student announcements from database
+$student_announcements = mysqli_query($conn, "
+    SELECT a.*, u.fullname AS author 
+    FROM announcements a 
+    LEFT JOIN users u ON a.created_by = u.user_id 
+    WHERE a.status = 'active' AND a.target_audience IN ('all', 'students') 
+    ORDER BY a.created_at DESC 
+    LIMIT 5
+");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -34,6 +44,7 @@ $recentRequests = mysqli_query($conn,"
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <title>eRegistrar - Student Portal</title>
     
     <style>
@@ -209,6 +220,50 @@ $recentRequests = mysqli_query($conn,"
         .status-badge.processing { background: #cce5ff; color: #004085; }
         .status-badge.ready { background: #d4edda; color: #155724; }
         .status-badge.completed { background: #e2e3e5; color: #383d41; }
+
+        /* DYNAMIC ANNOUNCEMENT CARD STYLES */
+        .announcement-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+
+        .announcement-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .announcement-item h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        .announcement-item p {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .announcement-img {
+            width: 100%;
+            max-height: 180px;
+            border-radius: 6px;
+            object-fit: cover;
+            margin-bottom: 8px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .announcement-date {
+            font-size: 11px;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
 
         /* MEDIA QUERIES */
         @media (max-width: 992px) {
@@ -389,9 +444,28 @@ $recentRequests = mysqli_query($conn,"
 
             <!-- Right Sidebar Column -->
             <div>
+                <!-- DYNAMIC ANNOUNCEMENTS CARD -->
                 <div class="card">
-                    <div class="card-title">📢 Announcements</div>
-                    <p style="font-size:13px; color:#555;">Online document requests are now active. Standard processing schedules apply.</p>
+                    <div class="card-title"><i class="fa-solid fa-bullhorn" style="color: var(--primary);"></i> Announcements</div>
+                    
+                    <?php if ($student_announcements && mysqli_num_rows($student_announcements) > 0): ?>
+                        <?php while ($ann = mysqli_fetch_assoc($student_announcements)): ?>
+                            <div class="announcement-item">
+                                <h4><?= htmlspecialchars($ann['title']); ?></h4>
+                                <p><?= nl2br(htmlspecialchars($ann['content'])); ?></p>
+                                
+                                <?php if (!empty($ann['image_path'])): ?>
+                                    <img src="../<?= htmlspecialchars($ann['image_path']); ?>" alt="Banner" class="announcement-img">
+                                <?php endif; ?>
+
+                                <div class="announcement-date">
+                                    <i class="fa-regular fa-clock"></i> <?= date("M d, Y - h:i A", strtotime($ann['created_at'])); ?>
+                                </div>
+                            </div>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <p style="font-size:13px; color:#666; font-style:italic;">No official announcements posted at this time.</p>
+                    <?php endif; ?>
                 </div>
 
                 <div class="card">

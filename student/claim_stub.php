@@ -60,7 +60,7 @@ if (!empty($ref)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Claim Stub - eRegistrar</title>
-     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
+    <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <link rel="stylesheet" href="../assets/css/student.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -70,24 +70,25 @@ if (!empty($ref)) {
         body { background-color: #f4f6f9; font-family: 'Inter', 'Segoe UI', sans-serif; margin: 0; padding: 0; }
         
         .page-wrapper { width: 100%; display: flex; flex-direction: column; min-height: 100vh; }
-        .main-content { max-width: 800px; width: 100%; margin: 40px auto; padding: 0 20px; flex: 1; }
+        .main-content { max-width: 800px; width: 100%; margin: 20px auto; padding: 0 16px; flex: 1; }
 
-        .card { background: #ffffff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #e2e8f0; }
+        .card { background: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #e2e8f0; }
         .card h3 { margin-top: 0; font-size: 1.2rem; color: #1e293b; display: flex; align-items: center; gap: 8px; }
         
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.875rem; color: #475569; }
-        .form-group select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; }
+        .form-group select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; background-color: #fff; }
         
         .btn-open-modal { background: #2563eb; color: #ffffff; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; font-size: 0.95rem; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-open-modal:hover { background: #1d4ed8; }
 
         .summary-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin: 15px 0; }
-        .summary-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #e2e8f0; font-size: 0.9rem; }
+        .summary-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; font-size: 0.9rem; gap: 10px; }
         .summary-row:last-child { border-bottom: none; }
         .summary-label { color: #64748b; font-weight: 500; }
-        .summary-value { color: #0f172a; font-weight: 600; }
+        .summary-value { color: #0f172a; font-weight: 600; text-align: right; }
 
+        /* FLOATING MODAL - MOBILE FRIENDLY */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -98,52 +99,78 @@ if (!empty($ref)) {
             z-index: 9999;
             align-items: center;
             justify-content: center;
+            padding: 12px;
+            overflow-y: auto;
         }
 
         .modal-card {
             background: #ffffff;
-            width: 90%;
+            width: 100%;
             max-width: 550px;
-            padding: 30px;
+            padding: 24px 18px 20px 18px;
             border-radius: 12px;
             position: relative;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            max-height: 92vh;
+            overflow-y: auto;
+            margin: auto;
         }
 
         .modal-close {
             position: absolute;
-            top: 12px; right: 16px;
-            background: none; border: none;
-            font-size: 1.5rem; color: #64748b;
+            top: 10px; right: 14px;
+            background: #f1f5f9; border: none;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            font-size: 1.25rem; color: #64748b;
             cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10;
         }
 
-        .stub-box { border: 2px dashed #0f172a; padding: 20px; border-radius: 8px; background: #fff; }
-        .stub-header { text-align: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 12px; margin-bottom: 15px; }
-        .stub-logo { max-height: 65px; width: auto; display: block; margin: 0 auto 6px auto; object-fit: contain; }
-        .stub-header h2 { margin: 0; font-size: 1rem; color: #0f172a; }
-        .stub-header p { margin: 4px 0 0; color: #64748b; font-size: 0.8rem; font-weight: 500; }
+        .stub-box { border: 2px dashed #0f172a; padding: 16px; border-radius: 8px; background: #fff; margin-top: 8px; }
+        .stub-header { text-align: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 12px; margin-bottom: 12px; }
+        .stub-logo { max-height: 55px; width: auto; display: block; margin: 0 auto 6px auto; object-fit: contain; }
+        .stub-header h2 { margin: 0; font-size: 0.95rem; color: #0f172a; line-height: 1.3; }
+        .stub-header p { margin: 4px 0 0; color: #64748b; font-size: 0.775rem; font-weight: 500; }
 
-        .ref-tag { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; text-align: center; padding: 8px; border-radius: 6px; margin-bottom: 15px; font-weight: bold; font-size: 1rem; }
+        .ref-tag { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; text-align: center; padding: 8px; border-radius: 6px; margin-bottom: 12px; font-weight: bold; font-size: 0.9rem; word-break: break-all; }
 
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+        /* GRID RESPONSIVE FOR MOBILE */
+        .info-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 10px 14px; 
+            margin-bottom: 12px; 
+        }
         .info-item { border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; }
-        .info-item span { display: block; font-size: 0.7rem; color: #64748b; text-transform: uppercase; font-weight: 600; }
-        .info-item strong { color: #0f172a; font-size: 0.875rem; }
+        .info-item span { display: block; font-size: 0.675rem; color: #64748b; text-transform: uppercase; font-weight: 600; letter-spacing: 0.2px; }
+        .info-item strong { color: #0f172a; font-size: 0.85rem; word-break: break-word; }
 
-        .notice-box { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 12px; border-radius: 6px; font-size: 0.825rem; }
+        .notice-box { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 10px 12px; border-radius: 6px; font-size: 0.8rem; }
 
-        .btn-print-action { background: #059669; color: #ffffff; padding: 12px; border: none; border-radius: 6px; font-weight: 600; width: 100%; margin-top: 15px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-print-action { background: #059669; color: #ffffff; padding: 12px; border: none; border-radius: 6px; font-weight: 600; width: 100%; margin-top: 14px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-print-action:hover { background: #047857; }
+
+        /* RESPONSIVE MEDIA QUERIES */
+        @media (max-width: 600px) {
+            .main-content { margin: 15px auto; padding: 0 12px; }
+            .card { padding: 16px; }
+            .modal-card { padding: 20px 12px 16px 12px; }
+            .stub-box { padding: 12px; }
+            .stub-header h2 { font-size: 0.875rem; }
+            .info-grid { grid-template-columns: 1fr; }
+            .summary-row { font-size: 0.85rem; }
+        }
 
         @media print {
             body * { visibility: hidden; }
             #printableStubArea, #printableStubArea * { visibility: visible; }
-            #printableStubArea { position: absolute; left: 0; top: 0; width: 100%; }
-            .modal-overlay { background: none; backdrop-filter: none; position: static; }
-            .modal-card { box-shadow: none; padding: 0; width: 100%; max-width: 100%; }
+            #printableStubArea { position: absolute; left: 0; top: 0; width: 100%; border: 2px dashed #000; padding: 15px; }
+            .modal-overlay { background: none; backdrop-filter: none; position: static; padding: 0; }
+            .modal-card { box-shadow: none; padding: 0; width: 100%; max-width: 100%; max-height: none; overflow: visible; }
             .modal-close, .btn-print-action { display: none !important; }
-            .stub-logo { max-height: 70px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .stub-logo { max-height: 65px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
 </head>
@@ -213,7 +240,7 @@ if (!empty($ref)) {
             <?php else: ?>
                 <div style="text-align: center; color: #94a3b8; padding: 20px 0;">
                     <i class="fa-solid fa-arrow-up" style="font-size: 1.5rem; margin-bottom: 8px;"></i>
-                    <p>Please select a document from the dropdown above to view its claim stub.</p>
+                    <p style="font-size: 0.875rem;">Please select a document from the dropdown above to view its claim stub.</p>
                 </div>
             <?php endif; ?>
         </div>
@@ -270,11 +297,11 @@ if (!empty($ref)) {
                 <div class="notice-title" style="margin-bottom: 6px;">
                     <i class="fa-solid fa-circle-info"></i> <strong>Important Claiming Instructions:</strong>
                 </div>
-                <ul style="margin: 0; padding-left: 18px; font-size: 0.775rem; line-height: 1.4;">
-                    <li>Present a printed or digital copy of this Claim Stub along with a valid Student ID upon claiming your document at the Registrar's Office.</li>
-                    <li><strong>Original ID:</strong> Present a valid Student ID or any government-issued ID upon claiming.</li>
-                    <li><strong>Authorized Representative:</strong> If claimed by a representative, bring an <strong>Authorization Letter</strong>, a valid ID of the student, and a valid ID of the representative.</li>
-                    <li><strong>Schedule:</strong> Document claiming is available strictly during office hours (Monday to Friday, 8:00 AM – 5:00 PM).</li>
+                <ul style="margin: 0; padding-left: 16px; font-size: 0.75rem; line-height: 1.4;">
+                    <li>Present a printed or digital copy of this Claim Stub upon claiming your document at the Registrar's Office.</li>
+                    <li><strong>Original ID:</strong> Present a valid Student ID or government ID.</li>
+                    <li><strong>Representative:</strong> Bring an Authorization Letter and valid IDs for both the student and representative.</li>
+                    <li><strong>Schedule:</strong> Monday to Friday, 8:00 AM – 5:00 PM.</li>
                 </ul>
             </div>
 

@@ -12,22 +12,6 @@ $email = $_SESSION['pending_email'];
 $error = '';
 $success = '';
 
-// Check session for temporary success messages
-if (isset($_SESSION['success'])) {
-    $success = $_SESSION['success'];
-    unset($_SESSION['success']);
-} else {
-    // TEST MODE: Fetch generated OTP code directly from database to ensure on-screen display
-    $otp_stmt = $conn->prepare("SELECT otp_code FROM users WHERE email = ? LIMIT 1");
-    $otp_stmt->bind_param("s", $email);
-    $otp_stmt->execute();
-    $otp_data = $otp_stmt->get_result()->fetch_assoc();
-    
-    if ($otp_data && !empty($otp_data['otp_code'])) {
-        $success = "TEST MODE — Verification Code: <strong>" . htmlspecialchars($otp_data['otp_code']) . "</strong>";
-    }
-}
-
 // Handle OTP Form Verification
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
     // Combine the 6 individual inputs into one string
@@ -73,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>eRegistrar | Verify OTP</title>
     <!-- FontAwesome & Google Fonts -->
-    <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
+     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -276,25 +260,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
         <span id="timerContainer" class="timer-text">(<span id="timer">60</span>s)</span>
     </div>
 </div>
-
 <script>
+    // 1. Request Notification Permission on Page Load
     document.addEventListener('DOMContentLoaded', () => {
         if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
             Notification.requestPermission();
         }
     });
 
+    // Helper function to show Push Notification
     function showPushNotification(title, message, iconUrl = '') {
         if ("Notification" in window && Notification.permission === "granted") {
             new Notification(title, {
                 body: message,
-                icon: iconUrl || 'https://cdn-icons-png.flaticon.com/512/732/732200.png'
+                icon: iconUrl || 'https://cdn-icons-png.flaticon.com/512/732/732200.png' // Default email icon
             });
         } else {
+            // Fallback to standard alert if notifications are blocked or unsupported
             alert(message);
         }
     }
 
+    // 2. Auto-Focus Logic for 6 Single-Digit Inputs
     const inputs = document.querySelectorAll('.otp-digit');
 
     inputs.forEach((input, index) => {
@@ -326,6 +313,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
         });
     });
 
+    // 3. Countdown Timer Logic for Resend Link
     let timeLeft = 60;
     const timerElement = document.getElementById('timer');
     const timerContainer = document.getElementById('timerContainer');
@@ -348,8 +336,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
         }, 1000);
     }
 
+    // Start timer on load
     startTimer();
 
+    // 4. Resend OTP Action with Push Notification
     function resendOTP() {
         if (resendBtn.disabled) return;
 
@@ -372,13 +362,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
         })
         .then(data => {
             if (data.status === 'success') {
+                // Trigger Native Push Notification
                 showPushNotification(
                     'eRegistrar Verification',
-                    'A new 6-digit OTP verification code has been sent.'
+                    'A new 6-digit OTP verification code has been sent to your email.'
                 );
+
                 resendBtn.innerText = "Resend Code";
                 startTimer();
-                window.location.reload(); // Reloads to show updated test code on screen
             } else {
                 showPushNotification(
                     'eRegistrar Error',

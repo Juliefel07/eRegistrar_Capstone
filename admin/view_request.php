@@ -45,14 +45,14 @@ if (isset($_POST['reject_requirement'])) {
         SET status = 'Rejected', remarks = ?
         WHERE id = ?
     ");
-    mysqli_stmt_bind_param($rejectStmt, "si", $remarks, $file_id);
+    mysqli_stmt_bind_param($rejectStmt, "si", $remarks,$file_id);
     mysqli_stmt_execute($rejectStmt);
 
     $getInfoStmt = mysqli_prepare($conn, "
-        SELECT r.user_id, r.tracking_no, dr.requirement_name
+        SELECT r.user_id, r.tracking_no, COALESCE(dr.requirement_name, rrf.file_name) AS req_display_name
         FROM request_requirement_files rrf
         JOIN requests r ON rrf.request_id = r.request_id
-        JOIN document_requirements dr ON rrf.requirement_id = dr.requirement_id
+        LEFT JOIN document_requirements dr ON rrf.requirement_id = dr.requirement_id
         WHERE rrf.id = ?
         LIMIT 1
     ");
@@ -62,9 +62,8 @@ if (isset($_POST['reject_requirement'])) {
 
     if ($info = mysqli_fetch_assoc($infoResult)) {
         createNotification(
-            $conn,
-            $info['user_id'],
-            "Your requirement '" . $info['requirement_name'] . "' for request " . $info['tracking_no'] . " was rejected. Please review the remarks and upload a corrected file."
+            $conn,$info['user_id'],
+            "Your requirement '" . $info['req_display_name'] . "' for request " . $info['tracking_no'] . " was rejected. Please review the remarks and upload a corrected file."
         );
     }
 
@@ -72,17 +71,28 @@ if (isset($_POST['reject_requirement'])) {
     exit();
 }
 
-// FETCH REQUIREMENT FILES
+// FETCH ALL REQUIREMENT FILES
 $filesStmt = mysqli_prepare($conn, "
-    SELECT rrf.*, dr.requirement_name
+    SELECT rrf.*, COALESCE(dr.requirement_name, rrf.file_name) AS requirement_name
     FROM request_requirement_files rrf
-    JOIN document_requirements dr ON rrf.requirement_id = dr.requirement_id
+    LEFT JOIN document_requirements dr ON rrf.requirement_id = dr.requirement_id
     WHERE rrf.request_id = ?
-    ORDER BY dr.requirement_id ASC
+    ORDER BY rrf.id ASC
 ");
 mysqli_stmt_bind_param($filesStmt, "i", $request_id);
 mysqli_stmt_execute($filesStmt);
-$files = mysqli_stmt_get_result($filesStmt);
+$filesResult = mysqli_stmt_get_result($filesStmt);
+
+// Split files into ID files and general document requirement files
+$idFiles = [];$otherFiles = [];
+
+while ($row = mysqli_fetch_assoc($filesResult)) {
+    if (stripos($row['file_name'], 'Valid ID') !== false || is_null($row['requirement_id'])) {
+        $idFiles[] =$row;
+    } else {
+        $otherFiles[] =$row;
+    }
+}
 
 // PROGRESS CALCULATION
 $totalStmt = mysqli_prepare($conn, "SELECT COUNT(*) AS total FROM request_requirement_files WHERE request_id = ?");
@@ -98,10 +108,8 @@ $verified = mysqli_fetch_assoc(mysqli_stmt_get_result($verifiedStmt))['verified'
 $percent = ($total > 0) ? ($verified / $total) * 100 : 0;
 
 $progressColor = "#ef4444"; // Red
-if ($percent >= 100) {
-    $progressColor = "#22c55e"; // Green
-} elseif ($percent >= 50) {
-    $progressColor = "#f59e0b"; // Orange
+if ($percent >= 100) {$progressColor = "#22c55e"; // Green
+} elseif ($percent >= 50) {$progressColor = "#f59e0b"; // Orange
 }
 ?>
 
@@ -133,7 +141,6 @@ if ($percent >= 100) {
             box-sizing: border-box;
         }
 
-        /* Top Action / Back Nav */
         .back-nav {
             margin-bottom: 16px;
         }
@@ -153,7 +160,6 @@ if ($percent >= 100) {
             color: #2563eb;
         }
 
-        /* Cards Base */
         .card {
             background: #ffffff;
             border-radius: 12px;
@@ -173,7 +179,6 @@ if ($percent >= 100) {
             gap: 10px;
         }
 
-        /* Request Summary Grid */
         .request-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -202,7 +207,6 @@ if ($percent >= 100) {
             font-weight: 600;
         }
 
-        /* Progress Card */
         .progress-bar-bg {
             width: 100%;
             height: 12px;
@@ -218,12 +222,10 @@ if ($percent >= 100) {
             transition: width 0.4s ease;
         }
 
-        /* Payment Card */
-        .payment-card {
-            border-left: 4px solid #059669;
+        .id-card-section {
+            border-left: 4px solid #7c3aed;
         }
 
-        /* File Requirement Cards */
         .file-card {
             background: #ffffff;
             border-radius: 12px;
@@ -240,7 +242,7 @@ if ($percent >= 100) {
             align-items: center;
             flex-wrap: wrap;
             gap: 12px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .file-card h4 {
@@ -257,7 +259,6 @@ if ($percent >= 100) {
             flex-wrap: wrap;
         }
 
-        /* Status Badges */
         .badge {
             display: inline-block;
             padding: 4px 10px;
@@ -271,7 +272,6 @@ if ($percent >= 100) {
         .badge.verified, .badge.approved { background-color: #d1fae5; color: #047857; }
         .badge.rejected { background-color: #fee2e2; color: #b91c1c; }
 
-        /* Buttons */
         .btn {
             padding: 8px 14px;
             border-radius: 6px;
@@ -300,6 +300,9 @@ if ($percent >= 100) {
         .btn-secondary { background-color: #475569; }
         .btn-secondary:hover { background-color: #334155; }
 
+        .btn-purple { background-color: #7c3aed; }
+        .btn-purple:hover { background-color: #6d28d9; }
+
         .alert-message {
             background-color: #fee2e2;
             color: #991b1b;
@@ -312,20 +315,68 @@ if ($percent >= 100) {
             gap: 10px;
         }
 
-        /* Modal Styles */
-        .modal {
+        /* MODAL STYLES */
+        .modal-overlay {
             display: none;
             position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(2px);
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
             justify-content: center;
             align-items: center;
-            z-index: 99999;
             padding: 16px;
         }
 
-        .modal-content {
+        .modal-container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 550px;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #0f172a;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .modal-footer {
+            padding: 12px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .modal-content-reject {
             width: 100%;
             max-width: 450px;
             background: #ffffff;
@@ -335,26 +386,7 @@ if ($percent >= 100) {
             position: relative;
         }
 
-        .modal h3 {
-            margin: 0 0 16px 0;
-            color: #0f172a;
-            font-size: 1.15rem;
-        }
-
-        .close-btn {
-            position: absolute;
-            right: 16px;
-            top: 16px;
-            font-size: 1.25rem;
-            cursor: pointer;
-            color: #94a3b8;
-            border: none;
-            background: transparent;
-        }
-
-        .close-btn:hover { color: #dc2626; }
-
-        .modal textarea {
+        .modal-content-reject textarea {
             width: 100%;
             border: 1px solid #cbd5e1;
             border-radius: 8px;
@@ -364,28 +396,11 @@ if ($percent >= 100) {
             outline: none;
         }
 
-        .modal textarea:focus {
-            border-color: #2563eb;
-        }
-
-        /* Responsive Breakpoints */
         @media (max-width: 768px) {
-            .admin-content {
-                padding: 16px;
-            }
-
-            .file-card-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .file-actions {
-                width: 100%;
-            }
-
-            .file-actions .btn {
-                flex: 1;
-            }
+            .admin-content { padding: 16px; }
+            .file-card-header { flex-direction: column; align-items: flex-start; }
+            .file-actions { width: 100%; }
+            .file-actions .btn { flex: 1; }
         }
     </style>
 </head>
@@ -396,7 +411,6 @@ if ($percent >= 100) {
 
 <div class="admin-content">
 
-    <!-- Navigation Back Link -->
     <div class="back-nav">
         <a href="requests.php"><i class="fa-solid fa-arrow-left"></i> Back to Requests</a>
     </div>
@@ -442,55 +456,72 @@ if ($percent >= 100) {
         </div>
     </div>
 
+    <!-- UPLOADED VALID IDs SECTION -->
+    <div class="card id-card-section">
+        <h3 class="card-header-title" style="color: #6d28d9;">
+            <i class="fa-solid fa-id-card"></i> Student Valid ID Uploads
+        </h3>
+        
+        <?php if (!empty($idFiles)): ?>
+            <div class="request-grid">
+                <?php foreach ($idFiles as$idFile): ?>
+                    <?php 
+                        $cleanPath = ltrim(str_replace(['assets/uploads/', '../assets/uploads/'], '',$idFile['file_path']), '/');
+                        $fullPath = "../assets/uploads/" . $cleanPath;
+                    ?>
+                    <div class="request-item" style="background: #ffffff; border-left: 3px solid #7c3aed;">
+                        <strong><?= htmlspecialchars($idFile['requirement_name']); ?></strong>
+                        <div style="margin: 8px 0;">
+                            <span class="badge <?= strtolower($idFile['status']); ?>">
+                                <?= htmlspecialchars($idFile['status']); ?>
+                            </span>
+                        </div>
+                        <div style="display: flex; gap: 6px; margin-top: 10px;">
+                            <button type="button" class="btn btn-purple" style="padding: 6px 12px; font-size: 0.8rem;" onclick="openImageModal('<?= htmlspecialchars($fullPath, ENT_QUOTES); ?>', '<?= htmlspecialchars($idFile['requirement_name'], ENT_QUOTES); ?>')">
+                                <i class="fa-solid fa-eye"></i> Inspect ID
+                            </button>
+                            <?php if ($idFile['status'] == "Pending"): ?>
+                                <a class="btn btn-primary" href="verify_requirement.php?id=<?= $idFile['id']; ?>&request=<?=$request_id; ?>" style="padding: 6px 10px; font-size: 0.8rem;">
+                                    <i class="fa-solid fa-check"></i> Verify
+                                </a>
+                                <button type="button" class="btn btn-danger" onclick="openRejectModal(<?= $idFile['id']; ?>)" style="padding: 6px 10px; font-size: 0.8rem;">
+                                    <i class="fa-solid fa-xmark"></i> Reject
+                                </button>
+                            <?php endif; ?>
+                        </div>
+                        <?php if (!empty($idFile['remarks'])): ?>
+                            <div style="margin-top: 8px; font-size: 0.8rem; color: #64748b;">
+                                <strong>Remarks:</strong> <?= htmlspecialchars($idFile['remarks']); ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <div style="color: #64748b; font-size: 0.9rem; font-style: italic;">
+                No valid ID files uploaded for this request.
+            </div>
+        <?php endif; ?>
+    </div>
+
     <!-- Requirement Verification Progress Bar -->
     <div class="card">
         <h3 class="card-header-title">
             <i class="fa-solid fa-list-check" style="color: #2563eb;"></i> Verification Progress
         </h3>
         <div class="progress-bar-bg">
-            <div class="progress-bar-fill" style="width: <?= $percent; ?>%; background: <?= $progressColor; ?>;"></div>
+            <div class="progress-bar-fill" style="width: <?= $percent; ?>%; background: <?=$progressColor; ?>;"></div>
         </div>
         <div style="font-size: 0.88rem; color: #64748b; font-weight: 500;">
             <strong><?= $verified; ?></strong> of <strong><?= $total; ?></strong> requirements verified (<?= round($percent); ?>%)
         </div>
     </div>
 
-    <!-- Payment & Receipt Info -->
-    <?php if (!empty($request['proof_of_payment']) || !empty($request['or_no'])): ?>
-        <div class="card payment-card">
-            <h3 class="card-header-title" style="color: #065f46;">
-                <i class="fa-solid fa-file-invoice-dollar"></i> Payment & Receipt Information
-            </h3>
-            <div class="request-grid">
-                <div class="request-item">
-                    <strong>Official Receipt / Ref No.</strong>
-                    <span><?= htmlspecialchars($request['or_no'] ?? 'N/A'); ?></span>
-                </div>
-                <div class="request-item">
-                    <strong>Total Fee</strong>
-                    <span style="color: #059669;">₱<?= number_format(($request['fee'] ?? 0) * ($request['quantity'] ?? 1), 2); ?></span>
-                </div>
-                <div class="request-item" style="grid-column: span 1;">
-                    <strong>Payment Attachment</strong>
-                    <div style="margin-top: 4px;">
-                        <?php if (!empty($request['proof_of_payment'])): ?>
-                            <a href="../<?= htmlspecialchars($request['proof_of_payment']); ?>" target="_blank" class="btn btn-secondary">
-                                <i class="fa-solid fa-receipt"></i> View Attachment
-                            </a>
-                        <?php else: ?>
-                            <span style="color: #94a3b8; font-weight: normal; font-size: 0.85rem;">No receipt image attached</span>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
-
     <!-- Uploaded Requirements List -->
-    <h3 style="font-size: 1.1rem; color: #0f172a; margin: 24px 0 16px 0; font-weight: 700;">Uploaded Requirements</h3>
+    <h3 style="font-size: 1.1rem; color: #0f172a; margin: 24px 0 16px 0; font-weight: 700;">Uploaded Document Requirements</h3>
 
-    <?php if (mysqli_num_rows($files) > 0): ?>
-        <?php while ($row = mysqli_fetch_assoc($files)): ?>
+    <?php if (!empty($otherFiles)): ?>
+        <?php foreach ($otherFiles as$row): ?>
             <div class="file-card">
                 <div class="file-card-header">
                     <div>
@@ -503,12 +534,15 @@ if ($percent >= 100) {
                     </div>
 
                     <div class="file-actions">
-                        <a target="_blank" href="../<?= htmlspecialchars($row['file_path']); ?>" class="btn btn-secondary">
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i> View File
-                        </a>
+                        <?php 
+                            $cleanReqPath = "../assets/uploads/" . ltrim(str_replace(['assets/uploads/', '../assets/uploads/'], '', $row['file_path']), '/');
+                        ?>
+                        <button type="button" class="btn btn-secondary" onclick="openImageModal('<?= htmlspecialchars($cleanReqPath, ENT_QUOTES); ?>', '<?= htmlspecialchars($row['requirement_name'], ENT_QUOTES); ?>')">
+                            <i class="fa-solid fa-eye"></i> View File
+                        </button>
 
                         <?php if ($row['status'] == "Pending"): ?>
-                            <a class="btn btn-primary" href="verify_requirement.php?id=<?= $row['id']; ?>&request=<?= $request_id; ?>">
+                            <a class="btn btn-primary" href="verify_requirement.php?id=<?= $row['id']; ?>&request=<?=$request_id; ?>">
                                 <i class="fa-solid fa-check"></i> Verify
                             </a>
 
@@ -525,16 +559,16 @@ if ($percent >= 100) {
                     </div>
                 <?php endif; ?>
             </div>
-        <?php endwhile; ?>
+        <?php endforeach; ?>
     <?php else: ?>
         <div class="card" style="text-align: center; color: #64748b; font-style: italic;">
-            No uploaded requirement documents found for this request.
+            No additional document requirements uploaded for this request.
         </div>
     <?php endif; ?>
 
     <!-- Final Approval Button / Notice -->
     <div style="margin-top: 30px; text-align: left;">
-        <?php if ($verified == $total && $total > 0): ?>
+        <?php if ($verified == $total &&$total > 0): ?>
             <a class="btn btn-success" href="approve.php?id=<?= $request_id; ?>" style="font-size: 1rem; padding: 12px 24px;">
                 <i class="fa-solid fa-circle-check"></i> Approve Entire Request
             </a>
@@ -548,11 +582,26 @@ if ($percent >= 100) {
 
 </div>
 
+<!-- FLOATING IMAGE & FILE PREVIEW MODAL -->
+<div id="imageModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 id="modalTitle"><i class="fa-solid fa-id-card" style="color: #7c3aed;"></i> File Preview</h3>
+            <button type="button" class="modal-close-btn" onclick="closeImageModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modalImageBody"></div>
+        <div class="modal-footer">
+            <a id="modalFullscreenBtn" href="#" target="_blank" class="btn btn-purple" style="font-size: 0.8rem;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open Fullscreen</a>
+            <button type="button" class="btn btn-secondary" onclick="closeImageModal()" style="font-size: 0.8rem;">Close</button>
+        </div>
+    </div>
+</div>
+
 <!-- REJECT REQUIREMENT MODAL -->
-<div id="rejectModal" class="modal">
-    <div class="modal-content">
-        <button type="button" class="close-btn" onclick="closeRejectModal()">&times;</button>
-        <h3>Reject Requirement</h3>
+<div id="rejectModal" class="modal-overlay">
+    <div class="modal-content-reject">
+        <button type="button" class="modal-close-btn" style="position: absolute; right: 16px; top: 16px;" onclick="closeRejectModal()">&times;</button>
+        <h3 style="margin-top: 0; color: #0f172a;">Reject Requirement</h3>
         <form method="POST">
             <input type="hidden" name="file_id" id="reject_file_id">
             
@@ -571,6 +620,28 @@ if ($percent >= 100) {
 </div>
 
 <script>
+function openImageModal(filePath, title) {
+    const fileExt = filePath.split('.').pop().toLowerCase();
+    let bodyHtml = '';
+    
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExt)) {
+        bodyHtml = `<img src="${filePath}" alt="ID Preview" style="max-width: 100%; max-height: 60vh; border-radius: 8px; border: 1px solid #e2e8f0; object-fit: contain;">`;
+    } else if (fileExt === 'pdf') {
+        bodyHtml = `<iframe src="${filePath}" style="width: 100%; height: 55vh; border: none; border-radius: 8px;"></iframe>`;
+    } else {
+        bodyHtml = `<p style="color: #64748b;">Preview unavailable for this file format.</p>`;
+    }
+
+    document.getElementById("modalTitle").innerText = title;
+    document.getElementById("modalImageBody").innerHTML = bodyHtml;
+    document.getElementById("modalFullscreenBtn").href = filePath;
+    document.getElementById("imageModal").style.display = "flex";
+}
+
+function closeImageModal() {
+    document.getElementById("imageModal").style.display = "none";
+}
+
 function openRejectModal(fileId) {
     document.getElementById("reject_file_id").value = fileId;
     document.getElementById("rejectModal").style.display = "flex";
@@ -581,9 +652,13 @@ function closeRejectModal() {
 }
 
 window.onclick = function(event) {
-    let modal = document.getElementById("rejectModal");
-    if (event.target == modal) {
-        modal.style.display = "none";
+    let imgModal = document.getElementById("imageModal");
+    let rejModal = document.getElementById("rejectModal");
+    if (event.target == imgModal) {
+        closeImageModal();
+    }
+    if (event.target == rejModal) {
+        closeRejectModal();
     }
 }
 </script>
