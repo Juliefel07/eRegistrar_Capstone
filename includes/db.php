@@ -5,7 +5,7 @@ $host     = getenv('DB_HOST')     ?: 'mysql-eregistrar-juliefelmalusay-0dad.g.ai
 $user     = getenv('DB_USER')     ?: 'avnadmin';
 $pass     = getenv('DB_PASS')     ?: 'AVNS_DwLisUTSX3JjP5Pz-z5';
 $dbname   = getenv('DB_NAME')     ?: 'defaultdb';
-$port     = getenv('DB_PORT')     ?: 17569;
+$port     = getenv('DB_PORT')     ?: 3369;
 
 // Create database connection
 $conn = mysqli_connect($host, $user, $pass, $dbname, (int)$port);
