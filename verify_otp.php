@@ -1,5 +1,6 @@
-<?php
+<<?php
 session_start();
+date_default_timezone_set('Asia/Manila');
 include "includes/db.php";
 
 // Redirect if there is no pending verification session
