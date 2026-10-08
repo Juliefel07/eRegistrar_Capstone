@@ -17,7 +17,10 @@ function sendOTPEmail($recipientEmail, $recipientName, $otpCode) {
 
     try {
         // Disable debug output for live redirect flow
-        $mail->SMTPDebug = 0; 
+        $mail->SMTPDebug = 2;
+        $mail->Debugoutput = function($str, $level) {
+    file_put_contents('php_mail_debug.log', "[$level] $str\n", FILE_APPEND);
+}; 
 
         // SMTP Server Configuration
         $mail->isSMTP();
@@ -25,8 +28,8 @@ function sendOTPEmail($recipientEmail, $recipientName, $otpCode) {
         $mail->SMTPAuth   = true;
         $mail->Username   = getenv('MAIL_USER') ?: 'eregistrarcctc@gmail.com';    
         $mail->Password   = getenv('MAIL_PASS') ?: 'hfxanjszjhzpcarv';        
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port       = 465;
 
         // Disable SSL Certificate Verification for XAMPP
         $mail->SMTPOptions = array(
