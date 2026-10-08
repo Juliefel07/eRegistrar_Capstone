@@ -8,20 +8,6 @@ header('Content-Type: application/json');
 
 include "includes/db.php";
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-// Check file paths for PHPMailer
-if (!file_exists('PHPMailer/src/Exception.php')) {
-    ob_end_clean();
-    echo json_encode(['status' => 'error', 'message' => 'PHPMailer path not found.']);
-    exit();
-}
-
-require 'PHPMailer/src/Exception.php';
-require 'PHPMailer/src/PHPMailer.php';
-require 'PHPMailer/src/SMTP.php';
-
 if (!isset($_SESSION['pending_email'])) {
     ob_end_clean();
     echo json_encode(['status' => 'error', 'message' => 'Session expired. Please register again.']);
@@ -46,35 +32,23 @@ if ($stmt->execute()) {
     $user = $name_query->get_result()->fetch_assoc();
     $fullname = $user['fullname'] ?? 'User';
 
-    // Send email using PHPMailer
-    // Send email using PHPMailer
-    $mail = new PHPMailer(true);
-    try {
-        $mail->SMTPDebug = 0;
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = getenv('SMTP_USER') ?: 'eregistrarcctc@gmail.com';
-        $mail->Password   = getenv('SMTP_PASS') ?: 'YOUR_NEW_APP_PASSWORD';
-        
-        // FIXED FOR RENDER: Use STARTTLS on Port 587
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
+    // Brevo API Setup
+    $apiKey = getenv('BREVO_API_KEY') ?: 'xsmtpsib-ff23e20c9aa0cec6b3eec780b6cad83e041cb50b7a4cc1c5ea24cc8c9257382a-sSiJdjf4pJqJQWuE';
+    $url = 'https://api.brevo.com/v3/smtp/email';
 
-        $mail->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer'       => false,
-                'verify_peer_name'  => false,
-                'allow_self_signed' => true
-            )
-        );
-
-        $mail->setFrom('eregistrarcctc@gmail.com', 'eRegistrar System');
-        $mail->addAddress($email, $fullname);
-
-        $mail->isHTML(true);
-        $mail->Subject = 'eRegistrar - Your New Verification Code';
-        $mail->Body    = "
+    $data = [
+        'sender' => [
+            'name'  => 'eRegistrar System',
+            'email' => 'eregistrarcctc@gmail.com'
+        ],
+        'to' => [
+            [
+                'email' => $email,
+                'name'  => $fullname
+            ]
+        ],
+        'subject' => 'eRegistrar - Your New Verification Code',
+        'htmlContent' => "
             <div style='font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;'>
                 <h2 style='color: #2563eb; text-align: center;'>New Account Verification Code</h2>
                 <p>Hello <strong>" . htmlspecialchars($fullname) . "</strong>,</p>
@@ -83,15 +57,31 @@ if ($stmt->execute()) {
                     <span style='font-size: 28px; font-weight: bold; letter-spacing: 6px; color: #1e293b; background: #f1f5f9; padding: 10px 20px; border-radius: 6px; border: 1px dashed #cbd5e1;'>" . $new_otp . "</span>
                 </div>
                 <p style='color: #64748b; font-size: 0.85rem;'>This code will expire in 10 minutes.</p>
-            </div>";
+            </div>"
+    ];
 
-        $mail->send();
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'accept: application/json',
+        'api-key: ' . $apiKey,
+        'content-type: application/json'
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode === 201 || $httpCode === 200) {
         ob_end_clean();
         echo json_encode(['status' => 'success']);
         exit();
-    } catch (Exception $e) {
+    } else {
         ob_end_clean();
-        echo json_encode(['status' => 'error', 'message' => 'Mailer error: ' . $mail->ErrorInfo]);
+        echo json_encode(['status' => 'error', 'message' => 'Brevo API Error [' . $httpCode . ']: ' . $response]);
         exit();
     }
 } else {

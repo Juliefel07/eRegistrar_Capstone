@@ -13,108 +13,65 @@ require 'PHPMailer/src/SMTP.php';
 
 // Helper function to send OTP email via PHPMailer
 function sendOTPEmail($recipientEmail, $recipientName, $otpCode) {
-    $mail = new PHPMailer(true);
+    $apiKey = getenv('BREVO_API_KEY') ?: 'xsmtpsib-ff23e20c9aa0cec6b3eec780b6cad83e041cb50b7a4cc1c5ea24cc8c9257382a-sSiJdjf4pJqJQWuE';
 
-    try {
-        // Log debug output to Render console logs
-        $mail->SMTPDebug = 2; 
-        $mail->Debugoutput = function($str, $level) {
-            error_log("[$level] $str");
-        };
+    $url = 'https://api.brevo.com/v3/smtp/email';
 
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';            
-        $mail->SMTPAuth   = true;
-        
-        // Use Environment Variables (or hardcoded app pass temporarily)
-        $mail->Username   = getenv('SMTP_USER') ?: 'eregistrarcctc@gmail.com';    
-        $mail->Password   = getenv('SMTP_PASS') ?: 'hfxanjszjhzpcarv'; 
-        
-        // Change to STARTTLS & Port 587 for Render compatibility
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; 
-        $mail->Port       = 587; 
-
-        $mail->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer'       => false,
-                'verify_peer_name'  => false,
-                'allow_self_signed' => true
-            )
-        );
-
-        $mail->setFrom('eregistrarcctc@gmail.com', 'eRegistrar System');
-        $mail->addAddress($recipientEmail, $recipientName);
-
-        $mail->isHTML(true);
-        $mail->Subject = 'eRegistrar - Account Verification Code';
-        $mail->Body    = "
+    $data = [
+        'sender' => [
+            'name'  => 'eRegistrar System',
+            'email' => 'eregistrarcctc@gmail.com'
+        ],
+        'to' => [
+            [
+                'email' => $recipientEmail,
+                'name'  => $recipientName
+            ]
+        ],
+        'subject' => 'eRegistrar - Account Verification Code',
+        'htmlContent' => "
         <!DOCTYPE html>
         <html>
-        <head>
-        
-            <meta charset='UTF-8'>
-            
-        </head>
-        <body style='margin:0; padding:0; background-color: #f8fafc; font-family: \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif;'>
-            <table border='0' cellpadding='0' cellspacing='0' width='100%' style='padding: 40px 10px;'>
-                <tr>
-                    <td align='center'>
-                        <table border='0' cellpadding='0' cellspacing='0' width='100%' style='max-width: 520px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e2e8f0;'>
-                            
-                            <!-- Header Bar -->
-                            <tr>
-                                <td style='background-color: #1e3a8a; padding: 24px; text-align: center;'>
-                                    <h1 style='color: #ffffff; margin: 0; font-size: 22px; font-weight: 700; letter-spacing: 0.5px;'>eRegistrar System</h1>
-                                </td>
-                            </tr>
-
-                            <!-- Body Content -->
-                            <tr>
-                                <td style='padding: 32px 28px;'>
-                                    <h2 style='color: #0f172a; margin-top: 0; margin-bottom: 12px; font-size: 20px;'>Verify Your Email</h2>
-                                    <p style='color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 24px;'>
-                                        Hello <strong>" . htmlspecialchars($recipientName) . "</strong>,<br>
-                                        Thank you for signing up with eRegistrar. Please use the verification code below to complete your registration.
-                                    </p>
-
-                                    <!-- OTP Box -->
-                                    <div style='background-color: #f1f5f9; border-radius: 10px; border: 1px solid #cbd5e1; padding: 20px; text-align: center; margin-bottom: 24px;'>
-                                        <div style='font-size: 12px; font-weight: 600; text-transform: uppercase; color: #64748b; letter-spacing: 1px; margin-bottom: 8px;'>Verification Code</div>
-                                        <div style='font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #1e3a8a; font-family: monospace;'>" . $otpCode . "</div>
-                                    </div>
-
-                                    <p style='color: #64748b; font-size: 13px; line-height: 1.5; margin: 0;'>
-                                        ⏱️ <strong>This code expires in 10 minutes.</strong><br>
-                                        If you did not request this account registration, you can safely ignore this email.
-                                    </p>
-                                </td>
-                            </tr>
-
-                            <!-- Footer -->
-                            <tr>
-                                <td style='background-color: #f8fafc; padding: 16px 28px; border-top: 1px solid #e2e8f0; text-align: center;'>
-                                    <p style='color: #94a3b8; font-size: 12px; margin: 0;'>
-                                        &copy; " . date('Y') . " eRegistrar. All rights reserved.
-                                    </p>
-                                </td>
-                            </tr>
-
-                        </table>
-                    </td>
-                </tr>
-            </table>
+        <body style='margin:0; padding:0; background-color: #f8fafc; font-family: Arial, sans-serif;'>
+            <div style='max-width: 520px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden;'>
+                <div style='background-color: #1e3a8a; padding: 24px; text-align: center;'>
+                    <h1 style='color: #ffffff; margin: 0; font-size: 22px;'>eRegistrar System</h1>
+                </div>
+                <div style='padding: 32px 28px;'>
+                    <h2 style='color: #0f172a;'>Verify Your Email</h2>
+                    <p style='color: #475569;'>Hello <strong>" . htmlspecialchars($recipientName) . "</strong>,<br>Your verification code is below:</p>
+                    <div style='background-color: #f1f5f9; border-radius: 10px; padding: 20px; text-align: center;'>
+                        <div style='font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #1e3a8a;'>" . $otpCode . "</div>
+                    </div>
+                    <p style='color: #64748b; font-size: 13px; margin-top: 16px;'>⏱️ Code expires in 10 minutes.</p>
+                </div>
+            </div>
         </body>
-        </html>
-        ";
+        </html>"
+    ];
 
-        $mail->send();
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'accept: application/json',
+        'api-key: ' . $apiKey,
+        'content-type: application/json'
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode === 201 || $httpCode === 200) {
         return true;
-    } catch (Exception $e) {
-        error_log("PHPMailer Error: " . $mail->ErrorInfo);
+    } else {
+        error_log("Brevo API Error Code [$httpCode]: " . $response);
         return false;
     }
 }
-
 $account_type = $_POST['account_type'] ?? '';
 
 // Generate 6-digit OTP & 10-minute expiry

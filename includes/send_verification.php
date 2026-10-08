@@ -1,76 +1,62 @@
 <?php
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-require_once __DIR__ . "/../PHPMailer/src/Exception.php";
-require_once __DIR__ . "/../PHPMailer/src/PHPMailer.php";
-require_once __DIR__ . "/../PHPMailer/src/SMTP.php";
-
 function sendVerificationEmail($email, $fullname, $token)
 {
-    $mail = new PHPMailer(true);
+    $apiKey = getenv('BREVO_API_KEY') ?: 'xsmtpsib-ff23e20c9aa0cec6b3eec780b6cad83e041cb50b7a4cc1c5ea24cc8c9257382a-sSiJdjf4pJqJQWuE';
+    $url = 'https://api.brevo.com/v3/smtp/email';
 
-    try {
+    // Dynamic base URL (uses deployed domain on Render or falls back to localhost locally)
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+    $domain = $_SERVER['HTTP_HOST'] ?? 'eregistrar-consolatrix.onrender.com';
+    $verifyLink = $protocol . $domain . "/verify.php?token=" . urlencode($token);
 
-        $mail->isSMTP();
-        $mail->Host = "smtp.gmail.com";
-        $mail->SMTPAuth = true;
+    $data = [
+        'sender' => [
+            'name'  => 'eRegistrar System',
+            'email' => 'eregistrarcctc@gmail.com'
+        ],
+        'to' => [
+            [
+                'email' => $email,
+                'name'  => $fullname
+            ]
+        ],
+        'subject' => 'Verify your eRegistrar Account',
+        'htmlContent' => "
+            <div style='font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;'>
+                <h2 style='color: #1e3a8a; text-align: center;'>Welcome to eRegistrar</h2>
+                <p>Hello <b>" . htmlspecialchars($fullname) . "</b>,</p>
+                <p>Thank you for registering. Please click the button below to verify your account:</p>
+                <div style='text-align: center; margin: 25px 0;'>
+                    <a href='$verifyLink' style='background:#2563eb; color:white; padding:12px 24px; text-decoration:none; border-radius:6px; font-weight:bold; display:inline-block;'>Verify My Account</a>
+                </div>
+                <p style='color: #64748b; font-size: 13px;'>If the button doesn't work, copy and paste this link into your browser:</p>
+                <p style='color: #2563eb; word-break: break-all; font-size: 13px;'>$verifyLink</p>
+                <br>
+                <p style='color: #475569;'>Regards,<br><strong>eRegistrar Team</strong></p>
+            </div>
+        "
+    ];
 
-        // Your Gmail account
-        $mail->Username = "eregistrar.cctc@gmail.com";
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'accept: application/json',
+        'api-key: ' . $apiKey,
+        'content-type: application/json'
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        // Paste your Google App Password here
-        $mail->Password = "wsbc rrik uejt gxpz";
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
 
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;       // Change to port 465
-
-        $mail->setFrom("eregistrar.cctc@gmail.com", "eRegistrar");
-        $mail->addAddress($email, $fullname);
-
-        $mail->isHTML(true);
-        $mail->Subject = "Verify your eRegistrar Account";
-
-        // Change this if your project folder has a different name
-        $verifyLink = "http://localhost/eRegistrar/verify.php?token=" . $token;
-
-        $mail->Body = "
-            <h2>Welcome to eRegistrar</h2>
-
-            <p>Hello <b>$fullname</b>,</p>
-
-            <p>Thank you for registering.</p>
-
-            <p>Please click the button below to verify your account.</p>
-
-            <p>
-                <a href='$verifyLink'
-                   style='background:#0d6efd;
-                          color:white;
-                          padding:12px 20px;
-                          text-decoration:none;
-                          border-radius:6px;'>
-                    Verify My Account
-                </a>
-            </p>
-
-            <p>If the button doesn't work, copy and paste this link into your browser:</p>
-
-            <p>$verifyLink</p>
-
-            <br>
-
-            <p>Regards,<br>eRegistrar Team</p>
-        ";
-
-        $mail->send();
-
+    if ($httpCode === 201 || $httpCode === 200) {
         return true;
-
-    } catch (Exception $e) {
-
+    } else {
+        error_log("Brevo API Verification Mail Error [$httpCode]: " . $response);
         return false;
-
     }
 }
