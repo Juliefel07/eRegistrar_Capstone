@@ -1,14 +1,9 @@
 <?php
 
-function sendVerificationEmail($email, $fullname, $token)
+function sendVerificationEmail($email, $fullname, $otpCode)
 {
     $apiKey = getenv('BREVO_API_KEY');
     $url = 'https://api.brevo.com/v3/smtp/email';
-
-    // Dynamic base URL (uses deployed domain on Render or falls back to localhost locally)
-    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
-    $domain = $_SERVER['HTTP_HOST'] ?? 'eregistrar-consolatrix.onrender.com';
-    $verifyLink = $protocol . $domain . "/verify.php?token=" . urlencode($token);
 
     $data = [
         'sender' => [
@@ -21,20 +16,22 @@ function sendVerificationEmail($email, $fullname, $token)
                 'name'  => $fullname
             ]
         ],
-        'subject' => 'Verify your eRegistrar Account',
+        'subject' => 'eRegistrar - Account Verification Code',
         'htmlContent' => "
-            <div style='font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;'>
-                <h2 style='color: #1e3a8a; text-align: center;'>Welcome to eRegistrar</h2>
-                <p>Hello <b>" . htmlspecialchars($fullname) . "</b>,</p>
-                <p>Thank you for registering. Please click the button below to verify your account:</p>
-                <div style='text-align: center; margin: 25px 0;'>
-                    <a href='$verifyLink' style='background:#2563eb; color:white; padding:12px 24px; text-decoration:none; border-radius:6px; font-weight:bold; display:inline-block;'>Verify My Account</a>
+            <!DOCTYPE html>
+            <html>
+            <body style='margin:0; padding:0; background-color: #f8fafc; font-family: Arial, sans-serif;'>
+                <div style='max-width: 500px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 24px; text-align: center;'>
+                    <h2 style='color: #1e3a8a; margin-top: 0;'>eRegistrar System</h2>
+                    <p style='color: #475569; font-size: 15px;'>Hello <strong>" . htmlspecialchars($fullname) . "</strong>,<br>Your 6-digit verification code is below:</p>
+                    <div style='background-color: #f1f5f9; border-radius: 10px; padding: 18px; margin: 20px 0;'>
+                        <span style='font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #1e3a8a;'>" . htmlspecialchars($otpCode) . "</span>
+                    </div>
+                    <p style='color: #64748b; font-size: 13px;'>⏱️ Code expires in 10 minutes.</p>
+                    <p style='color: #94a3b8; font-size: 12px; margin-top: 20px;'>If you did not request this code, please ignore this email.</p>
                 </div>
-                <p style='color: #64748b; font-size: 13px;'>If the button doesn't work, copy and paste this link into your browser:</p>
-                <p style='color: #2563eb; word-break: break-all; font-size: 13px;'>$verifyLink</p>
-                <br>
-                <p style='color: #475569;'>Regards,<br><strong>eRegistrar Team</strong></p>
-            </div>
+            </body>
+            </html>
         "
     ];
 
