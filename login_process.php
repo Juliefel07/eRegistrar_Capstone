@@ -26,9 +26,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $expiry = date("Y-m-d H:i:s", strtotime("+10 minutes"));
 
                 // Update database with the new OTP code
-                $userId = $user['user_id'];
-                $updateSql = "UPDATE users SET otp_code = '$otp', otp_expiry = '$expiry' WHERE user_id = '$userId'";
-                mysqli_query($conn, $updateSql);
+                // Update database with just the new OTP code (no expiry column needed)
+$userId = $user['user_id'];
+$updateSql = "UPDATE users SET otp_code = '$otp' WHERE user_id = '$userId'";
+mysqli_query($conn, $updateSql);
 
                 // Send the OTP email using Brevo API
                 sendOtpEmail($user['email'], $otp);
