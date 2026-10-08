@@ -169,7 +169,12 @@ if ($account_type == "Student") {
             ('Student', '$student_level', '$student_status', '$student_no', '$lrn', '$fullname', '$course', '$grade_level', '$section', '$year_level', '$school_year', '$contact_no', '$email', '$hash', 'Student', '$otp', '$expires_at', 0)";
 
     if (mysqli_query($conn, $sql)) {
-        sendOTPEmail($email, $fullname, $otp);
+        // Force the script to stop and show the error if email fails
+        $mail_sent = sendOTPEmail($email, $fullname, $otp);
+        if (!$mail_sent) {
+            die("Email failed to send! Check your PHPMailer settings or server connection.");
+        }
+        
         $_SESSION['pending_email'] = $email;
         header("Location: verify_otp.php");
         exit();
