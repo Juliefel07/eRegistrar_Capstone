@@ -21,24 +21,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Check email verification for non-admin accounts
             if ($user['role'] !== "Admin" && (int)$user['is_verified'] === 0) {
-                // Generate a fresh 6-digit OTP
-$otp = rand(100000, 999999);
+                // Generate a fresh 6-digit OTP token
+                $otp = rand(100000, 999999);
 
-// Update database with the new OTP code
-$userId = $user['user_id'];
-$updateSql = "UPDATE users SET otp_code = '$otp' WHERE user_id = '$userId'";
-mysqli_query($conn, $updateSql);
+                // Update database with the new OTP code
+                $userId = $user['user_id'];
+                $updateSql = "UPDATE users SET otp_code = '$otp' WHERE user_id = '$userId'";
+                mysqli_query($conn, $updateSql);
 
-// Set variables and session expected by send_verification.php
-$_SESSION['pending_email'] = $user['email'];
-$email = $user['email'];
+                // Set session for verification page
+                $_SESSION['pending_email'] = $user['email'];
 
-// Trigger the email dispatch script directly
-include "includes/send_verification.php";
+                // Safely load the email function file
+                require_once "includes/send_verification.php";
+                
+                // Call the correct function defined in your send_verification.php file
+                sendVerificationEmail($user['email'], $user['fullname'], $otp);
 
-// Redirect to OTP page
-header("Location: verify_otp.php");
-exit();
+                // Redirect to OTP page
+                header("Location: verify_otp.php");
+                exit();
+            }
             }
 
             // Set Session Data for verified users
