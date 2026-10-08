@@ -23,8 +23,8 @@ function sendVerificationEmail($email, $fullname, $token)
         // Paste your Google App Password here
         $mail->Password = "wsbc rrik uejt gxpz";
 
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Change to SSL
-        $mail->Port       = 465;                         // Change to port 465
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;       // Change to port 465
 
         $mail->setFrom("eregistrar.cctc@gmail.com", "eRegistrar");
         $mail->addAddress($email, $fullname);

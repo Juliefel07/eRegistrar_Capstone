@@ -15,24 +15,25 @@ require 'PHPMailer/src/SMTP.php';
 function sendOTPEmail($recipientEmail, $recipientName, $otpCode) {
     $mail = new PHPMailer(true);
 
-try {
-    // Turn on debug mode and save output to a log file
-    $mail->SMTPDebug = 2; 
-    $mail->Debugoutput = function($str, $level) {
-        file_put_contents('php_mail_debug.log', "[$level] $str\n", FILE_APPEND);
-    };
+    try {
+        // Log debug output to Render console logs
+        $mail->SMTPDebug = 2; 
+        $mail->Debugoutput = function($str, $level) {
+            error_log("[$level] $str");
+        };
 
-    $mail->isSMTP();
-    $mail->Host       = 'smtp.gmail.com';            
-    $mail->SMTPAuth   = true;
-    $mail->Username   = 'eregistrarcctc@gmail.com';    
-    $mail->Password   = 'hfxanjszjhzpcarv';        
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; 
-    $mail->Port       = 465;                         
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';            
+        $mail->SMTPAuth   = true;
+        
+        // Use Environment Variables (or hardcoded app pass temporarily)
+        $mail->Username   = getenv('SMTP_USER') ?: 'eregistrarcctc@gmail.com';    
+        $mail->Password   = getenv('SMTP_PASS') ?: 'hfxanjszjhzpcarv'; 
+        
+        // Change to STARTTLS & Port 587 for Render compatibility
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; 
+        $mail->Port       = 587; 
 
-    // ... rest of your email settings and send() call ...
-
-        // Disable SSL Certificate Verification for XAMPP
         $mail->SMTPOptions = array(
             'ssl' => array(
                 'verify_peer'       => false,
@@ -41,11 +42,9 @@ try {
             )
         );
 
-        // Sender & Recipient Setup
         $mail->setFrom('eregistrarcctc@gmail.com', 'eRegistrar System');
         $mail->addAddress($recipientEmail, $recipientName);
 
-        // Content Setup
         $mail->isHTML(true);
         $mail->Subject = 'eRegistrar - Account Verification Code';
         $mail->Body    = "
@@ -170,14 +169,15 @@ if ($account_type == "Student") {
 
     if (mysqli_query($conn, $sql)) {
         // Force the script to stop and show the error if email fails
-        $mail_sent = sendOTPEmail($email, $fullname, $otp);
-        if (!$mail_sent) {
-            die("Email failed to send! Check your PHPMailer settings or server connection.");
-        }
-        
-        $_SESSION['pending_email'] = $email;
-        header("Location: verify_otp.php");
-        exit();
+        // Inside register_process.php (Parent section around line 160)
+$mail_sent = sendOTPEmail($email, $fullname, $otp);
+if (!$mail_sent) {
+    die("Email failed to send! Please check your Render application logs for details.");
+}
+
+$_SESSION['pending_email'] = $email;
+header("Location: verify_otp.php");
+exit();
     } else {
         die("Student Registration Error: " . mysqli_error($conn));
     }

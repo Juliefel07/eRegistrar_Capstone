@@ -47,16 +47,19 @@ if ($stmt->execute()) {
     $fullname = $user['fullname'] ?? 'User';
 
     // Send email using PHPMailer
+    // Send email using PHPMailer
     $mail = new PHPMailer(true);
     try {
         $mail->SMTPDebug = 0;
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'eregistrarcctc@gmail.com';
-        $mail->Password   = 'hfxanjszjhzpcarv';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Change to SSL
-        $mail->Port       = 465;                         // Change to port 465
+        $mail->Username   = getenv('SMTP_USER') ?: 'eregistrarcctc@gmail.com';
+        $mail->Password   = getenv('SMTP_PASS') ?: 'YOUR_NEW_APP_PASSWORD';
+        
+        // FIXED FOR RENDER: Use STARTTLS on Port 587
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
 
         $mail->SMTPOptions = array(
             'ssl' => array(
