@@ -21,23 +21,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Check email verification for non-admin accounts
             if ($user['role'] !== "Admin" && (int)$user['is_verified'] === 0) {
-                // Generate a fresh 6-digit OTP and 10-minute expiry
-                $otp = rand(100000, 999999);
-                $expiry = date("Y-m-d H:i:s", strtotime("+10 minutes"));
+                // Generate a fresh 6-digit OTP
+$otp = rand(100000, 999999);
 
-                // Update database with the new OTP code
-                // Update database with just the new OTP code (no expiry column needed)
+// Update database with the new OTP code
 $userId = $user['user_id'];
 $updateSql = "UPDATE users SET otp_code = '$otp' WHERE user_id = '$userId'";
 mysqli_query($conn, $updateSql);
 
-                // Send the OTP email using Brevo API
-                sendOtpEmail($user['email'], $otp);
+// Set variables and session expected by send_verification.php
+$_SESSION['pending_email'] = $user['email'];
+$email = $user['email'];
 
-                // Set session for verification page
-                $_SESSION['pending_email'] = $user['email'];
-                header("Location: verify_otp.php");
-                exit();
+// Trigger the email dispatch script directly
+include "includes/send_verification.php";
+
+// Redirect to OTP page
+header("Location: verify_otp.php");
+exit();
             }
 
             // Set Session Data for verified users
