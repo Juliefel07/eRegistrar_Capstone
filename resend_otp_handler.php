@@ -55,8 +55,8 @@ if ($stmt->execute()) {
         $mail->SMTPAuth   = true;
         $mail->Username   = 'eregistrarcctc@gmail.com';
         $mail->Password   = 'hfxanjszjhzpcarv';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Change to SSL
+        $mail->Port       = 465;                         // Change to port 465
 
         $mail->SMTPOptions = array(
             'ssl' => array(

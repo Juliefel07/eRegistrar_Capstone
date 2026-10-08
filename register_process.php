@@ -15,21 +15,22 @@ require 'PHPMailer/src/SMTP.php';
 function sendOTPEmail($recipientEmail, $recipientName, $otpCode) {
     $mail = new PHPMailer(true);
 
-    try {
-        // Disable debug output for live redirect flow
-        $mail->SMTPDebug = 2;
-        $mail->Debugoutput = function($str, $level) {
-    file_put_contents('php_mail_debug.log', "[$level] $str\n", FILE_APPEND);
-}; 
+try {
+    // Turn on debug mode and save output to a log file
+    $mail->SMTPDebug = 2; 
+    $mail->Debugoutput = function($str, $level) {
+        file_put_contents('php_mail_debug.log', "[$level] $str\n", FILE_APPEND);
+    };
 
-        // SMTP Server Configuration
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';             
-        $mail->SMTPAuth   = true;
-        $mail->Username   = getenv('MAIL_USER') ?: 'eregistrarcctc@gmail.com';    
-        $mail->Password   = getenv('MAIL_PASS') ?: 'hfxanjszjhzpcarv';        
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port       = 465;
+    $mail->isSMTP();
+    $mail->Host       = 'smtp.gmail.com';            
+    $mail->SMTPAuth   = true;
+    $mail->Username   = 'eregistrarcctc@gmail.com';    
+    $mail->Password   = 'hfxanjszjhzpcarv';        
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; 
+    $mail->Port       = 465;                         
+
+    // ... rest of your email settings and send() call ...
 
         // Disable SSL Certificate Verification for XAMPP
         $mail->SMTPOptions = array(
