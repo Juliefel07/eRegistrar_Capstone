@@ -1,6 +1,7 @@
 <?php
 session_start();
 include "includes/db.php";
+require_once "includes/send_verification.php"; // Include your Brevo email sending function
 
 // Process Login Form Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -16,17 +17,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = mysqli_fetch_assoc($result);
 
         // Check password against hashed password in database
-        // Check password against hashed password in database
         if (password_verify($password, $user['password'])) {
 
             // Check email verification for non-admin accounts
             if ($user['role'] !== "Admin" && (int)$user['is_verified'] === 0) {
+                // Generate a fresh 6-digit OTP and 10-minute expiry
+                $otp = rand(100000, 999999);
+                $expiry = date("Y-m-d H:i:s", strtotime("+10 minutes"));
+
+                // Update database with the new OTP code
+                $userId = $user['user_id'];
+                $updateSql = "UPDATE users SET otp_code = '$otp', otp_expiry = '$expiry' WHERE user_id = '$userId'";
+                mysqli_query($conn, $updateSql);
+
+                // Send the OTP email using Brevo API
+                sendOtpEmail($user['email'], $otp);
+
+                // Set session for verification page
                 $_SESSION['pending_email'] = $user['email'];
                 header("Location: verify_otp.php");
                 exit();
             }
 
-            // Set Session Data
+            // Set Session Data for verified users
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['fullname'] = $user['fullname'];
             $_SESSION['profile_image'] = $user['profile_image'];
