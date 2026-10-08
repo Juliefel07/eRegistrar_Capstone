@@ -3,6 +3,9 @@
 ob_start();
 session_start();
 
+// FIX 1: Set Manila Timezone so $expires_at matches verify_otp.php
+date_default_timezone_set('Asia/Manila');
+
 // Set JSON header immediately
 header('Content-Type: application/json');
 
@@ -20,7 +23,7 @@ $email = $_SESSION['pending_email'];
 $new_otp = sprintf("%06d", mt_rand(100000, 999999));
 $expires_at = date("Y-m-d H:i:s", strtotime("+10 minutes"));
 
-// Update database with new OTP
+// Update database with new OTP and expiration time
 $stmt = $conn->prepare("UPDATE users SET otp_code = ?, otp_expires_at = ? WHERE email = ?");
 $stmt->bind_param("sss", $new_otp, $expires_at, $email);
 
