@@ -115,7 +115,6 @@ foreach ($_POST['documents'] as $index => $docItem) {
         if ($reqCheckQuery && $reqRow = mysqli_fetch_assoc($reqCheckQuery)) {
             $default_req_id = intval($reqRow['requirement_id']);
         } else {
-            // Fallback to any valid requirement_id in table if document has no specific requirement
             $anyReqQuery = mysqli_query($conn, "SELECT requirement_id FROM document_requirements LIMIT 1");
             if ($anyReqQuery && $anyRow = mysqli_fetch_assoc($anyReqQuery)) {
                 $default_req_id = intval($anyRow['requirement_id']);
@@ -204,17 +203,28 @@ mysqli_stmt_close($stmt);
 
 // SEND NOTIFICATIONS & REDIRECT
 if (!empty($submittedRequests)) {
+    // 1. Notify the Student
     createNotification(
         $conn,
         $user_id,
         "Your request ($tracking) has been submitted successfully."
     );
 
-    createNotification(
-        $conn,
-        1, // Admin / Registrar user ID
-        "$fullname submitted a new document request ($tracking)."
-    );
+    // 2. Dynamic Primary Key Check (id vs user_id)
+    $pk_check = mysqli_query($conn, "SHOW COLUMNS FROM users LIKE 'user_id'");
+    $id_col = ($pk_check && mysqli_num_rows($pk_check) > 0) ? 'user_id' : 'id';
+
+    // 3. FETCH AND NOTIFY ALL ADMINS
+    $admin_query = mysqli_query($conn, "SELECT {$id_col} AS admin_id FROM users WHERE LOWER(role) = 'admin'");
+
+    if ($admin_query && mysqli_num_rows($admin_query) > 0) {
+        $admin_message = "$fullname submitted a new document request ($tracking).";
+        
+        while ($admin = mysqli_fetch_assoc($admin_query)) {
+            $target_admin_id = (int)$admin['admin_id'];
+            createNotification($conn, $target_admin_id, $admin_message);
+        }
+    }
 
     $_SESSION['request_success']  = true;
     $_SESSION['last_tracking_no'] = $tracking;

@@ -7,177 +7,277 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$user_id =$_SESSION['user_id'];
+$user_id = (int)$_SESSION['user_id'];
+$contact_id = isset($_GET['student_id']) ? (int)$_GET['student_id'] : null;
 
-// Get Admin (Registrar) Account
-$admin_stmt = mysqli_prepare($conn, "SELECT user_id FROM users WHERE role = 'Admin' LIMIT 1");
-mysqli_stmt_execute($admin_stmt);
-$admin_res = mysqli_stmt_get_result($admin_stmt);
-$admin_data = mysqli_fetch_assoc($admin_res);
-mysqli_stmt_close($admin_stmt);
+// Dynamically check primary key column (id vs user_id)
+$pk_check = mysqli_query($conn, "SHOW COLUMNS FROM users LIKE 'user_id'");
+$id_col = ($pk_check && mysqli_num_rows($pk_check) > 0) ? 'user_id' : 'id';
 
-if (!$admin_data) {
-    die("Registrar account not found.");
-}
-
-$admin_id =$admin_data['user_id'];
-
-// Send New Message
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send'])) {
-    $message = trim($_POST['message']);
-
-    if (!empty($message)) {
-        $send_stmt = mysqli_prepare($conn, "
-            INSERT INTO messages (sender_id, receiver_id, message, status, created_at)
-            VALUES (?, ?, ?, 'Unread', NOW())
-        ");
-        if ($send_stmt) {
-            mysqli_stmt_bind_param($send_stmt, "iis", $user_id, $admin_id,$message);
-            mysqli_stmt_execute($send_stmt);
-            mysqli_stmt_close($send_stmt);
-        }
-    }
-
-    header("Location: messages.php");
+// 1. AJAX ENDPOINT FOR REAL-TIME UNREAD CHECK
+if (isset($_GET['ajax']) && $_GET['ajax'] === 'check_unread') {
+    header('Content-Type: application/json');
+    $unread_query = mysqli_query($conn, "
+        SELECT COUNT(*) AS unread_count 
+        FROM messages 
+        WHERE receiver_id = '$user_id' 
+          AND status = 'Unread'
+    ");
+    $data = mysqli_fetch_assoc($unread_query);
+    echo json_encode(['unread' => (int)($data['unread_count'] ?? 0)]);
     exit();
 }
 
-// Automatically Mark Incoming Admin Messages as 'Read'
-$read_stmt = mysqli_prepare($conn, "
-    UPDATE messages 
-    SET status = 'Read' 
-    WHERE sender_id = ? AND receiver_id = ? AND status = 'Unread'
+// Fetch all Admin/Registrar accounts for the left sidebar
+$admins_query = mysqli_query($conn, "
+    SELECT 
+        u.{$id_col} AS admin_id,
+        u.fullname,
+        u.profile_image,
+        (SELECT COUNT(*) FROM messages m1 
+         WHERE m1.sender_id = u.{$id_col} 
+           AND m1.receiver_id = '$user_id' 
+           AND m1.status = 'Unread') AS unread_count
+    FROM users u
+    WHERE LOWER(u.role) IN ('admin', 'registrar') AND u.{$id_col} != '$user_id'
+    ORDER BY unread_count DESC, u.fullname ASC
 ");
-if ($read_stmt) {
-    mysqli_stmt_bind_param($read_stmt, "ii", $admin_id,$user_id);
-    mysqli_stmt_execute($read_stmt);
-    mysqli_stmt_close($read_stmt);
+
+// Default to the first admin in the list if no contact selected
+if (!$contact_id && $admins_query && mysqli_num_rows($admins_query) > 0) {
+    $first_admin = mysqli_fetch_assoc($admins_query);
+    $contact_id = (int)$first_admin['admin_id'];
+    mysqli_data_seek($admins_query, 0); 
 }
 
-// Retrieve Chat History
-$chat_stmt = mysqli_prepare($conn, "
-    SELECT message_id, sender_id, receiver_id, message, status, created_at
-    FROM messages
-    WHERE (sender_id = ? AND receiver_id = ?)
-       OR (sender_id = ? AND receiver_id = ?)
-    ORDER BY created_at ASC
-");
-mysqli_stmt_bind_param($chat_stmt, "iiii", $user_id,$admin_id, $admin_id,$user_id);
-mysqli_stmt_execute($chat_stmt);
-$chat_result = mysqli_stmt_get_result($chat_stmt);
+// 2. SEND MESSAGE FROM STUDENT TO ADMIN + CREATE SYSTEM NOTIFICATION FOR ALL ADMINS
+if (isset($_POST['send']) && $contact_id) {
+    $message = mysqli_real_escape_string($conn, trim($_POST['message']));
+
+    if (!empty($message)) {
+        // Save message
+        mysqli_query($conn, "
+            INSERT INTO messages (sender_id, receiver_id, message, status, created_at)
+            VALUES ('$user_id', '$contact_id', '$message', 'Unread', NOW())
+        ");
+
+        // Fetch Student Name for notification
+        $user_res = mysqli_query($conn, "SELECT fullname FROM users WHERE {$id_col} = '$user_id'");
+        $user_row = mysqli_fetch_assoc($user_res);
+        $student_name = $user_row['fullname'] ?? "A student";
+
+        // Notify ALL Active Admins
+        $admin_query = mysqli_query($conn, "SELECT {$id_col} AS admin_id FROM users WHERE LOWER(role) = 'admin'");
+        if ($admin_query && mysqli_num_rows($admin_query) > 0) {
+            $notif_msg = mysqli_real_escape_string($conn, "New message received from $student_name.");
+            while ($admin = mysqli_fetch_assoc($admin_query)) {
+                $target_admin_id = (int)$admin['admin_id'];
+                mysqli_query($conn, "
+                    INSERT INTO notifications (user_id, message, is_read, created_at)
+                    VALUES ('$target_admin_id', '$notif_msg', 0, NOW())
+                ");
+            }
+        }
+    }
+
+    header("Location: messages.php?student_id=" . $contact_id);
+    exit();
+}
+
+// 3. MARK MESSAGES AS READ
+if ($contact_id) {
+    mysqli_query($conn, "
+        UPDATE messages 
+        SET status = 'Read' 
+        WHERE sender_id = '$contact_id' 
+          AND receiver_id = '$user_id' 
+          AND status = 'Unread'
+    ");
+}
+
+// Get Active Contact Info & Chat History
+$chat = null;
+$contact_name = "Registrar Administrator";
+$contact_data = null;
+
+if ($contact_id) {
+    $name_query = mysqli_query($conn, "SELECT fullname, profile_image FROM users WHERE {$id_col} = '$contact_id'");
+    if ($name_query && mysqli_num_rows($name_query) > 0) {
+        $contact_data = mysqli_fetch_assoc($name_query);
+        $contact_name = $contact_data['fullname'];
+    }
+
+    $chat = mysqli_query($conn, "
+        SELECT * FROM messages
+        WHERE (sender_id = '$user_id' AND receiver_id = '$contact_id')
+           OR (sender_id = '$contact_id' AND receiver_id = '$user_id')
+        ORDER BY created_at ASC
+    ");
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
-    <title>Messages - eRegistrar</title>
+    <title>Messages - CCTC eRegistrar</title>
+    <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* RESET & SYSTEM STYLING */
-        *, *::before, *::after {
-            box-sizing: border-box;
+        body {
+            background-color: #f8fafc;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #0f172a;
             margin: 0;
             padding: 0;
         }
 
-        :root {
-            --primary: #0056b3;
-            --primary-dark: #002d62;
-            --bg-body: #f4f6f9;
-            --card-bg: #ffffff;
-            --text-dark: #333333;
-            --text-muted: #6c757d;
-            --border: #e9ecef;
-            --radius-lg: 16px;
-            --radius-md: 10px;
+        .student-content {
+            padding: 20px 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+            box-sizing: border-box;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-dark);
-            padding-bottom: 80px;
-        }
-
-        @media (min-width: 992px) {
-            body { padding-bottom: 0; }
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 0 16px;
-        }
-
-        /* CHAT CONTAINER */
         .chat-container {
-            background: var(--card-bg);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+            height: calc(100vh - 170px);
+            min-height: 580px;
+            overflow: hidden;
+        }
+
+        .contact-list {
+            border-right: 1px solid #e2e8f0;
+            background-color: #ffffff;
             display: flex;
             flex-direction: column;
-            height: calc(100vh - 130px);
-            min-height: 500px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            overflow-y: auto;
         }
 
-        /* CHAT HEADER */
-        .chat-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
+        .list-header {
+            padding: 20px 24px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #0f172a;
             display: flex;
             align-items: center;
-            gap: 12px;
-            background: #ffffff;
+            gap: 10px;
+            background-color: #ffffff;
         }
 
-        .chat-avatar {
-            width: 42px;
-            height: 42px;
+        .contact-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            color: #1e293b;
+            gap: 12px;
+            transition: background-color 0.15s ease;
+            position: relative;
+            border-bottom: 1px solid #f8fafc;
+        }
+
+        .contact-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .contact-item.active {
+            background-color: #eff6ff;
+        }
+
+        .contact-avatar {
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            background: #e0eeff;
-            color: var(--primary);
+            background-color: #e2e8f0;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-        }
-
-        .chat-header-info h3 {
-            font-size: 16px;
             font-weight: 700;
-            color: var(--primary-dark);
+            color: #475569;
+            flex-shrink: 0;
+            overflow: hidden;
+            font-size: 1.1rem;
         }
 
-        .chat-header-info span {
-            font-size: 12px;
-            color: #198754;
+        .contact-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .contact-info {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .contact-info strong {
+            display: block;
+            font-size: 0.92rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .contact-info small {
+            font-size: 0.76rem;
+            color: #94a3b8;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .unread-badge {
+            background-color: #ef4444;
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 12px;
+        }
+
+        .chat-main {
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 16px 24px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #f1f5f9;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 14px;
         }
 
-        .chat-header-info span::before {
-            content: '';
-            display: inline-block;
-            width: 7px;
-            height: 7px;
-            background: #198754;
-            border-radius: 50%;
+        .chat-header h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #0f172a;
         }
 
-        /* CHAT MESSAGES BODY */
         .chat-body {
-            flex: 1;
-            padding: 20px;
+            flex-grow: 1;
+            padding: 24px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 16px;
-            background: #f8f9fa;
+            background-color: #ffffff;
         }
 
         .message-row {
@@ -194,308 +294,288 @@ $chat_result = mysqli_stmt_get_result($chat_stmt);
         }
 
         .bubble {
-            max-width: 70%;
-            padding: 12px 16px;
-            border-radius: 14px;
-            font-size: 14px;
-            line-height: 1.4;
+            max-width: 55%;
+            padding: 12px 18px;
+            border-radius: 16px;
+            font-size: 0.92rem;
+            line-height: 1.5;
             position: relative;
             word-wrap: break-word;
         }
 
-        .bubble.student {
-            background: var(--primary);
+        .bubble.me {
+            background-color: #2563eb;
             color: #ffffff;
-            border-bottom-right-radius: 2px;
+            border-bottom-right-radius: 4px;
         }
 
         .bubble.admin {
-            background: #ffffff;
-            color: var(--text-dark);
-            border: 1px solid var(--border);
-            border-bottom-left-radius: 2px;
+            background-color: #f8fafc;
+            color: #0f172a;
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 4px;
         }
 
-        .bubble-meta {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
+        .bubble small {
+            display: block;
+            font-size: 0.72rem;
             margin-top: 6px;
-            font-size: 11px;
             opacity: 0.8;
+            text-align: left;
         }
 
-        .bubble.student .bubble-meta { color: #e0e0e0; }
-        .bubble.admin .bubble-meta { color: var(--text-muted); }
+        .bubble.me small {
+            color: #e0e7ff;
+            text-align: right;
+        }
 
-        .message-actions {
+        .chat-input-container {
+            padding: 18px 24px;
+            background-color: #ffffff;
+        }
+
+        .chat-input {
             display: flex;
-            gap: 8px;
-        }
-
-        .message-actions a {
-            color: inherit;
-            text-decoration: none;
-            font-size: 11px;
-            opacity: 0.8;
-            transition: opacity 0.2s;
-        }
-
-        .message-actions a:hover {
-            opacity: 1;
-            text-decoration: underline;
-        }
-
-        /* CHAT INPUT AREA */
-        .chat-input-form {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 14px 20px;
-            background: #ffffff;
-            border-top: 1px solid var(--border);
-        }
-
-        .chat-input-form textarea {
-            flex: 1;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
+            align-items: flex-end;
+            gap: 12px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
             padding: 10px 14px;
-            font-size: 14px;
+        }
+
+        .chat-input textarea {
+            flex-grow: 1;
+            border: none;
+            background: transparent;
             font-family: inherit;
+            font-size: 0.95rem;
             resize: none;
-            height: 42px;
+            height: 55px;
             outline: none;
-            transition: border-color 0.2s;
+            color: #0f172a;
+            padding: 4px 0;
         }
 
-        .chat-input-form textarea:focus {
-            border-color: var(--primary);
+        .chat-input textarea::placeholder {
+            color: #94a3b8;
         }
 
-        .send-btn {
-            background: var(--primary);
+        .chat-input button {
+            background-color: #2563eb;
             color: #ffffff;
             border: none;
-            width: 42px;
-            height: 42px;
-            border-radius: 8px;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
             cursor: pointer;
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
-            transition: background 0.2s;
+            transition: background-color 0.2s ease;
+            flex-shrink: 0;
         }
 
-        .send-btn:hover {
-            background: var(--primary-dark);
+        .chat-input button:hover {
+            background-color: #1d4ed8;
         }
 
-        /* EDIT MODAL */
-        .edit-modal {
-            display: none;
+        .empty-chat {
+            margin: auto;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .empty-chat i {
+            font-size: 3.5rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        #notification-toast {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
+            bottom: 24px;
+            right: 24px;
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 14px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            align-items: center;
+            gap: 12px;
             z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
         }
 
-        
-        .edit-modal.active {
-            display: flex;
-        }
-
-        .edit-box {
-            background: #ffffff;
-            border-radius: var(--radius-md);
-            width: 100%;
-            max-width: 450px;
-            padding: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        }
-
-        .edit-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-        }
-
-        .edit-header h3 {
-            font-size: 16px;
-            color: var(--text-dark);
-        }
-
-        .close-modal-btn {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: var(--text-muted);
-        }
-
-        .edit-box textarea {
-            width: 100%;
-            height: 100px;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
-            padding: 10px;
-            font-family: inherit;
-            font-size: 14px;
-            outline: none;
-            margin-bottom: 14px;
-        }
-
-        .edit-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        .cancel-btn, .save-btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-        }
-
-        .cancel-btn { background: #e9ecef; color: #333; }
-        .save-btn { background: var(--primary); color: #fff; }
-
-        @media (max-width: 576px) {
-            .bubble { max-width: 85%; }
-            .chat-container { height: calc(100vh - 160px); }
+        @media (max-width: 768px) {
+            .student-content { padding: 12px; }
+            .chat-container { grid-template-columns: 1fr; height: 80vh; }
+            <?php if ($contact_id): ?>
+            .contact-list { display: none; }
+            <?php else: ?>
+            .chat-main { display: none; }
+            <?php endif; ?>
         }
     </style>
 </head>
+
 <body>
 
-    <!-- INCLUDE SHARED NAVIGATION BAR -->
-    <?php require_once __DIR__ . "/navbar.php"; ?>
+<?php require_once __DIR__ . "/navbar.php"; ?>
 
-    <main class="container">
-        <div class="chat-container">
-            
-            <!-- Chat Header -->
-            <div class="chat-header">
-                <div class="chat-avatar">
-                    <i class="fa-solid fa-user-tie"></i>
-                </div>
-                <div class="chat-header-info">
-                    <h3>Registrar Office</h3>
-                    <span>Usually replies within office hours</span>
-                </div>
+<div class="student-content">
+
+    <div class="chat-container">
+
+        <!-- LEFT SIDEBAR: CONTACTS LIST -->
+        <div class="contact-list">
+            <div class="list-header">
+                <i class="fa-solid fa-comments" style="color: #2563eb;"></i> Messages
             </div>
 
-            <!-- Chat Messages Area -->
-            <div class="chat-body" id="chatBox">
-                <?php if (mysqli_num_rows($chat_result) > 0): ?>
-                    <?php while ($row = mysqli_fetch_assoc($chat_result)): ?>
-                        <?php if ($row['sender_id'] ==$user_id): ?>
-                            <!-- Student Message (Right) -->
-                            <div class="message-row right">
-                                <div class="bubble student">
-                                    <p><?= nl2br(htmlspecialchars($row['message'])); ?></p>
-                                    <div class="bubble-meta">
-                                        <span><?= date("h:i A", strtotime($row['created_at'])); ?></span>
-                                        <div class="message-actions">
-                                            <a href="#" onclick="openEditModal('<?= $row['message_id']; ?>', `<?= htmlspecialchars($row['message'], ENT_QUOTES); ?>`); return false;">
-                                                <i class="fa-solid fa-pen"></i> Edit
-                                            </a>
-                                            <a href="delete_message.php?id=<?= $row['message_id']; ?>" onclick="return confirm('Delete this message?');">
-                                                <i class="fa-solid fa-trash"></i> Delete
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php else: ?>
-                            <!-- Admin Message (Left) -->
-                            <div class="message-row left">
-                                <div class="bubble admin">
-                                    <strong style="display:block; margin-bottom:4px; font-size:12px; color:var(--primary);"><i class="fa-solid fa-user-tie"></i> Registrar Office</strong>
-                                    <p><?= nl2br(htmlspecialchars($row['message'])); ?></p>
-                                    <div class="bubble-meta">
-                                        <span><?= date("h:i A | M j", strtotime($row['created_at'])); ?></span>
-                                    </div>
-                                </div>
-                            </div>
+            <?php if ($admins_query && mysqli_num_rows($admins_query) > 0): ?>
+                <?php while ($a = mysqli_fetch_assoc($admins_query)): ?>
+                    <a href="messages.php?student_id=<?php echo $a['admin_id']; ?>"
+                       class="contact-item <?php echo ($contact_id == $a['admin_id']) ? 'active' : ''; ?>">
+
+                        <div class="contact-avatar">
+                            <?php if (!empty($a['profile_image'])): ?>
+                                <img src="../student/uploads/<?php echo htmlspecialchars($a['profile_image']); ?>" alt="Profile">
+                            <?php else: ?>
+                                <?php echo strtoupper(substr($a['fullname'], 0, 1)); ?>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="contact-info">
+                            <strong><?php echo htmlspecialchars($a['fullname']); ?></strong>
+                            <small>Click to view conversation</small>
+                        </div>
+
+                        <?php if ($a['unread_count'] > 0): ?>
+                            <span class="unread-badge"><?php echo $a['unread_count']; ?></span>
                         <?php endif; ?>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <div style="text-align: center; color: var(--text-muted); margin: auto; font-size: 13px;">
-                        No conversation yet. Send a message to contact the Registrar.
-                    </div>
-                <?php endif; ?>
-            </div>
-
-            <!-- Chat Input Form -->
-            <form method="POST" class="chat-input-form">
-                <textarea id="messageBox" name="message" placeholder="Type your message..." required></textarea>
-                <button type="submit" name="send" id="sendButton" class="send-btn">
-                    <i class="fa-solid fa-paper-plane"></i>
-                </button>
-            </form>
-
-        </div>
-    </main>
-
-    <!-- EDIT MESSAGE MODAL -->
-    <div class="edit-modal" id="editModal">
-        <div class="edit-box">
-            <div class="edit-header">
-                <h3>Edit Message</h3>
-                <button type="button" class="close-modal-btn" onclick="closeEditModal()">&times;</button>
-            </div>
-            <form method="POST" action="edit_message.php">
-                <input type="hidden" name="message_id" id="editMessageId">
-                <textarea name="message" id="editMessageText" required></textarea>
-                <div class="edit-actions">
-                    <button type="button" onclick="closeEditModal()" class="cancel-btn">Cancel</button>
-                    <button type="submit" name="update" class="save-btn">Save Changes</button>
+                    </a>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <div style="padding: 24px; text-align: center; color: #94a3b8; font-size: 0.88rem;">
+                    No registrar accounts available.
                 </div>
-            </form>
+            <?php endif; ?>
         </div>
+
+        <!-- RIGHT PANE: CHAT MESSAGES -->
+        <div class="chat-main">
+            <?php if ($contact_id && $chat): ?>
+                <div class="chat-header">
+                    <div class="contact-avatar">
+                        <?php if (!empty($contact_data['profile_image'])): ?>
+                            <img src="../student/uploads/<?php echo htmlspecialchars($contact_data['profile_image']); ?>" alt="Profile">
+                        <?php else: ?>
+                            <?php echo strtoupper(substr($contact_name, 0, 1)); ?>
+                        <?php endif; ?>
+                    </div>
+                    <h3><?php echo htmlspecialchars($contact_name); ?></h3>
+                </div>
+
+                <div class="chat-body" id="chatBox">
+                    <?php if (mysqli_num_rows($chat) > 0): ?>
+                        <?php while ($row = mysqli_fetch_assoc($chat)): ?>
+                            <?php if ($row['sender_id'] == $user_id): ?>
+                                <div class="message-row right">
+                                    <div class="bubble me">
+                                        <?php echo nl2br(htmlspecialchars($row['message'])); ?>
+                                        <small><?php echo date("M d, g:i a", strtotime($row['created_at'])); ?></small>
+                                    </div>
+                                </div>
+                            <?php else: ?>
+                                <div class="message-row left">
+                                    <div class="bubble admin">
+                                        <?php echo nl2br(htmlspecialchars($row['message'])); ?>
+                                        <small><?php echo date("M d, g:i a", strtotime($row['created_at'])); ?></small>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <div style="margin: auto; text-align: center; color: #94a3b8; font-size: 0.9rem;">
+                            No messages yet. Start a conversation with the Registrar.
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="chat-input-container">
+                    <form method="POST" class="chat-input">
+                        <textarea
+                            id="messageBox"
+                            name="message"
+                            placeholder="Type your reply here... (Press Enter to send)"
+                            required></textarea>
+                        <button type="submit" name="send" id="sendButton">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+
+            <?php else: ?>
+                <div class="empty-chat">
+                    <i class="fa-regular fa-comments"></i>
+                    <h2 style="font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-bottom: 6px;">Select Registrar</h2>
+                    <p style="font-size: 0.9rem; margin: 0;">Choose a contact from the left sidebar to send a message.</p>
+                </div>
+            <?php endif; ?>
+        </div>
+
     </div>
 
-    <!-- JAVASCRIPT FOR CHAT & MODAL -->
-    <script>
-        // Scroll to bottom of chat
-        const chatBox = document.getElementById("chatBox");
-        if (chatBox) {
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
+</div>
 
-        // Enter key to send message (Shift + Enter for new line)
-        const messageInput = document.getElementById("messageBox");
-        const sendButton = document.getElementById("sendButton");
+<!-- REAL-TIME UNREAD TOAST NOTIFICATION -->
+<div id="notification-toast">
+    <i class="fa-solid fa-bell" style="color: #38bdf8;"></i>
+    <span>New message from Registrar Office!</span>
+</div>
 
-        if (messageInput) {
-            messageInput.addEventListener("keydown", function(e) {
-                if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    sendButton.click();
+<script>
+    const chat = document.getElementById("chatBox");
+    if (chat) { chat.scrollTop = chat.scrollHeight; }
+
+    const box = document.getElementById("messageBox");
+    if (box) {
+        box.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById("sendButton").click();
+            }
+        });
+    }
+
+    let previousUnreadCount = null;
+
+    function checkUnreadMessages() {
+        fetch('messages.php?ajax=check_unread')
+            .then(response => response.json())
+            .then(data => {
+                if (previousUnreadCount !== null && data.unread > previousUnreadCount) {
+                    showNotificationToast();
+                    if (typeof chat !== 'undefined' && chat) {
+                        location.reload();
+                    }
                 }
-            });
-        }
+                previousUnreadCount = data.unread;
+            })
+            .catch(error => console.error('Error polling messages:', error));
+    }
 
-        // Edit Modal Handlers
-        function openEditModal(id, text) {
-            document.getElementById('editMessageId').value = id;
-            document.getElementById('editMessageText').value = text;
-            document.getElementById('editModal').classList.add('active');
-        }
+    function showNotificationToast() {
+        const toast = document.getElementById('notification-toast');
+        toast.style.display = 'flex';
+        setTimeout(() => { toast.style.display = 'none'; }, 4000);
+    }
 
-        function closeEditModal() {
-            document.getElementById('editModal').classList.remove('active');
-        }
-    </script>
+    // Poll every 4 seconds for new messages
+    setInterval(checkUnreadMessages, 4000);
+</script>
+
 </body>
 </html>
