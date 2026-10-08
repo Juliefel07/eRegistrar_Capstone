@@ -13,7 +13,7 @@ require 'PHPMailer/src/SMTP.php';
 
 // Helper function to send OTP email via PHPMailer
 function sendOTPEmail($recipientEmail, $recipientName, $otpCode) {
-    $apiKey = getenv('BREVO_API_KEY') ?: 'xsmtpsib-ff23e20c9aa0cec6b3eec780b6cad83e041cb50b7a4cc1c5ea24cc8c9257382a-sSiJdjf4pJqJQWuE';
+    $apiKey = getenv('BREVO_API_KEY');
 
     $url = 'https://api.brevo.com/v3/smtp/email';
 
