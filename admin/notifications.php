@@ -22,12 +22,15 @@ if (mysqli_num_rows($check_col) == 0) {
 if (isset($_POST['ajax_action'])) {
     header('Content-Type: application/json');
     $notif_id = (int)$_POST['notification_id'];
-    $action = $_POST['ajax_action'];
+    $action =$_POST['ajax_action'];
+
+    $pk_check = mysqli_query($conn, "SHOW COLUMNS FROM notifications LIKE 'id'");
+    $pk_col = (mysqli_num_rows($pk_check) > 0) ? 'id' : 'notification_id';
 
     if ($action === 'mark_read') {
-        mysqli_query($conn, "UPDATE notifications SET is_read = 1 WHERE id = '$notif_id' AND user_id = '$admin_id'");
+        mysqli_query($conn, "UPDATE notifications SET is_read = 1 WHERE `$pk_col` = '$notif_id' AND user_id = '$admin_id'");
     } elseif ($action === 'mark_unread') {
-        mysqli_query($conn, "UPDATE notifications SET is_read = 0 WHERE id = '$notif_id' AND user_id = '$admin_id'");
+        mysqli_query($conn, "UPDATE notifications SET is_read = 0 WHERE `$pk_col` = '$notif_id' AND user_id = '$admin_id'");
     } elseif ($action === 'mark_all_read') {
         mysqli_query($conn, "UPDATE notifications SET is_read = 1 WHERE user_id = '$admin_id'");
     }
@@ -35,20 +38,17 @@ if (isset($_POST['ajax_action'])) {
     // Get recalculated unread count
     $cnt_res = mysqli_query($conn, "SELECT COUNT(*) AS unread_count FROM notifications WHERE user_id = '$admin_id' AND (is_read = 0 OR is_read IS NULL)");
     $new_unread = mysqli_fetch_assoc($cnt_res)['unread_count'] ?? 0;
-    $_SESSION['unread_notifications'] = $new_unread;
+    $_SESSION['unread_notifications'] =$new_unread;
 
     echo json_encode(['success' => true, 'unread_count' => $new_unread]);
     exit();
 }
 
 // FILTER SETUP
-$filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
-$where_condition = "WHERE user_id = '$admin_id'";
+$filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';$where_condition = "WHERE user_id = '$admin_id'";
 
-if ($filter === 'unread') {
-    $where_condition .= " AND (is_read = 0 OR is_read IS NULL)";
-} elseif ($filter === 'read') {
-    $where_condition .= " AND is_read = 1";
+if ($filter === 'unread') {$where_condition .= " AND (is_read = 0 OR is_read IS NULL)";
+} elseif ($filter === 'read') {$where_condition .= " AND is_read = 1";
 }
 
 // Fetch notifications
@@ -66,7 +66,7 @@ $unread_query = mysqli_query($conn, "
     WHERE user_id = '$admin_id' AND (is_read = 0 OR is_read IS NULL)
 ");
 $unread_count = mysqli_fetch_assoc($unread_query)['unread_count'] ?? 0;
-$_SESSION['unread_notifications'] = $unread_count;
+$_SESSION['unread_notifications'] =$unread_count;
 ?>
 
 <!DOCTYPE html>
@@ -178,7 +178,7 @@ $_SESSION['unread_notifications'] = $unread_count;
 
         .notification-card.unread {
             background-color: #f0f9ff;
-            border-left: 5px solid #2563eb;
+            
         }
 
         .notification-card.unread .notification-text {
@@ -187,7 +187,7 @@ $_SESSION['unread_notifications'] = $unread_count;
         }
 
         .notification-card.read {
-            border-left: 5px solid #cbd5e1;
+            
             opacity: 0.8;
         }
 
@@ -195,9 +195,7 @@ $_SESSION['unread_notifications'] = $unread_count;
             font-size: 0.92rem;
             line-height: 1.45;
             color: #334155;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            word-break: break-word;
         }
 
         .notification-time {
@@ -375,17 +373,17 @@ $_SESSION['unread_notifications'] = $unread_count;
         <?php else: ?>
             <?php while ($row = mysqli_fetch_assoc($notifications)): ?>
                 <?php 
-                    $is_read = isset($row['is_read']) && $row['is_read'] == 1; 
-                    $notif_id = $row['id'] ?? $row['notification_id'];
-                    $formatted_time = date("M d, Y h:i A", strtotime($row['created_at']));
+                    $is_read = isset($row['is_read']) &&$row['is_read'] == 1; 
+                    $notif_id = $row['id'] ?? $row['notification_id'];$formatted_time = date("M d, Y h:i A", strtotime($row['created_at']));
                 ?>
                 <div class="notification-card <?= $is_read ? 'read' : 'unread'; ?>" 
                      id="notif-card-<?= $notif_id; ?>"
                      onclick="openNotificationModal(<?= $notif_id; ?>, <?= $is_read ? 'true' : 'false'; ?>)"
+                     data-read="<?= $is_read ? 'true' : 'false'; ?>"
                      data-message="<?= htmlspecialchars($row['message'], ENT_QUOTES, 'UTF-8'); ?>"
                      data-time="<?= $formatted_time; ?>">
                     
-                    <div class="notification-text">
+                    <div class="notification-text" id="notif-text-<?= $notif_id; ?>">
                         <?php if (!$is_read): ?>
                             <span class="status-dot" id="dot-<?= $notif_id; ?>"></span>
                         <?php endif; ?>
@@ -418,7 +416,7 @@ $_SESSION['unread_notifications'] = $unread_count;
         <div class="modal-footer">
             <div class="modal-time" id="modalTime"></div>
             <button class="btn-toggle-status" id="btnToggleStatus" onclick="toggleModalReadStatus()">
-                Mark as Read
+                Mark as Unread
             </button>
         </div>
     </div>
@@ -430,19 +428,25 @@ let currentActiveIsRead = false;
 
 function openNotificationModal(id, isRead) {
     currentActiveNotifId = id;
-
     const card = document.getElementById('notif-card-' + id);
+    if (!card) return;
+
+    currentActiveIsRead = (card.getAttribute('data-read') === 'true');
     const message = card.getAttribute('data-message');
     const time = card.getAttribute('data-time');
 
     document.getElementById('modalMessage').innerText = message;
     document.getElementById('modalTime').innerHTML = '<i class="fa-regular fa-clock"></i> ' + time;
 
+    updateModalButtonText();
+
     // Show Floating Modal
     document.getElementById('notificationModal').style.display = 'flex';
 
-    // AUTOMATICALLY MARK AS UNREAD WHEN OPENED
-    updateNotificationStatus(id, 'mark_unread');
+    // AUTOMATICALLY MARK AS READ WHEN OPENED IF UNREAD
+    if (!currentActiveIsRead) {
+        updateNotificationStatus(id, 'mark_read');
+    }
 }
 
 function closeNotificationModal() {
@@ -484,13 +488,15 @@ function updateNotificationStatus(id, action) {
     .then(data => {
         if (data.success) {
             const card = document.getElementById('notif-card-' + id);
-            const dot = document.getElementById('dot-' + id);
+            const textContainer = document.getElementById('notif-text-' + id);
+            let dot = document.getElementById('dot-' + id);
 
             if (action === 'mark_read') {
                 currentActiveIsRead = true;
                 if (card) {
                     card.classList.remove('unread');
                     card.classList.add('read');
+                    card.setAttribute('data-read', 'true');
                 }
                 if (dot) dot.style.display = 'none';
             } else {
@@ -498,8 +504,16 @@ function updateNotificationStatus(id, action) {
                 if (card) {
                     card.classList.remove('read');
                     card.classList.add('unread');
+                    card.setAttribute('data-read', 'false');
                 }
-                if (dot) dot.style.display = 'inline-block';
+                if (!dot && textContainer) {
+                    dot = document.createElement('span');
+                    dot.className = 'status-dot';
+                    dot.id = 'dot-' + id;
+                    textContainer.insertBefore(dot, textContainer.firstChild);
+                } else if (dot) {
+                    dot.style.display = 'inline-block';
+                }
             }
 
             updateModalButtonText();

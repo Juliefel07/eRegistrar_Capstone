@@ -117,7 +117,7 @@ $_SESSION['unread_notifications'] =$unread_count;
 
         .notification-card.unread {
             background-color: #f0f9ff;
-            border-left: 5px solid #2563eb;
+            
         }
 
         .notification-card.unread .notif-msg {
@@ -126,7 +126,7 @@ $_SESSION['unread_notifications'] =$unread_count;
         }
 
         .notification-card.read {
-            border-left: 5px solid #cbd5e1;
+            
             opacity: 0.85;
         }
 
