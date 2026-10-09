@@ -107,46 +107,62 @@ $verified = mysqli_fetch_assoc(mysqli_stmt_get_result($verifiedStmt))['verified'
 
 $percent = ($total > 0) ? ($verified / $total) * 100 : 0;
 
-$progressColor = "#ef4444"; // Red
-if ($percent >= 100) {$progressColor = "#22c55e"; // Green
-} elseif ($percent >= 50) {$progressColor = "#f59e0b"; // Orange
+$progressColor = "#dc2626"; // Red
+if ($percent >= 100) {$progressColor = "#059669"; // Green
+} elseif ($percent >= 50) {$progressColor = "#d97706"; // Amber
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Request #<?= htmlspecialchars($request['tracking_no']); ?> - Admin</title>
+    <title>View Request #<?= htmlspecialchars($request['tracking_no']); ?> | eRegistrar Admin</title>
 
     <link rel="stylesheet" href="../assets/css/dashboard.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
+        :root {
+            --registrar-navy: #0f172a;
+            --registrar-blue: #1d4ed8;
+            --registrar-blue-hover: #1e40af;
+            --success: #047857;
+            --success-hover: #065f46;
+            --danger: #b91c1c;
+            --danger-hover: #991b1b;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-300: #cbd5e1;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --slate-900: #0f172a;
+        }
+
         body {
-            background-color: #f8fafc;
+            background-color: var(--slate-50);
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            color: #0f172a;
+            color: var(--slate-900);
             margin: 0;
             padding: 0;
         }
 
         .admin-content {
-            padding: 24px;
+            padding: 32px 24px;
             max-width: 1100px;
             margin: 0 auto;
             box-sizing: border-box;
         }
 
         .back-nav {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .back-nav a {
-            color: #64748b;
+            color: var(--slate-600);
             text-decoration: none;
             font-weight: 600;
             font-size: 0.9rem;
@@ -157,83 +173,84 @@ if ($percent >= 100) {$progressColor = "#22c55e"; // Green
         }
 
         .back-nav a:hover {
-            color: #2563eb;
+            color: var(--registrar-blue);
         }
 
         .card {
             background: #ffffff;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            border-radius: 8px;
+            border: 1px solid var(--slate-200);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
             padding: 24px;
             margin-bottom: 24px;
         }
 
         .card-header-title {
-            color: #030917 !important;
-            font-size: 1.2rem;
+            color: var(--registrar-navy) !important;
+            font-size: 1.1rem;
             font-weight: 700;
             margin: 0 0 20px 0;
             display: flex;
             align-items: center;
             gap: 10px;
+            letter-spacing: -0.01em;
         }
 
         .request-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
             gap: 16px;
         }
 
         .request-item {
-            background: #f8fafc;
-            padding: 14px 16px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
+            background: var(--slate-50);
+            padding: 16px;
+            border-radius: 6px;
+            border: 1px solid var(--slate-200);
         }
 
         .request-item strong {
             display: block;
-            color: #000205;
-            font-size: 0.75rem;
+            color: var(--slate-600);
+            font-size: 0.72rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
             margin-bottom: 6px;
         }
 
         .request-item span {
             font-size: 0.95rem;
-            color: #000612;
+            color: var(--slate-900);
             font-weight: 600;
         }
 
         .progress-bar-bg {
             width: 100%;
-            height: 12px;
-            background: #e2e8f0;
-            border-radius: 20px;
+            height: 8px;
+            background: var(--slate-200);
+            border-radius: 4px;
             overflow: hidden;
-            margin: 12px 0;
+            margin: 12px 0 8px 0;
         }
 
         .progress-bar-fill {
             height: 100%;
-            border-radius: 20px;
+            border-radius: 4px;
             transition: width 0.4s ease;
-        }
-
-        .id-card-section {
-            border-left: 4px solid #7c3aed;
         }
 
         .file-card {
             background: #ffffff;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            border-left: 4px solid #2563eb;
+            border-radius: 8px;
+            border: 1px solid var(--slate-200);
             padding: 20px;
             margin-bottom: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.01);
+            transition: border-color 0.15s ease;
+        }
+
+        .file-card:hover {
+            border-color: var(--slate-300);
         }
 
         .file-card-header {
@@ -247,9 +264,9 @@ if ($percent >= 100) {$progressColor = "#22c55e"; // Green
 
         .file-card h4 {
             margin: 0;
-            font-size: 1rem;
-            color: #0f172a;
-            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--slate-900);
+            font-weight: 600;
         }
 
         .file-actions {
@@ -260,59 +277,84 @@ if ($percent >= 100) {$progressColor = "#22c55e"; // Green
         }
 
         .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.78rem;
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
             font-weight: 600;
             text-transform: capitalize;
+            letter-spacing: 0.3px;
         }
 
         .badge.pending { background-color: #fef3c7; color: #b45309; }
         .badge.verified, .badge.approved { background-color: #d1fae5; color: #047857; }
         .badge.rejected { background-color: #fee2e2; color: #b91c1c; }
 
+        /* PROFESSIONAL ENTERPRISE BUTTON STYLING */
         .btn {
-            padding: 8px 14px;
+            padding: 7px 14px;
             border-radius: 6px;
             text-decoration: none;
             color: #ffffff;
-            font-weight: 600;
+            font-weight: 500;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            transition: background-color 0.2s ease;
-            border: none;
+            transition: background-color 0.15s ease, border-color 0.15s ease;
+            border: 1px solid transparent;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
+            line-height: 1.4;
         }
 
-        .btn-primary { background-color: #2563eb; }
-        .btn-primary:hover { background-color: #1d4ed8; }
+        .btn-primary { 
+            background-color: var(--registrar-blue); 
+            border-color: #1d4ed8;
+        }
+        .btn-primary:hover { 
+            background-color: var(--registrar-blue-hover); 
+        }
 
-        .btn-success { background-color: #059669; }
-        .btn-success:hover { background-color: #047857; }
+        .btn-success { 
+            background-color: var(--success); 
+            border-color: #047857;
+        }
+        .btn-success:hover { 
+            background-color: var(--success-hover); 
+        }
 
-        .btn-danger { background-color: #dc2626; }
-        .btn-danger:hover { background-color: #b91c1c; }
+        .btn-danger { 
+            background-color: var(--danger); 
+            border-color: #b91c1c;
+        }
+        .btn-danger:hover { 
+            background-color: var(--danger-hover); 
+        }
 
-        .btn-secondary { background-color: #475569; }
-        .btn-secondary:hover { background-color: #334155; }
-
-        .btn-purple { background-color: #7c3aed; }
-        .btn-purple:hover { background-color: #6d28d9; }
+        .btn-secondary { 
+            background-color: #ffffff; 
+            color: var(--slate-700); 
+            border-color: var(--slate-300);
+        }
+        .btn-secondary:hover { 
+            background-color: var(--slate-100); 
+            color: var(--slate-900);
+            border-color: var(--slate-400, #94a3b8);
+        }
 
         .alert-message {
             background-color: #fee2e2;
             color: #991b1b;
             padding: 12px 16px;
-            border-radius: 8px;
+            border-radius: 6px;
             margin-bottom: 20px;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             display: flex;
             align-items: center;
             gap: 10px;
+            border: 1px solid #fca5a5;
         }
 
         /* MODAL STYLES */
@@ -321,8 +363,8 @@ if ($percent >= 100) {$progressColor = "#22c55e"; // Green
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(2px);
             z-index: 9999;
             justify-content: center;
             align-items: center;
@@ -332,17 +374,18 @@ if ($percent >= 100) {$progressColor = "#22c55e"; // Green
         .modal-container {
             background: #ffffff;
             width: 100%;
-            max-width: 550px;
-            border-radius: 12px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-width: 650px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             position: relative;
+            border: 1px solid var(--slate-200);
         }
 
         .modal-header {
-            padding: 16px 20px;
-            background: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
+            padding: 14px 20px;
+            background: var(--slate-50);
+            border-bottom: 1px solid var(--slate-200);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -350,27 +393,34 @@ if ($percent >= 100) {$progressColor = "#22c55e"; // Green
 
         .modal-header h3 {
             margin: 0;
-            font-size: 1.1rem;
-            color: #0f172a;
+            font-size: 1rem;
+            color: var(--slate-900);
+            font-weight: 600;
         }
 
         .modal-close-btn {
             background: none;
             border: none;
             font-size: 1.25rem;
-            color: #64748b;
+            color: var(--slate-600);
             cursor: pointer;
+            line-height: 1;
         }
 
         .modal-body {
             padding: 20px;
             text-align: center;
+            background: #0f172a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 350px;
         }
 
         .modal-footer {
             padding: 12px 20px;
-            background: #f8fafc;
-            border-top: 1px solid #e2e8f0;
+            background: var(--slate-50);
+            border-top: 1px solid var(--slate-200);
             display: flex;
             justify-content: flex-end;
             gap: 8px;
@@ -378,22 +428,30 @@ if ($percent >= 100) {$progressColor = "#22c55e"; // Green
 
         .modal-content-reject {
             width: 100%;
-            max-width: 450px;
+            max-width: 440px;
             background: #ffffff;
             padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
             position: relative;
+            border: 1px solid var(--slate-200);
         }
 
         .modal-content-reject textarea {
             width: 100%;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 0.9rem;
+            border: 1px solid var(--slate-300);
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 0.88rem;
             box-sizing: border-box;
             outline: none;
+            transition: border-color 0.15s;
+            resize: vertical;
+        }
+
+        .modal-content-reject textarea:focus {
+            border-color: var(--registrar-blue);
+            box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.15);
         }
 
         @media (max-width: 768px) {
@@ -404,7 +462,6 @@ if ($percent >= 100) {$progressColor = "#22c55e"; // Green
         }
     </style>
 </head>
-
 <body>
 
 <?php include("sidebar.php"); ?>
@@ -426,12 +483,12 @@ if ($percent >= 100) {$progressColor = "#22c55e"; // Green
     <!-- Request Details Card -->
     <div class="card">
         <h3 class="card-header-title">
-            <i class="fa-solid fa-file-lines" style="color: #2563eb;"></i> Request Details
+            <i class="fa-solid fa-file-lines" style="color: var(--registrar-blue);"></i> Request Details
         </h3>
         <div class="request-grid">
             <div class="request-item">
                 <strong>Tracking Number</strong>
-                <span style="font-family: monospace; color: #2563eb;"><?= htmlspecialchars($request['tracking_no']); ?></span>
+                <span style="font-family: monospace; color: var(--registrar-blue); font-size: 0.95rem;"><?= htmlspecialchars($request['tracking_no']); ?></span>
             </div>
             <div class="request-item">
                 <strong>Student Name</strong>
@@ -447,7 +504,7 @@ if ($percent >= 100) {$progressColor = "#22c55e"; // Green
             </div>
             <div class="request-item">
                 <strong>Status</strong>
-                <div>
+                <div style="margin-top: 4px;">
                     <span class="badge <?= strtolower($request['status'] ?? 'pending'); ?>">
                         <?= htmlspecialchars($request['status'] ?? 'Pending'); ?>
                     </span>
@@ -457,9 +514,9 @@ if ($percent >= 100) {$progressColor = "#22c55e"; // Green
     </div>
 
     <!-- UPLOADED VALID IDs SECTION -->
-    <div class="card id-card-section">
-        <h3 class="card-header-title" style="color: #6d28d9;">
-            <i class="fa-solid fa-id-card"></i> Student Valid ID Uploads
+    <div class="card">
+        <h3 class="card-header-title">
+            <i class="fa-solid fa-id-card" style="color: var(--registrar-blue);"></i> Student Valid ID Uploads
         </h3>
         
         <?php if (!empty($idFiles)): ?>
@@ -469,36 +526,36 @@ if ($percent >= 100) {$progressColor = "#22c55e"; // Green
                         $cleanPath = ltrim(str_replace(['assets/uploads/', '../assets/uploads/'], '',$idFile['file_path']), '/');
                         $fullPath = "../assets/uploads/" . $cleanPath;
                     ?>
-                    <div class="request-item" style="background: #ffffff; border-left: 3px solid #7c3aed;">
+                    <div class="request-item" style="background: #ffffff;">
                         <strong><?= htmlspecialchars($idFile['requirement_name']); ?></strong>
                         <div style="margin: 8px 0;">
                             <span class="badge <?= strtolower($idFile['status']); ?>">
                                 <?= htmlspecialchars($idFile['status']); ?>
                             </span>
                         </div>
-                        <div style="display: flex; gap: 6px; margin-top: 10px;">
-                            <button type="button" class="btn btn-purple" style="padding: 6px 12px; font-size: 0.8rem;" onclick="openImageModal('<?= htmlspecialchars($fullPath, ENT_QUOTES); ?>', '<?= htmlspecialchars($idFile['requirement_name'], ENT_QUOTES); ?>')">
+                        <div style="display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap;">
+                            <button type="button" class="btn btn-secondary" onclick="openImageModal('<?= htmlspecialchars($fullPath, ENT_QUOTES); ?>', '<?= htmlspecialchars($idFile['requirement_name'], ENT_QUOTES); ?>')">
                                 <i class="fa-solid fa-eye"></i> Inspect ID
                             </button>
                             <?php if ($idFile['status'] == "Pending"): ?>
-                                <a class="btn btn-primary" href="verify_requirement.php?id=<?= $idFile['id']; ?>&request=<?=$request_id; ?>" style="padding: 6px 10px; font-size: 0.8rem;">
+                                <a class="btn btn-primary" href="verify_requirement.php?id=<?= $idFile['id']; ?>&request=<?=$request_id; ?>">
                                     <i class="fa-solid fa-check"></i> Verify
                                 </a>
-                                <button type="button" class="btn btn-danger" onclick="openRejectModal(<?= $idFile['id']; ?>)" style="padding: 6px 10px; font-size: 0.8rem;">
+                                <button type="button" class="btn btn-danger" onclick="openRejectModal(<?= $idFile['id']; ?>)">
                                     <i class="fa-solid fa-xmark"></i> Reject
                                 </button>
                             <?php endif; ?>
                         </div>
                         <?php if (!empty($idFile['remarks'])): ?>
-                            <div style="margin-top: 8px; font-size: 0.8rem; color: #64748b;">
-                                <strong>Remarks:</strong> <?= htmlspecialchars($idFile['remarks']); ?>
+                            <div style="margin-top: 8px; padding: 6px 8px; background: var(--slate-100); border-radius: 4px; font-size: 0.78rem; color: var(--slate-600);">
+                                <strong style="color: var(--slate-700);">Remarks:</strong> <?= htmlspecialchars($idFile['remarks']); ?>
                             </div>
                         <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <div style="color: #64748b; font-size: 0.9rem; font-style: italic;">
+            <div style="color: var(--slate-600); font-size: 0.88rem; font-style: italic;">
                 No valid ID files uploaded for this request.
             </div>
         <?php endif; ?>
@@ -507,18 +564,19 @@ if ($percent >= 100) {$progressColor = "#22c55e"; // Green
     <!-- Requirement Verification Progress Bar -->
     <div class="card">
         <h3 class="card-header-title">
-            <i class="fa-solid fa-list-check" style="color: #2563eb;"></i> Verification Progress
+            <i class="fa-solid fa-list-check" style="color: var(--registrar-blue);"></i> Verification Progress
         </h3>
         <div class="progress-bar-bg">
             <div class="progress-bar-fill" style="width: <?= $percent; ?>%; background: <?=$progressColor; ?>;"></div>
         </div>
-        <div style="font-size: 0.88rem; color: #64748b; font-weight: 500;">
-            <strong><?= $verified; ?></strong> of <strong><?= $total; ?></strong> requirements verified (<?= round($percent); ?>%)
+        <div style="font-size: 0.85rem; color: var(--slate-600); font-weight: 500; display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+            <span><strong><?= $verified; ?></strong> of <strong><?=$total; ?></strong> requirements verified</span>
+            <span><strong><?= round($percent); ?>%</strong></span>
         </div>
     </div>
 
     <!-- Uploaded Requirements List -->
-    <h3 style="font-size: 1.1rem; color: #0f172a; margin: 24px 0 16px 0; font-weight: 700;">Uploaded Document Requirements</h3>
+    <h3 style="font-size: 1.05rem; color: var(--registrar-navy); margin: 24px 0 14px 0; font-weight: 700;">Uploaded Document Requirements</h3>
 
     <?php if (!empty($otherFiles)): ?>
         <?php foreach ($otherFiles as$row): ?>
@@ -554,26 +612,26 @@ if ($percent >= 100) {$progressColor = "#22c55e"; // Green
                 </div>
 
                 <?php if (!empty($row['remarks'])): ?>
-                    <div style="background: #f1f5f9; padding: 10px 14px; border-radius: 6px; font-size: 0.88rem; color: #334155;">
-                        <strong style="color: #475569;">Remarks:</strong> <?= htmlspecialchars($row['remarks']); ?>
+                    <div style="background: var(--slate-100); padding: 8px 12px; border-radius: 4px; font-size: 0.85rem; color: var(--slate-700); margin-top: 10px;">
+                        <strong style="color: var(--slate-900);">Remarks:</strong> <?= htmlspecialchars($row['remarks']); ?>
                     </div>
                 <?php endif; ?>
             </div>
         <?php endforeach; ?>
     <?php else: ?>
-        <div class="card" style="text-align: center; color: #64748b; font-style: italic;">
+        <div class="card" style="text-align: center; color: var(--slate-600); font-style: italic; padding: 20px;">
             No additional document requirements uploaded for this request.
         </div>
     <?php endif; ?>
 
     <!-- Final Approval Button / Notice -->
-    <div style="margin-top: 30px; text-align: left;">
+    <div style="margin-top: 28px;">
         <?php if ($verified == $total &&$total > 0): ?>
-            <a class="btn btn-success" href="approve.php?id=<?= $request_id; ?>" style="font-size: 1rem; padding: 12px 24px;">
+            <a class="btn btn-success" href="approve.php?id=<?= $request_id; ?>" style="font-size: 0.9rem; padding: 10px 20px;">
                 <i class="fa-solid fa-circle-check"></i> Approve Entire Request
             </a>
         <?php else: ?>
-            <div class="alert-message" style="display: inline-flex; border: 1px solid #fca5a5;">
+            <div class="alert-message" style="background-color: #fffbeb; color: #b45309; border: 1px solid #fde68a;">
                 <i class="fa-solid fa-triangle-exclamation"></i>
                 <span>Please verify all uploaded requirements before approving this request.</span>
             </div>
@@ -586,13 +644,13 @@ if ($percent >= 100) {$progressColor = "#22c55e"; // Green
 <div id="imageModal" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header">
-            <h3 id="modalTitle"><i class="fa-solid fa-id-card" style="color: #7c3aed;"></i> File Preview</h3>
+            <h3 id="modalTitle"><i class="fa-solid fa-file-shield" style="color: var(--registrar-blue);"></i> File Preview</h3>
             <button type="button" class="modal-close-btn" onclick="closeImageModal()">&times;</button>
         </div>
         <div class="modal-body" id="modalImageBody"></div>
         <div class="modal-footer">
-            <a id="modalFullscreenBtn" href="#" target="_blank" class="btn btn-purple" style="font-size: 0.8rem;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open Fullscreen</a>
-            <button type="button" class="btn btn-secondary" onclick="closeImageModal()" style="font-size: 0.8rem;">Close</button>
+            <a id="modalFullscreenBtn" href="#" target="_blank" class="btn btn-secondary"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open Fullscreen</a>
+            <button type="button" class="btn btn-secondary" onclick="closeImageModal()">Close</button>
         </div>
     </div>
 </div>
@@ -601,17 +659,17 @@ if ($percent >= 100) {$progressColor = "#22c55e"; // Green
 <div id="rejectModal" class="modal-overlay">
     <div class="modal-content-reject">
         <button type="button" class="modal-close-btn" style="position: absolute; right: 16px; top: 16px;" onclick="closeRejectModal()">&times;</button>
-        <h3 style="margin-top: 0; color: #0f172a;">Reject Requirement</h3>
+        <h3 style="margin-top: 0; color: var(--slate-900); font-size: 1.05rem; margin-bottom: 14px;">Reject Requirement</h3>
         <form method="POST">
             <input type="hidden" name="file_id" id="reject_file_id">
             
-            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: #334155;">
+            <label style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.82rem; color: var(--slate-700);">
                 Reason for rejection
             </label>
             <textarea name="remarks" rows="4" placeholder="Specify why this document is rejected..." required></textarea>
             
-            <div style="margin-top: 20px;">
-                <button type="submit" name="reject_requirement" class="btn btn-danger" style="width: 100%; padding: 10px;">
+            <div style="margin-top: 16px;">
+                <button type="submit" name="reject_requirement" class="btn btn-danger" style="width: 100%;">
                     <i class="fa-solid fa-paper-plane"></i> Submit Rejection
                 </button>
             </div>
@@ -625,14 +683,14 @@ function openImageModal(filePath, title) {
     let bodyHtml = '';
     
     if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExt)) {
-        bodyHtml = `<img src="${filePath}" alt="ID Preview" style="max-width: 100%; max-height: 60vh; border-radius: 8px; border: 1px solid #e2e8f0; object-fit: contain;">`;
+        bodyHtml = `<img src="${filePath}" alt="Preview" style="max-width: 100%; max-height: 70vh; border-radius: 4px; object-fit: contain;">`;
     } else if (fileExt === 'pdf') {
-        bodyHtml = `<iframe src="${filePath}" style="width: 100%; height: 55vh; border: none; border-radius: 8px;"></iframe>`;
+        bodyHtml = `<iframe src="${filePath}" style="width: 100%; height: 70vh; border: none; border-radius: 4px; background: #fff;"></iframe>`;
     } else {
-        bodyHtml = `<p style="color: #64748b;">Preview unavailable for this file format.</p>`;
+        bodyHtml = `<p style="color: #cbd5e1;">Preview unavailable for this file format.</p>`;
     }
 
-    document.getElementById("modalTitle").innerText = title;
+    document.getElementById("modalTitle").innerHTML = `<i class="fa-solid fa-file-shield" style="color: var(--registrar-blue);"></i> ${title}`;
     document.getElementById("modalImageBody").innerHTML = bodyHtml;
     document.getElementById("modalFullscreenBtn").href = filePath;
     document.getElementById("imageModal").style.display = "flex";

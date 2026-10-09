@@ -223,21 +223,118 @@ if (empty($nav_profile_img)) {
         gap: 4px;
     }
 
-    .dropdown-menu {
-        display: none;
-        position: absolute;
-        right: 0;
-        top: 100%;
-        margin-top: 10px;
-        background: #ffffff;
-        min-width: 170px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        border-radius: 8px;
-        border: 1px solid var(--border, #e9ecef);
-        padding: 6px 0;
-        z-index: 1001;
-    }
 
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 0; /* REMOVE margin-top to close the gap */
+    padding-top: 8px; /* Space inside the container */
+    background: #ffffff;
+    min-width: 180px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    border: 1px solid var(--border, #e9ecef);
+    padding-bottom: 6px;
+    z-index: 1001;
+}
+/* GLOBAL DARK MODE OVERRIDES FOR NAVBAR & HEADER */
+body.dark-mode {
+    --bg-color: #0f172a !important;
+    --card-bg: #1e293b !important;
+    --border: #334155 !important;
+    --text: #f8fafc !important;
+    --text-muted: #94a3b8 !important;
+    background-color: var(--bg-color) !important;
+    color: var(--text) !important;
+}
+
+body.dark-mode .navbar {
+    background: #1e293b !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+    border-bottom: 1px solid #334155 !important;
+}
+
+body.dark-mode .nav-links a {
+    color: #cbd5e1 !important;
+}
+
+body.dark-mode .nav-links a:hover, 
+body.dark-mode .nav-links a.active {
+    background: #334155 !important;
+    color: #38bdf8 !important;
+}
+
+body.dark-mode .user-name-text {
+    color: #f8fafc !important;
+}
+
+body.dark-mode .search-pill,
+body.dark-mode .mobile-search-pill {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+
+body.dark-mode .search-pill input,
+body.dark-mode .mobile-search-pill input {
+    color: #f8fafc !important;
+}
+
+body.dark-mode .dropdown-menu {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+}
+
+body.dark-mode .dropdown-menu a {
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode .dropdown-menu a:hover {
+    background: #334155 !important;
+    color: #38bdf8 !important;
+}
+
+body.dark-mode .mobile-drawer {
+    background: #1e293b !important;
+    border-right: 1px solid #334155 !important;
+}
+
+body.dark-mode .drawer-menu a {
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode .drawer-menu a:hover {
+    background: #334155 !important;
+    color: #38bdf8 !important;
+}
+
+body.dark-mode .mobile-bottom-nav {
+    background: #1e293b !important;
+    border-top: 1px solid #334155 !important;
+}
+
+body.dark-mode .mobile-bottom-nav a {
+    color: #94a3b8 !important;
+}
+
+body.dark-mode .mobile-bottom-nav a.active,
+body.dark-mode .mobile-bottom-nav a:hover {
+    color: #38bdf8 !important;
+}
+
+body.dark-mode .mobile-hamburger {
+    color: #f8fafc !important;
+}
+.user-dropdown::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 12px; /* Invisible hover bridge */
+}
     .dropdown-menu a {
         display: flex;
         align-items: center;
@@ -421,6 +518,7 @@ if (empty($nav_profile_img)) {
             <!-- Dropdown Menu -->
             <div class="dropdown-menu">
                 <a href="profile.php"><i class="fa-solid fa-user-pen"></i> Edit Profile</a>
+                <a href="settings.php"><i class="fa-solid fa-gear"></i> Settings</a>
                 <div class="dropdown-divider"></div>
                 <a href="../logout.php" class="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
             </div>
@@ -453,6 +551,7 @@ if (empty($nav_profile_img)) {
         <li><a href="claim_stub.php"><i class="fa-solid fa-receipt"></i> Claim Stub</a></li>
         <li><a href="messages.php"><i class="fa-solid fa-envelope"></i> Messages</a></li>
         <li><a href="profile.php"><i class="fa-solid fa-user-pen"></i> Edit Profile</a></li>
+        <li><a href="settings.php"><i class="fa-solid fa-gear"></i> Settings</a></li>
         <li><a href="../logout.php" style="color:#dc3545;"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
     </ul>
 </div>

@@ -318,6 +318,7 @@ $student_announcements = mysqli_query($conn, "
                 font-weight: bold;
                 color: var(--text-muted);
             }
+            
         }
     </style>
     
