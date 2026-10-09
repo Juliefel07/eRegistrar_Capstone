@@ -43,7 +43,7 @@ $claimed_count = mysqli_fetch_assoc($result)['total'] ?? 0;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - CCTC eRegistrar</title>
-     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
+    <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <link rel="stylesheet" href="../assets/css/dashboard.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -67,38 +67,82 @@ $claimed_count = mysqli_fetch_assoc($result)['total'] ?? 0;
 
         /* Hero Welcome Banner */
         .dashboard-welcome {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 20px 24px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
-            margin-bottom: 24px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #2563eb 80%, #60a5fa 100%);
+            border-radius: 14px;
+            padding: 36px;
+            color: #ffffff;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25), 0 8px 10px -6px rgba(15, 23, 42, 0.25);
+            margin-bottom: 28px;
             position: relative;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .dashboard-welcome::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 5px;
-            height: 100%;
-            background-color: #2563eb;
+        .dashboard-welcome-content {
+            position: relative;
+            z-index: 1;
+            max-width: 65%;
         }
 
+        /* Right-Side Banner Image Styles */
+        .dashboard-welcome-image {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-right: 10px;
+        }
+
+        .dashboard-welcome-image img {
+            max-height: 150px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+        }
+
+        /* Welcome Badge (Pill Style) */
+        .welcome-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            margin-bottom: 16px;
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        /* Large Multi-Line Title Styling */
         .dashboard-welcome h2 {
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: #0f172a;
-            margin: 0 0 4px 0;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 12px 0;
+            line-height: 1.15;
+            letter-spacing: -0.5px;
+        }
+
+        /* Admin Name Highlight */
+        .dashboard-welcome h2 .admin-name {
+            color: #fde047; /* Glowing gold */
+            font-weight: 900;
+            text-shadow: 0 2px 12px rgba(253, 224, 71, 0.35);
         }
 
         .dashboard-welcome p {
-            font-size: 0.88rem;
-            color: #64748b;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
             margin: 0;
-            line-height: 1.4;
+            line-height: 1.5;
+            font-weight: 400;
         }
 
         /* Section Titles */
@@ -117,16 +161,16 @@ $claimed_count = mysqli_fetch_assoc($result)['total'] ?? 0;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 12px;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
 
         .card {
             background: #ffffff;
             border-radius: 10px;
-            padding: 12px 16px;
+            padding: 14px 16px;
             border: 1px solid #e2e8f0;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -135,6 +179,7 @@ $claimed_count = mysqli_fetch_assoc($result)['total'] ?? 0;
         .card:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.05);
+            border-color: #cbd5e1;
         }
 
         .card h3 {
@@ -147,7 +192,7 @@ $claimed_count = mysqli_fetch_assoc($result)['total'] ?? 0;
         }
 
         .card p {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: #0f172a;
             margin: 0;
@@ -158,14 +203,14 @@ $claimed_count = mysqli_fetch_assoc($result)['total'] ?? 0;
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
+            gap: 14px;
         }
 
         .action-box {
             background: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 10px;
-            padding: 16px;
+            padding: 18px;
             text-decoration: none;
             color: inherit;
             display: flex;
@@ -184,15 +229,15 @@ $claimed_count = mysqli_fetch_assoc($result)['total'] ?? 0;
 
         .action-box .icon {
             font-size: 1.25rem;
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 8px;
             background-color: #eff6ff;
             color: #2563eb;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .action-box h3 {
@@ -216,7 +261,26 @@ $claimed_count = mysqli_fetch_assoc($result)['total'] ?? 0;
             }
 
             .dashboard-welcome {
-                padding: 16px;
+                flex-direction: column;
+                text-align: center;
+                padding: 24px;
+            }
+
+            .dashboard-welcome-content {
+                max-width: 100%;
+            }
+
+            .dashboard-welcome h2 {
+                font-size: 1.6rem;
+            }
+
+            .dashboard-welcome-image {
+                margin-top: 20px;
+                padding-right: 0;
+            }
+
+            .dashboard-welcome-image img {
+                max-height: 110px;
             }
 
             .dashboard-cards {
@@ -252,13 +316,21 @@ $claimed_count = mysqli_fetch_assoc($result)['total'] ?? 0;
 
 <div class="admin-content">
 
-
     <div class="container">
 
-        <!-- Welcome Section -->
+        <!-- Welcome Section with Large Multi-Line Typography & track.png -->
         <div class="dashboard-welcome">
-            <h2>Welcome back, <?php echo htmlspecialchars($_SESSION['fullname']); ?>!</h2>
-            <p>Manage student records, monitor document requests, and oversee registrar operations seamlessly.</p>
+            <div class="dashboard-welcome-content">
+                <div class="welcome-badge">
+                    <i class="fa-solid fa-shield-halved"></i> Administrator Portal
+                </div>
+                <h2>
+                    Welcome back,<br>
+                    <span class="admin-name"><?php echo htmlspecialchars($_SESSION['fullname']); ?></span> ! 
+                </h2>
+                <p>Manage student records, monitor document requests, and oversee registrar operations seamlessly.</p>
+            </div>
+            
         </div>
 
         <!-- Statistics -->

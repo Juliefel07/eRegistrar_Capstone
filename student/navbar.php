@@ -7,10 +7,11 @@ require_once __DIR__ . "/../includes/db.php";
 $current_page = basename($_SERVER['PHP_SELF']);
 
 $notification_count = 0;
+$unread_msg_count = 0;
 $user_id = $_SESSION['user_id'] ?? 0;
 
 if ($user_id) {
-    // FIXED: Check is_read column instead of status='Unread' to match database schema
+    // 1. Fetch Notification Count
     $countQuery = mysqli_query($conn, "
         SELECT COUNT(*) AS total
         FROM notifications
@@ -20,7 +21,20 @@ if ($user_id) {
 
     if ($countQuery) {
         $countRow = mysqli_fetch_assoc($countQuery);
-        $notification_count = $countRow['total'];
+        $notification_count = (int)$countRow['total'];
+    }
+
+    // 2. Fetch Unread Message Count
+    $msgCountQuery = mysqli_query($conn, "
+        SELECT COUNT(*) AS total
+        FROM messages
+        WHERE receiver_id = '$user_id'
+        AND status = 'Unread'
+    ");
+
+    if ($msgCountQuery) {
+        $msgCountRow = mysqli_fetch_assoc($msgCountQuery);
+        $unread_msg_count = (int)$msgCountRow['total'];
     }
 }
 
@@ -195,6 +209,18 @@ if (empty($nav_profile_img)) {
         font-weight: bold;
     }
 
+    /* Inline badge for links */
+    .link-badge {
+        background: #dc3545;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 10px;
+        margin-left: auto;
+        line-height: 1;
+    }
+
     .user-dropdown {
         position: relative;
         cursor: pointer;
@@ -223,118 +249,120 @@ if (empty($nav_profile_img)) {
         gap: 4px;
     }
 
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 100%;
+        margin-top: 0;
+        padding-top: 8px;
+        background: #ffffff;
+        min-width: 180px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        border: 1px solid var(--border, #e9ecef);
+        padding-bottom: 6px;
+        z-index: 1001;
+    }
 
-.dropdown-menu {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: 100%;
-    margin-top: 0; /* REMOVE margin-top to close the gap */
-    padding-top: 8px; /* Space inside the container */
-    background: #ffffff;
-    min-width: 180px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    border: 1px solid var(--border, #e9ecef);
-    padding-bottom: 6px;
-    z-index: 1001;
-}
-/* GLOBAL DARK MODE OVERRIDES FOR NAVBAR & HEADER */
-body.dark-mode {
-    --bg-color: #0f172a !important;
-    --card-bg: #1e293b !important;
-    --border: #334155 !important;
-    --text: #f8fafc !important;
-    --text-muted: #94a3b8 !important;
-    background-color: var(--bg-color) !important;
-    color: var(--text) !important;
-}
+    /* GLOBAL DARK MODE OVERRIDES FOR NAVBAR & HEADER */
+    body.dark-mode {
+        --bg-color: #0f172a !important;
+        --card-bg: #1e293b !important;
+        --border: #334155 !important;
+        --text: #f8fafc !important;
+        --text-muted: #94a3b8 !important;
+        background-color: var(--bg-color) !important;
+        color: var(--text) !important;
+    }
 
-body.dark-mode .navbar {
-    background: #1e293b !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
-    border-bottom: 1px solid #334155 !important;
-}
+    body.dark-mode .navbar {
+        background: #1e293b !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+        border-bottom: 1px solid #334155 !important;
+    }
 
-body.dark-mode .nav-links a {
-    color: #cbd5e1 !important;
-}
+    body.dark-mode .nav-links a {
+        color: #cbd5e1 !important;
+    }
 
-body.dark-mode .nav-links a:hover, 
-body.dark-mode .nav-links a.active {
-    background: #334155 !important;
-    color: #38bdf8 !important;
-}
+    body.dark-mode .nav-links a:hover, 
+    body.dark-mode .nav-links a.active {
+        background: #334155 !important;
+        color: #38bdf8 !important;
+    }
 
-body.dark-mode .user-name-text {
-    color: #f8fafc !important;
-}
+    body.dark-mode .user-name-text {
+        color: #f8fafc !important;
+    }
 
-body.dark-mode .search-pill,
-body.dark-mode .mobile-search-pill {
-    background: #0f172a !important;
-    border-color: #334155 !important;
-}
+    body.dark-mode .search-pill,
+    body.dark-mode .mobile-search-pill {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+    }
 
-body.dark-mode .search-pill input,
-body.dark-mode .mobile-search-pill input {
-    color: #f8fafc !important;
-}
+    body.dark-mode .search-pill input,
+    body.dark-mode .mobile-search-pill input {
+        color: #f8fafc !important;
+    }
 
-body.dark-mode .dropdown-menu {
-    background: #1e293b !important;
-    border-color: #334155 !important;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
-}
+    body.dark-mode .dropdown-menu {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+    }
 
-body.dark-mode .dropdown-menu a {
-    color: #e2e8f0 !important;
-}
+    body.dark-mode .dropdown-menu a {
+        color: #e2e8f0 !important;
+    }
 
-body.dark-mode .dropdown-menu a:hover {
-    background: #334155 !important;
-    color: #38bdf8 !important;
-}
+    body.dark-mode .dropdown-menu a:hover {
+        background: #334155 !important;
+        color: #38bdf8 !important;
+    }
 
-body.dark-mode .mobile-drawer {
-    background: #1e293b !important;
-    border-right: 1px solid #334155 !important;
-}
+    body.dark-mode .mobile-drawer {
+        background: #1e293b !important;
+        border-right: 1px solid #334155 !important;
+    }
 
-body.dark-mode .drawer-menu a {
-    color: #e2e8f0 !important;
-}
+    body.dark-mode .drawer-menu a {
+        color: #e2e8f0 !important;
+    }
 
-body.dark-mode .drawer-menu a:hover {
-    background: #334155 !important;
-    color: #38bdf8 !important;
-}
+    body.dark-mode .drawer-menu a:hover {
+        background: #334155 !important;
+        color: #38bdf8 !important;
+    }
 
-body.dark-mode .mobile-bottom-nav {
-    background: #1e293b !important;
-    border-top: 1px solid #334155 !important;
-}
+    body.dark-mode .mobile-bottom-nav {
+        background: #1e293b !important;
+        border-top: 1px solid #334155 !important;
+    }
 
-body.dark-mode .mobile-bottom-nav a {
-    color: #94a3b8 !important;
-}
+    body.dark-mode .mobile-bottom-nav a {
+        color: #94a3b8 !important;
+    }
 
-body.dark-mode .mobile-bottom-nav a.active,
-body.dark-mode .mobile-bottom-nav a:hover {
-    color: #38bdf8 !important;
-}
+    body.dark-mode .mobile-bottom-nav a.active,
+    body.dark-mode .mobile-bottom-nav a:hover {
+        color: #38bdf8 !important;
+    }
 
-body.dark-mode .mobile-hamburger {
-    color: #f8fafc !important;
-}
-.user-dropdown::before {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    height: 12px; /* Invisible hover bridge */
-}
+    body.dark-mode .mobile-hamburger {
+        color: #f8fafc !important;
+    }
+
+    .user-dropdown::before {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        height: 12px;
+    }
+
     .dropdown-menu a {
         display: flex;
         align-items: center;
@@ -444,6 +472,7 @@ body.dark-mode .mobile-hamburger {
         color: #6c757d;
         font-size: 10px;
         gap: 3px;
+        position: relative;
     }
 
     .mobile-bottom-nav a.active, .mobile-bottom-nav a:hover {
@@ -451,6 +480,18 @@ body.dark-mode .mobile-hamburger {
     }
 
     .mobile-bottom-nav i { font-size: 18px; }
+
+    .mobile-bottom-nav .badge {
+        position: absolute;
+        top: 0;
+        right: calc(50% - 14px);
+        background: #dc3545;
+        color: #fff;
+        font-size: 8px;
+        padding: 1px 4px;
+        border-radius: 8px;
+        font-weight: bold;
+    }
 
     @media (max-width: 1100px) {
         .user-name-text { display: none; }
@@ -486,7 +527,14 @@ body.dark-mode .mobile-hamburger {
             <li><a href="track.php" class="<?= ($current_page == 'track.php') ? 'active' : ''; ?>"><i class="fa-solid fa-location-crosshairs"></i> Track</a></li>
             <li><a href="payments.php" class="<?= ($current_page == 'payments.php') ? 'active' : ''; ?>"><i class="fa-solid fa-wallet"></i> Payments</a></li>
             <li><a href="claim_stub.php" class="<?= ($current_page == 'claim_stub.php') ? 'active' : ''; ?>"><i class="fa-solid fa-receipt"></i> Claim Stub</a></li>
-            <li><a href="messages.php" class="<?= ($current_page == 'messages.php') ? 'active' : ''; ?>"><i class="fa-solid fa-envelope"></i> Messages</a></li>
+            <li>
+                <a href="messages.php" class="<?= ($current_page == 'messages.php') ? 'active' : ''; ?>">
+                    <i class="fa-solid fa-envelope"></i> Messages
+                    <span class="link-badge" id="navMsgBadge" style="<?= $unread_msg_count > 0 ? '' : 'display: none;'; ?>">
+                        <?= $unread_msg_count; ?>
+                    </span>
+                </a>
+            </li>
         </ul>
     </div>
 
@@ -549,7 +597,14 @@ body.dark-mode .mobile-hamburger {
         <li><a href="track.php"><i class="fa-solid fa-location-crosshairs"></i> Track Status</a></li>
         <li><a href="payments.php"><i class="fa-solid fa-wallet"></i> Payments</a></li>
         <li><a href="claim_stub.php"><i class="fa-solid fa-receipt"></i> Claim Stub</a></li>
-        <li><a href="messages.php"><i class="fa-solid fa-envelope"></i> Messages</a></li>
+        <li>
+            <a href="messages.php">
+                <i class="fa-solid fa-envelope"></i> Messages
+                <span class="link-badge" id="drawerMsgBadge" style="<?= $unread_msg_count > 0 ? '' : 'display: none;'; ?>">
+                    <?= $unread_msg_count; ?>
+                </span>
+            </a>
+        </li>
         <li><a href="profile.php"><i class="fa-solid fa-user-pen"></i> Edit Profile</a></li>
         <li><a href="settings.php"><i class="fa-solid fa-gear"></i> Settings</a></li>
         <li><a href="../logout.php" style="color:#dc3545;"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
@@ -573,6 +628,9 @@ body.dark-mode .mobile-hamburger {
     <a href="messages.php" class="<?= ($current_page == 'messages.php') ? 'active' : ''; ?>">
         <i class="fa-solid fa-envelope"></i>
         <span>Messages</span>
+        <span class="badge" id="bottomMsgBadge" style="<?= $unread_msg_count > 0 ? '' : 'display: none;'; ?>">
+            <?= $unread_msg_count; ?>
+        </span>
     </a>
     <a href="profile.php" class="<?= ($current_page == 'profile.php') ? 'active' : ''; ?>">
         <i class="fa-solid fa-user"></i>

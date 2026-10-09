@@ -3,16 +3,16 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+date_default_timezone_set('Asia/Manila');
 require_once __DIR__ . "/../includes/db.php";
+mysqli_query($conn, "SET time_zone = '+08:00'");
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../login.php");
     exit();
 }
 
-$admin_id = (int)$_SESSION['user_id'];
-
-// FETCH TABLE COLUMNS DYNAMICALLY TO PREVENT ERRORS
+// FETCH TABLE COLUMNS DYNAMICALLY TO CHECK AVAILABLE FIELDS
 $columns = [];
 $col_result = mysqli_query($conn, "SHOW COLUMNS FROM requests");
 if ($col_result) {
@@ -21,17 +21,23 @@ if ($col_result) {
     }
 }
 
-// FILTER & SEARCH SETUP (Strictly restricted to Claimed documents)
-$search_query = isset($_GET['search']) ? trim($_GET['search']) : '';
-
-$where_clauses = [];
-
-// PERMANENT RESTRICTION: Only show claimed documents in transaction history
-if (in_array('status', $columns)) {
-    $where_clauses[] = "LOWER(status) = 'claimed'";
+// Determine the correct date column to sort by
+$sort_column = 'id'; // fallback
+foreach (['created_at', 'date_requested', 'request_date', 'date'] as $candidate) {
+    if (in_array($candidate, $columns)) {
+        $sort_column = $candidate;
+        break;
+    }
 }
 
-// Safe Search Filter (still works, but only searches within claimed documents)
+// FILTER & SEARCH SETUP (Strictly restricted to Claimed documents)
+$search_query = isset($_GET['search']) ? trim($_GET['search']) : '';
+$where_clauses = [];
+
+if (in_array('status', $columns)) {
+    $where_clauses[] = "LOWER(r.status) = 'claimed'";
+}
+
 if (!empty($search_query) && !empty($columns)) {
     $safe_search = mysqli_real_escape_string($conn, $search_query);
     $search_conditions = [];
@@ -39,7 +45,7 @@ if (!empty($search_query) && !empty($columns)) {
     $possible_search_cols = ['tracking_number', 'reference_no', 'student_name', 'fullname', 'name', 'document_type', 'doc_type', 'document'];
     foreach ($possible_search_cols as $col) {
         if (in_array($col, $columns)) {
-            $search_conditions[] = "$col LIKE '%$safe_search%'";
+            $search_conditions[] = "r.$col LIKE '%$safe_search%'";
         }
     }
     
@@ -50,8 +56,21 @@ if (!empty($search_query) && !empty($columns)) {
 
 $where_sql = count($where_clauses) > 0 ? "WHERE " . implode(" AND ", $where_clauses) : "";
 
-// Execute safe query
-$query = "SELECT * FROM requests $where_sql LIMIT 100";
+// Check if processed_by column exists before joining users table
+$has_processed_by = in_array('processed_by', $columns);
+if ($has_processed_by) {
+    $query = "SELECT r.*, u.fullname AS processor_name 
+              FROM requests r 
+              LEFT JOIN users u ON r.processed_by = u.user_id 
+              $where_sql 
+              ORDER BY r.$sort_column DESC LIMIT 100";
+} else {
+    $query = "SELECT r.*, 'System Admin' AS processor_name 
+              FROM requests r 
+              $where_sql 
+              ORDER BY r.$sort_column DESC LIMIT 100";
+}
+
 $transactions_result = @mysqli_query($conn, $query);
 ?>
 
@@ -62,22 +81,43 @@ $transactions_result = @mysqli_query($conn, $query);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaction History - CCTC eRegistrar</title>
-     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
+    <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <link rel="stylesheet" href="../assets/css/dashboard.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #e0e7ff;
+            --success: #10b981;
+            --success-bg: #d1fae5;
+            --dark: #0f172a;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --bg-main: #f8fafc;
+            --card-bg: #ffffff;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
         body {
-            background-color: #f8fafc;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            color: #0f172a;
+            background-color: var(--bg-main);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
             margin: 0;
             padding: 0;
         }
 
         .admin-content {
-            padding: 24px;
+            padding: 32px;
             max-width: 1200px;
             margin: 0 auto;
             box-sizing: border-box;
@@ -87,15 +127,15 @@ $transactions_result = @mysqli_query($conn, $query);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 16px;
         }
 
         .page-title {
-            font-size: 1.35rem;
+            font-size: 1.6rem;
             font-weight: 700;
-            color: #0f172a;
+            color: var(--dark);
             margin: 0;
             display: flex;
             align-items: center;
@@ -107,53 +147,57 @@ $transactions_result = @mysqli_query($conn, $query);
             gap: 10px;
             align-items: center;
             flex-wrap: wrap;
-            margin-bottom: 20px;
-            background: #ffffff;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
+            margin-bottom: 24px;
+            background: var(--card-bg);
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
         }
 
         .filter-container input {
-            padding: 8px 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            font-size: 0.88rem;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
             outline: none;
-            color: #1e293b;
-            min-width: 260px;
+            color: var(--text-main);
+            min-width: 280px;
+            font-family: 'Inter', sans-serif;
         }
 
         .filter-container input:focus {
-            border-color: #2563eb;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
         }
 
         .btn-filter {
-            background-color: #2563eb;
+            background-color: var(--primary);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
             font-weight: 600;
             font-size: 0.88rem;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
         }
 
         .btn-filter:hover {
-            background-color: #1d4ed8;
+            background-color: var(--primary-hover);
         }
 
         /* Table Card Styling */
         .table-card {
-            background: #ffffff;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
             overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            box-shadow: var(--shadow-sm);
         }
 
         .table-responsive {
@@ -169,17 +213,20 @@ $transactions_result = @mysqli_query($conn, $query);
         }
 
         th {
-            background-color: #f8fafc;
-            color: #475569;
+            background-color: #f1f5f9;
+            color: var(--text-muted);
             font-weight: 600;
-            padding: 12px 16px;
-            border-bottom: 1px solid #e2e8f0;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #f1f5f9;
-            color: #334155;
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
         }
 
         tr:last-child td {
@@ -191,20 +238,22 @@ $transactions_result = @mysqli_query($conn, $query);
         }
 
         .badge {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
             padding: 4px 10px;
             font-size: 0.75rem;
-            font-weight: 600;
-            border-radius: 12px;
-            text-transform: capitalize;
+            font-weight: 700;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
-        .badge.claimed { background-color: #e0f2fe; color: #0369a1; }
+        .badge.claimed { background-color: var(--success-bg); color: #047857; }
 
         .btn-view {
-            background-color: #f1f5f9;
-            color: #334155;
-            border: 1px solid #cbd5e1;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border: none;
             padding: 6px 12px;
             border-radius: 6px;
             font-size: 0.8rem;
@@ -212,16 +261,16 @@ $transactions_result = @mysqli_query($conn, $query);
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             transition: all 0.2s;
         }
 
         .btn-view:hover {
-            background-color: #e2e8f0;
-            color: #0f172a;
+            background-color: var(--primary);
+            color: #ffffff;
         }
 
-        /* Floating Modal Styling */
+        /* STYLIZED FLOATING MODAL DETAILS */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -229,59 +278,72 @@ $transactions_result = @mysqli_query($conn, $query);
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(15, 23, 42, 0.6);
+            background-color: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(6px);
             z-index: 9999;
             justify-content: center;
             align-items: center;
-            padding: 16px;
+            padding: 20px;
             box-sizing: border-box;
+            animation: fadeIn 0.25s ease-in-out;
         }
 
         .modal-container {
-            background: #ffffff;
+            background: var(--card-bg);
             width: 100%;
-            max-width: 550px;
-            border-radius: 12px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            max-width: 600px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
             overflow: hidden;
-            animation: modalFadeIn 0.25s ease-out;
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .modal-header {
-            padding: 18px 24px;
+            padding: 20px 24px;
             background: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .modal-title {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            color: #0f172a;
+            color: var(--dark);
             margin: 0;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .modal-close {
-            background: transparent;
+            background: #f1f5f9;
             border: none;
-            font-size: 1.25rem;
-            color: #64748b;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: var(--text-muted);
             cursor: pointer;
-            transition: color 0.2s;
+            transition: all 0.2s;
         }
 
         .modal-close:hover {
-            color: #0f172a;
+            background: var(--danger-bg, #fee2e2);
+            color: var(--danger, #ef4444);
         }
 
         .modal-body {
@@ -293,13 +355,17 @@ $transactions_result = @mysqli_query($conn, $query);
         .detail-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            gap: 18px;
         }
 
         .detail-item {
             display: flex;
             flex-direction: column;
             gap: 4px;
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
         }
 
         .detail-item.full-width {
@@ -307,24 +373,24 @@ $transactions_result = @mysqli_query($conn, $query);
         }
 
         .detail-label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #64748b;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
         .detail-value {
             font-size: 0.95rem;
-            color: #1e293b;
-            font-weight: 500;
+            color: var(--dark);
+            font-weight: 600;
             word-break: break-word;
         }
 
         .modal-footer {
             padding: 16px 24px;
             background: #f8fafc;
-            border-top: 1px solid #e2e8f0;
+            border-top: 1px solid var(--border);
             text-align: right;
         }
 
@@ -332,8 +398,8 @@ $transactions_result = @mysqli_query($conn, $query);
             background-color: #64748b;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: 9px 18px;
+            border-radius: var(--radius-sm);
             font-weight: 600;
             font-size: 0.85rem;
             cursor: pointer;
@@ -346,13 +412,13 @@ $transactions_result = @mysqli_query($conn, $query);
 
         .no-data {
             text-align: center;
-            padding: 40px;
-            color: #64748b;
+            padding: 48px 20px;
+            color: var(--text-muted);
         }
 
         .no-data i {
             font-size: 2.5rem;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             color: #cbd5e1;
         }
     </style>
@@ -366,20 +432,20 @@ $transactions_result = @mysqli_query($conn, $query);
 
     <div class="page-header">
         <h2 class="page-title">
-            <i class="fa-solid fa-clock-rotate-left" style="color: #2563eb;"></i> Claimed Document Transaction History
+            <i class="fa-solid fa-clock-rotate-left" style="color: var(--primary);"></i> Transaction History
         </h2>
     </div>
 
-    <!-- SEARCH FORM ONLY (Status filter removed since it's strictly claimed documents now) -->
+    <!-- SEARCH FORM -->
     <form method="GET" action="transaction_history.php" class="filter-container">
-        <div>
-            <input type="text" name="search" placeholder="Search claimed records..." value="<?= htmlspecialchars($search_query); ?>">
+        <div style="flex: 1;">
+            <input type="text" name="search" placeholder="Search by reference, name, or document..." value="<?= htmlspecialchars($search_query); ?>">
         </div>
         <button type="submit" class="btn-filter">
             <i class="fa-solid fa-magnifying-glass"></i> Search
         </button>
         <?php if (!empty($search_query)): ?>
-            <a href="transaction_history.php" style="font-size: 0.85rem; color: #64748b; text-decoration: none; margin-left: 8px;">Reset Search</a>
+            <a href="transaction_history.php" style="font-size: 0.88rem; color: var(--text-muted); text-decoration: none; margin-left: 8px; font-weight: 500;">Reset</a>
         <?php endif; ?>
     </form>
 
@@ -393,7 +459,7 @@ $transactions_result = @mysqli_query($conn, $query);
                         <th>Student Name</th>
                         <th>Document Type</th>
                         <th>Status</th>
-                        <th>Date Requested</th>
+                        <th>Date Claimed / Requested</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -402,12 +468,13 @@ $transactions_result = @mysqli_query($conn, $query);
                         <?php while ($row = mysqli_fetch_assoc($transactions_result)): ?>
                             <?php 
                                 $date_val = $row['created_at'] ?? $row['date_requested'] ?? $row['request_date'] ?? $row['date'] ?? null;
-                                $formatted_date = $date_val ? date("M d, Y h:i A", strtotime($date_val)) : 'N/A';
+                                $formatted_date = $date_val ? date("M d, Y • h:i A", strtotime($date_val)) : 'N/A';
                                 
                                 $ref_val = $row['tracking_number'] ?? $row['reference_no'] ?? ($row['id'] ?? 'RECORD');
                                 $student_name = $row['student_name'] ?? $row['fullname'] ?? $row['name'] ?? 'N/A';
-                                $doc_type = $row['document_type'] ?? $row['doc_type'] ?? $row['document'] ?? 'N/A';
-                                $status = strtolower($row['status'] ?? 'claimed');
+                                
+                                $doc_type = $row['document_type'] ?? $row['doc_type'] ?? $row['document'] ?? $row['type'] ?? 'N/A';
+                                $processed_by = $row['processor_name'] ?? $row['processed_by_name'] ?? $row['admin_name'] ?? 'System / Registrar Admin';
                                 
                                 $id_no = $row['student_id'] ?? $row['id_number'] ?? $row['school_id'] ?? 'N/A';
                                 $purpose = $row['purpose'] ?? $row['reason'] ?? 'N/A';
@@ -416,7 +483,7 @@ $transactions_result = @mysqli_query($conn, $query);
                             <tr>
                                 <td><strong><?= htmlspecialchars($ref_val); ?></strong></td>
                                 <td><?= htmlspecialchars($student_name); ?></td>
-                                <td><?= htmlspecialchars($doc_type); ?></td>
+                                <td><span style="font-weight: 500; color: var(--primary);"><?= htmlspecialchars($doc_type); ?></span></td>
                                 <td>
                                     <span class="badge claimed">Claimed</span>
                                 </td>
@@ -427,8 +494,9 @@ $transactions_result = @mysqli_query($conn, $query);
                                         data-name="<?= htmlspecialchars($student_name); ?>"
                                         data-idno="<?= htmlspecialchars($id_no); ?>"
                                         data-doctype="<?= htmlspecialchars($doc_type); ?>"
-                                        data-purpose="<?= htmlspecialchars($purpose); ?>"
                                         data-copies="<?= htmlspecialchars($copies); ?>"
+                                        data-purpose="<?= htmlspecialchars($purpose); ?>"
+                                        data-processed="<?= htmlspecialchars($processed_by); ?>"
                                         data-status="Claimed"
                                         data-date="<?= htmlspecialchars($formatted_date); ?>"
                                         onclick="openTransactionModal(this)">
@@ -441,7 +509,7 @@ $transactions_result = @mysqli_query($conn, $query);
                         <tr>
                             <td colspan="6" class="no-data">
                                 <i class="fa-regular fa-folder-open"></i>
-                                <p>No claimed transaction history records found.</p>
+                                <p style="margin: 0;">No claimed transaction history records found.</p>
                             </td>
                         </tr>
                     <?php endif; ?>
@@ -452,11 +520,11 @@ $transactions_result = @mysqli_query($conn, $query);
 
 </div>
 
-<!-- FLOATING MODAL DETAILS -->
+<!-- STYLIZED FLOATING MODAL DETAILS -->
 <div id="transactionModal" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header">
-            <h3 class="modal-title"><i class="fa-solid fa-file-invoice" style="color: #2563eb;"></i> Transaction Details</h3>
+            <h3 class="modal-title"><i class="fa-solid fa-file-invoice" style="color: var(--primary);"></i> Transaction Details</h3>
             <button type="button" class="modal-close" onclick="closeTransactionModal()">&times;</button>
         </div>
         <div class="modal-body">
@@ -467,7 +535,7 @@ $transactions_result = @mysqli_query($conn, $query);
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Status</span>
-                    <span class="detail-value" id="modalStatus">-</span>
+                    <span class="detail-value"><span class="badge claimed" id="modalStatus">-</span></span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Student Name</span>
@@ -479,19 +547,23 @@ $transactions_result = @mysqli_query($conn, $query);
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Document Type</span>
-                    <span class="detail-value" id="modalDocType">-</span>
+                    <span class="detail-value" id="modalDocType" style="color: var(--primary);">-</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Number of Copies</span>
                     <span class="detail-value" id="modalCopies">-</span>
                 </div>
+                <div class="detail-item">
+                    <span class="detail-label">Processed By</span>
+                    <span class="detail-value" id="modalProcessed">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Date Requested / Claimed</span>
+                    <span class="detail-value" id="modalDate">-</span>
+                </div>
                 <div class="detail-item full-width">
                     <span class="detail-label">Purpose / Remarks</span>
                     <span class="detail-value" id="modalPurpose">-</span>
-                </div>
-                <div class="detail-item full-width">
-                    <span class="detail-label">Date Requested</span>
-                    <span class="detail-value" id="modalDate">-</span>
                 </div>
             </div>
         </div>
@@ -510,6 +582,7 @@ $transactions_result = @mysqli_query($conn, $query);
         document.getElementById('modalDocType').textContent = btn.getAttribute('data-doctype');
         document.getElementById('modalCopies').textContent = btn.getAttribute('data-copies');
         document.getElementById('modalPurpose').textContent = btn.getAttribute('data-purpose');
+        document.getElementById('modalProcessed').textContent = btn.getAttribute('data-processed');
         document.getElementById('modalDate').textContent = btn.getAttribute('data-date');
 
         document.getElementById('transactionModal').style.display = 'flex';

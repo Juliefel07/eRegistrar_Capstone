@@ -9,6 +9,12 @@ if (session_status() === PHP_SESSION_NONE) {
 $current_page = basename($_SERVER['PHP_SELF']);
 $admin_id = $_SESSION['user_id'] ?? 1;
 
+// Fetch the admin's latest details directly from the database for instant syncing
+$admin_query = mysqli_query($conn, "SELECT fullname, profile_pic FROM users WHERE user_id = '$admin_id' LIMIT 1");
+$admin_data = mysqli_fetch_assoc($admin_query);
+$sidebar_fullname = $admin_data['fullname'] ?? ($_SESSION['fullname'] ?? 'Administrator');
+$sidebar_profile_pic = !empty($admin_data['profile_pic']) ? "../" . $admin_data['profile_pic'] : "../assets/images/default-avatar.png";
+
 // Fetch notification count
 $notifResult = mysqli_query($conn, "SELECT COUNT(*) AS total FROM notifications WHERE user_id='$admin_id' AND (is_read = 0 OR is_read IS NULL)");
 $notifCount = ($notifResult) ? (int)mysqli_fetch_assoc($notifResult)['total'] : 0;
@@ -17,12 +23,12 @@ $notifCount = ($notifResult) ? (int)mysqli_fetch_assoc($notifResult)['total'] : 
 $msgResult = mysqli_query($conn, "SELECT COUNT(*) AS total FROM messages WHERE receiver_id='$admin_id' AND status='Unread'");
 $unreadMsgCount = ($msgResult) ? (int)mysqli_fetch_assoc($msgResult)['total'] : 0;
 
-$user_initial = !empty($_SESSION['fullname']) ? strtoupper(substr($_SESSION['fullname'], 0, 1)) : 'A';
+$user_initial = !empty($sidebar_fullname) ? strtoupper(substr($sidebar_fullname, 0, 1)) : 'A';
 ?>
 
 <style>
 /* ==========================================
-   SIDEBAR & LAYOUT STYLES
+   SIDEBAR & LAYOUT STYLES (COMPACT FIT)
    ========================================== */
 .sidebar {
     width: 260px;
@@ -37,10 +43,11 @@ $user_initial = !empty($_SESSION['fullname']) ? strtoupper(substr($_SESSION['ful
     z-index: 10001;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-sizing: border-box;
+    overflow: hidden; /* Prevents outer scrollbar */
 }
 
 .sidebar-brand {
-    padding: 20px 20px 16px 20px;
+    padding: 12px 16px;
     display: flex;
     align-items: center;
     border-bottom: 1px solid #f1f5f9;
@@ -49,62 +56,173 @@ $user_initial = !empty($_SESSION['fullname']) ? strtoupper(substr($_SESSION['ful
 .sidebar-brand .brand-content {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .portal-logo {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     object-fit: contain;
 }
 
 .brand-text h2 {
     margin: 0;
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: #0f172a;
-    line-height: 1.2;
+    line-height: 1.1;
 }
 
 .brand-text span {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: #64748b;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
+/* Profile Dropdown Container Below Brand */
+.sidebar-profile-dropdown {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    position: relative;
+    background: #fafafa;
+}
+
+.user-profile-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.user-profile-card:hover {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.user-profile-card .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid #cbd5e1;
+}
+
+.user-profile-card .user-details {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+.user-profile-card .user-details strong {
+    font-size: 0.8rem;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-profile-card .user-details small {
+    font-size: 0.68rem;
+    color: #64748b;
+}
+
+.user-profile-card .dropdown-arrow {
+    font-size: 0.65rem;
+    color: #64748b;
+    margin-left: auto;
+    transition: transform 0.2s ease;
+}
+
+/* Downward Popup Dropdown Menu */
+/* Downward Popup Dropdown Menu */
+.sidebar-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 8px;
+    right: 8px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    
+    
+}
+
+.sidebar-dropdown-menu.show {
+    display: block;
+}
+
+.sidebar-dropdown-menu a {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 10px;
+    color: #333333;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 400;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.sidebar-dropdown-menu a:hover {
+    background-color: #f8fafc;
+    color: #0f172a;
+}
+
+.sidebar-dropdown-menu a.logout-link {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.sidebar-dropdown-menu a.logout-link:hover {
+    background-color: #ffeeec;
+    color: #dc2626;
+}
+
 .sidebar-nav {
     display: flex;
     flex-direction: column;
-    padding: 16px 12px;
-    gap: 4px;
+    padding: 8px 10px;
+    gap: 2px;
     flex-grow: 1;
-    overflow-y: auto;
+    overflow: hidden; /* Removed scrolling */
 }
 
 .sidebar-nav a {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 14px;
+    padding: 7px 12px;
     color: #64748b;
     text-decoration: none;
     font-weight: 500;
-    font-size: 0.92rem;
-    border-radius: 8px;
+    font-size: 0.86rem;
+    border-radius: 6px;
     transition: all 0.2s ease;
 }
 
 .sidebar-nav a .nav-link-content {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .sidebar-nav a i {
-    font-size: 1.1rem;
-    width: 20px;
+    font-size: 1rem;
+    width: 18px;
     text-align: center;
 }
 
@@ -126,96 +244,15 @@ $user_initial = !empty($_SESSION['fullname']) ? strtoupper(substr($_SESSION['ful
 .notif-badge {
     background-color: #ef4444;
     color: #ffffff;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 12px;
-    line-height: 1.2;
-}
-
-.sidebar-footer {
-    padding: 16px 12px;
-    border-top: 1px solid #f1f5f9;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background: #fafafa;
-}
-
-.user-profile-card {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 10px;
-    border-radius: 8px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-}
-
-.user-profile-card .avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background-color: #2563eb;
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.user-profile-card .user-details {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.user-profile-card .user-details strong {
-    font-size: 0.88rem;
-    color: #0f172a;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.user-profile-card .user-details small {
-    font-size: 0.75rem;
-    color: #64748b;
-}.sidebar-logout-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    padding: 11px;
-    background-color: #dc2626; /* Solid bright red background */
-    color: #ffffff;            /* White text */
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    text-decoration: none;
-    box-sizing: border-box;
-    transition: all 0.2s ease;
-    border: none;
-    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
-}
-
-.sidebar-logout-btn:hover {
-    background-color: #b91c1c; /* Darker red on hover */
-    color: #ffffff;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 15px rgba(220, 38, 38, 0.45);
-}
-
-.sidebar-logout-btn i {
-    font-size: 1.05rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    line-height: 1.1;
 }
 
 .mobile-header-toggle { display: none; }
 .mobile-actions { display: flex; align-items: center; gap: 12px; }
-.mobile-bell { position: relative; color: #64748b; font-size: 1.2rem; text-decoration: none; }
 .toggle-btn { background: #ffffff; border: 1px solid #cbd5e1; font-size: 1.2rem; color: #0f172a; cursor: pointer; padding: 6px 12px; border-radius: 6px; outline: none; }
 .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(2px); z-index: 10000; }
 .sidebar-overlay.show { display: block !important; }
@@ -272,6 +309,25 @@ $user_initial = !empty($_SESSION['fullname']) ? strtoupper(substr($_SESSION['ful
         </div>
     </div>
 
+    <!-- Admin Profile Section Directly Below Brand Header -->
+    <div class="sidebar-profile-dropdown" id="profileDropdownContainer">
+        <div class="user-profile-card" id="profileCardToggle">
+            <img src="<?= htmlspecialchars($sidebar_profile_pic); ?>" alt="Admin Avatar" class="avatar" onerror="this.src='../assets/images/default-avatar.png';">
+            <div class="user-details">
+                <strong><?= htmlspecialchars($sidebar_fullname); ?></strong>
+                <small>Administrator</small>
+            </div>
+            <i class="fa-solid fa-chevron-down dropdown-arrow" id="dropdownArrow"></i>
+        </div>
+
+        <div class="sidebar-dropdown-menu" id="sidebarDropdownMenu">
+            <a href="../logout.php">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
     <nav class="sidebar-nav">
         <a href="dashboard.php" class="<?= ($current_page == 'dashboard.php') ? 'active' : ''; ?>">
             <div class="nav-link-content">
@@ -299,7 +355,6 @@ $user_initial = !empty($_SESSION['fullname']) ? strtoupper(substr($_SESSION['ful
                 <i class="fa-solid fa-comments"></i>
                 <span>Messages</span>
             </div>
-            <!-- Red Badge displaying the active number of unread messages -->
             <span class="notif-badge" id="sidebar-msg-badge" style="<?= ($unreadMsgCount > 0) ? '' : 'display: none;'; ?>">
                 <?= $unreadMsgCount; ?>
             </span>
@@ -315,7 +370,6 @@ $user_initial = !empty($_SESSION['fullname']) ? strtoupper(substr($_SESSION['ful
             </span>
         </a>
 
-        <!-- TRANSACTION HISTORY ADDED HERE -->
         <a href="transaction_history.php" class="<?= ($current_page == 'transaction_history.php') ? 'active' : ''; ?>">
             <div class="nav-link-content">
                 <i class="fa-solid fa-clock-rotate-left"></i>
@@ -323,10 +377,10 @@ $user_initial = !empty($_SESSION['fullname']) ? strtoupper(substr($_SESSION['ful
             </div>
         </a>
 
-         <a href="announcements.php" class="<?= ($current_page == 'announcements.php') ? 'active' : ''; ?>">
+        <a href="announcements.php" class="<?= ($current_page == 'announcements.php') ? 'active' : ''; ?>">
             <div class="nav-link-content">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-                <span>Annoucements</span>
+                <i class="fa-solid fa-bullhorn"></i>
+                <span>Announcements</span>
             </div>
         </a>
 
@@ -343,14 +397,14 @@ $user_initial = !empty($_SESSION['fullname']) ? strtoupper(substr($_SESSION['ful
                 <span>Reports</span>
             </div>
         </a>
-    </nav>
 
-    <div class="sidebar-footer">
-        <a href="../logout.php" class="logout">
-            <i class="fa-solid fa-right-from-bracket"></i>
-            <span>Logout</span>
+        <a href="admin_settings.php" class="<?= ($current_page == 'admin_settings.php') ? 'active' : ''; ?>">
+            <div class="nav-link-content">
+                <i class="fa-solid fa-gear"></i>
+                <span>Settings</span>
+            </div>
         </a>
-    </div>
+    </nav>
 </aside>
 
 <script>
@@ -366,5 +420,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (toggleBtn) toggleBtn.addEventListener('click', toggleMenu);
     if (overlay) overlay.addEventListener('click', toggleMenu);
+
+    // Profile Dropdown Toggle
+    const profileToggle = document.getElementById('profileCardToggle');
+    const dropdownMenu = document.getElementById('sidebarDropdownMenu');
+    const dropdownArrow = document.getElementById('dropdownArrow');
+
+    if (profileToggle && dropdownMenu) {
+        profileToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+            if (dropdownMenu.classList.contains('show')) {
+                dropdownArrow.style.transform = 'rotate(180deg)';
+            } else {
+                dropdownArrow.style.transform = 'rotate(0deg)';
+            }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!profileToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+                dropdownArrow.style.transform = 'rotate(0deg)';
+            }
+        });
+    }
 });
 </script>

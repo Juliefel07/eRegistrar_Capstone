@@ -21,28 +21,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (password_verify($password, $user['password'])) {
 
             // Check email verification for non-admin accounts
-if ($user['role'] !== "Admin" && (int)$user['is_verified'] === 0) {
-    
-    // 1. Set Manila timezone
-    date_default_timezone_set('Asia/Manila');
+            if ($user['role'] !== "Admin" && (int)$user['is_verified'] === 0) {
+                
+                // 1. Set Manila timezone
+                date_default_timezone_set('Asia/Manila');
 
-    // 2. Generate new 6-digit OTP and fresh 10-minute expiry
-    $otp = sprintf("%06d", mt_rand(100000, 999999));
-    $expires_at = date("Y-m-d H:i:s", strtotime("+10 minutes"));
+                // 2. Generate new 6-digit OTP and fresh 10-minute expiry
+                $otp = sprintf("%06d", mt_rand(100000, 999999));
+                $expires_at = date("Y-m-d H:i:s", strtotime("+10 minutes"));
 
-    // 3. Update BOTH otp_code AND otp_expires_at in database
-    $userId = $user['user_id'];
-    $updateSql = "UPDATE users SET otp_code = '$otp', otp_expires_at = '$expires_at' WHERE user_id = '$userId'";
-    mysqli_query($conn, $updateSql);
+                // 3. Update BOTH otp_code AND otp_expires_at in database
+                $userId = $user['user_id'];
+                $updateSql = "UPDATE users SET otp_code = '$otp', otp_expires_at = '$expires_at' WHERE user_id = '$userId'";
+                mysqli_query($conn, $updateSql);
 
-    // 4. Set session & send email
-    $_SESSION['pending_email'] = $user['email'];
-    sendVerificationEmail($user['email'], $user['fullname'], $otp);
+                // 4. Set session & send email
+                $_SESSION['pending_email'] = $user['email'];
+                sendVerificationEmail($user['email'], $user['fullname'], $otp);
 
-    // 5. Redirect to OTP page
-    header("Location: verify_otp.php");
-    exit();
-}
+                // 5. Redirect to OTP page
+                header("Location: verify_otp.php");
+                exit();
             }
 
             // Set Session Data for verified users
@@ -70,7 +69,7 @@ if ($user['role'] !== "Admin" && (int)$user['is_verified'] === 0) {
         header("Location: login.php");
         exit();
     }
-
+}
 ?>
 
 <!DOCTYPE html>

@@ -28,12 +28,12 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'check_unread') {
     exit();
 }
 
-// Fetch all Admin/Registrar accounts
+// Fetch all Admin/Registrar accounts (Fixed profile_image to profile_pic)
 $admins_query = mysqli_query($conn, "
     SELECT 
         u.{$id_col} AS admin_id,
         u.fullname,
-        u.profile_image,
+        u.profile_pic,
         (SELECT COUNT(*) FROM messages m1 
          WHERE m1.sender_id = u.{$id_col} 
            AND m1.receiver_id = '$user_id' 
@@ -101,17 +101,20 @@ $contact_name = "Registrar Administrator";
 $contact_data = null;
 
 if ($contact_id) {
-    $name_query = mysqli_query($conn, "SELECT fullname, profile_image FROM users WHERE {$id_col} = '$contact_id'");
+    $name_query = mysqli_query($conn, "SELECT fullname, profile_pic FROM users WHERE {$id_col} = '$contact_id'");
     if ($name_query && mysqli_num_rows($name_query) > 0) {
         $contact_data = mysqli_fetch_assoc($name_query);
         $contact_name = $contact_data['fullname'];
     }
 
+    // Join users table so message rows also have access to sender profile pictures if needed
     $chat = mysqli_query($conn, "
-        SELECT * FROM messages
-        WHERE (sender_id = '$user_id' AND receiver_id = '$contact_id')
-           OR (sender_id = '$contact_id' AND receiver_id = '$user_id')
-        ORDER BY created_at ASC
+        SELECT m.*, u.profile_pic as sender_profile_pic, u.fullname as sender_name
+        FROM messages m
+        LEFT JOIN users u ON m.sender_id = u.{$id_col}
+        WHERE (m.sender_id = '$user_id' AND m.receiver_id = '$contact_id')
+           OR (m.sender_id = '$contact_id' AND m.receiver_id = '$user_id')
+        ORDER BY m.created_at ASC
     ");
 }
 ?>
@@ -150,7 +153,6 @@ if ($contact_id) {
             border-radius: 16px;
             border: 1px solid #e2e8f0;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-            height: calc(100vh - 120px);
             min-height: 550px;
             overflow: hidden;
         }
@@ -380,7 +382,7 @@ if ($contact_id) {
             border: none;
             background: transparent;
             font-family: inherit;
-            font-size: 15px; /* 15px+ prevents auto-zoom on iOS */
+            font-size: 15px;
             line-height: 1.4;
             resize: none;
             height: 38px;
@@ -443,7 +445,6 @@ if ($contact_id) {
             font-size: 0.88rem;
         }
 
-        /* MOBILE RESPONSIVE DESIGN */
         @media (max-width: 768px) {
             .student-content {
                 padding: 0;
@@ -451,7 +452,6 @@ if ($contact_id) {
 
             .chat-container {
                 grid-template-columns: 1fr;
-                height: calc(100dvh - 65px);
                 border-radius: 0;
                 border: none;
                 min-height: auto;
@@ -465,7 +465,6 @@ if ($contact_id) {
                 max-width: 82%;
             }
 
-            /* Extra bottom padding on mobile so input isn't blocked by bottom bars */
             .chat-input-container {
                 padding: 10px 12px 80px; 
             }
@@ -474,7 +473,6 @@ if ($contact_id) {
                 border-width: 1.5px;
             }
 
-            /* Mobile view toggle */
             <?php if ($contact_id && !$is_mobile_contacts_view): ?>
                 .contact-list { display: none !important; }
                 .chat-main { display: flex !important; }
@@ -506,8 +504,8 @@ if ($contact_id) {
                        class="contact-item <?php echo ($contact_id == $a['admin_id'] && !$is_mobile_contacts_view) ? 'active' : ''; ?>">
 
                         <div class="contact-avatar">
-                            <?php if (!empty($a['profile_image'])): ?>
-                                <img src="../student/uploads/<?php echo htmlspecialchars($a['profile_image']); ?>" alt="Profile">
+                            <?php if (!empty($a['profile_pic'])): ?>
+                                <img src="../<?php echo htmlspecialchars($a['profile_pic']); ?>" alt="Profile">
                             <?php else: ?>
                                 <?php echo strtoupper(substr($a['fullname'], 0, 1)); ?>
                             <?php endif; ?>
@@ -538,8 +536,8 @@ if ($contact_id) {
                         <i class="fa-solid fa-chevron-left"></i> 
                     </a>
                     <div class="contact-avatar">
-                        <?php if (!empty($contact_data['profile_image'])): ?>
-                            <img src="../student/uploads/<?php echo htmlspecialchars($contact_data['profile_image']); ?>" alt="Profile">
+                        <?php if (!empty($contact_data['profile_pic'])): ?>
+                            <img src="../<?php echo htmlspecialchars($contact_data['profile_pic']); ?>" alt="Profile">
                         <?php else: ?>
                             <?php echo strtoupper(substr($contact_name, 0, 1)); ?>
                         <?php endif; ?>
@@ -611,13 +609,11 @@ if ($contact_id) {
 
     const box = document.getElementById("messageBox");
     if (box) {
-        // Auto-expand textarea as user types
         box.addEventListener("input", function() {
             this.style.height = "auto";
             this.style.height = (this.scrollHeight < 100 ? this.scrollHeight : 100) + "px";
         });
 
-        // Submit on Enter key (desktop)
         box.addEventListener("keydown", function (e) {
             if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 768) {
                 e.preventDefault();
