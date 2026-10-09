@@ -50,6 +50,32 @@ $proof_file_path = NULL;
 $tracking = "REQ" . date("YmdHis");
 $submittedRequests = [];
 
+// CLOUDINARY UPLOAD HELPER FUNCTION (Using your credentials)
+function uploadToCloudinary($fileTmpPath) {
+    $cloudName = 'wfz1gkkl';
+    $apiKey    = '677168328123419';
+    $apiSecret = '8kPh4Gb5y0OP8TtFOJdFRtokFFk';
+
+    if (!file_exists($fileTmpPath)) {
+        return null;
+    }
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "https://api.cloudinary.com/v1_1/$cloudName/image/upload");
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_USERPWD, "$apiKey:$apiSecret");
+    curl_setopt($ch, CURLOPT_POSTFIELDS, [
+        'file' => new CURLFile($fileTmpPath)
+    ]);
+
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    $responseData = json_decode($response, true);
+    return $responseData['secure_url'] ?? null;
+}
+
 // PREPARE STATEMENT FOR INSERTING REQUESTS
 $stmt = mysqli_prepare(
     $conn,
@@ -71,11 +97,6 @@ $stmt = mysqli_prepare(
     )
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
 );
-
-$reqUploadDir = __DIR__ . "/../assets/uploads/requirements/";
-if (!is_dir($reqUploadDir)) {
-    mkdir($reqUploadDir, 0777, true);
-}
 
 // LOOP THROUGH EACH SUBMITTED DOCUMENT ITEM
 foreach ($_POST['documents'] as $index => $docItem) {
@@ -121,69 +142,47 @@ foreach ($_POST['documents'] as $index => $docItem) {
             }
         }
 
-        // HANDLE FRONT OF ID UPLOAD
+        // HANDLE FRONT OF ID UPLOAD VIA CLOUDINARY
         if (isset($_FILES['valid_id_front']) && $_FILES['valid_id_front']['error'] === UPLOAD_ERR_OK) {
-            $frontName = $_FILES['valid_id_front']['name'];
-            $frontExt  = strtolower(pathinfo($frontName, PATHINFO_EXTENSION));
-            $allowed   = ["pdf", "jpg", "jpeg", "png"];
-
-            if (in_array($frontExt, $allowed)) {
-                $newFrontName = time() . "_id_front_" . preg_replace("/[^a-zA-Z0-9\._-]/", "_", $frontName);
-                if (move_uploaded_file($_FILES['valid_id_front']['tmp_name'], $reqUploadDir . $newFrontName)) {
-                    $frontPath = "assets/uploads/requirements/" . $newFrontName;
-                    $idStmt = mysqli_prepare($conn, "INSERT INTO request_requirement_files (request_id, requirement_id, file_name, file_path, status) VALUES (?, ?, 'Valid ID (Front)', ?, 'Pending')");
-                    mysqli_stmt_bind_param($idStmt, "iis", $request_id, $default_req_id, $frontPath);
-                    mysqli_stmt_execute($idStmt);
-                    mysqli_stmt_close($idStmt);
-                }
+            $frontPath = uploadToCloudinary($_FILES['valid_id_front']['tmp_name']);
+            if ($frontPath) {
+                $idStmt = mysqli_prepare($conn, "INSERT INTO request_requirement_files (request_id, requirement_id, file_name, file_path, status) VALUES (?, ?, 'Valid ID (Front)', ?, 'Pending')");
+                mysqli_stmt_bind_param($idStmt, "iis", $request_id, $default_req_id, $frontPath);
+                mysqli_stmt_execute($idStmt);
+                mysqli_stmt_close($idStmt);
             }
         }
 
-        // HANDLE BACK OF ID UPLOAD
+        // HANDLE BACK OF ID UPLOAD VIA CLOUDINARY
         if (isset($_FILES['valid_id_back']) && $_FILES['valid_id_back']['error'] === UPLOAD_ERR_OK) {
-            $backName = $_FILES['valid_id_back']['name'];
-            $backExt  = strtolower(pathinfo($backName, PATHINFO_EXTENSION));
-            $allowed  = ["pdf", "jpg", "jpeg", "png"];
-
-            if (in_array($backExt, $allowed)) {
-                $newBackName = time() . "_id_back_" . preg_replace("/[^a-zA-Z0-9\._-]/", "_", $backName);
-                if (move_uploaded_file($_FILES['valid_id_back']['tmp_name'], $reqUploadDir . $newBackName)) {
-                    $backPath = "assets/uploads/requirements/" . $newBackName;
-                    $idStmt = mysqli_prepare($conn, "INSERT INTO request_requirement_files (request_id, requirement_id, file_name, file_path, status) VALUES (?, ?, 'Valid ID (Back)', ?, 'Pending')");
-                    mysqli_stmt_bind_param($idStmt, "iis", $request_id, $default_req_id, $backPath);
-                    mysqli_stmt_execute($idStmt);
-                    mysqli_stmt_close($idStmt);
-                }
+            $backPath = uploadToCloudinary($_FILES['valid_id_back']['tmp_name']);
+            if ($backPath) {
+                $idStmt = mysqli_prepare($conn, "INSERT INTO request_requirement_files (request_id, requirement_id, file_name, file_path, status) VALUES (?, ?, 'Valid ID (Back)', ?, 'Pending')");
+                mysqli_stmt_bind_param($idStmt, "iis", $request_id, $default_req_id, $backPath);
+                mysqli_stmt_execute($idStmt);
+                mysqli_stmt_close($idStmt);
             }
         }
 
-        // HANDLE ADDITIONAL DYNAMIC REQUIREMENT FILES FOR THIS DOCUMENT ITEM
+        // HANDLE ADDITIONAL DYNAMIC REQUIREMENT FILES FOR THIS DOCUMENT ITEM VIA CLOUDINARY
         if (
-            isset($_FILES['documents']['name'][$index]['requirements']) &&
-            is_array($_FILES['documents']['name'][$index]['requirements'])
+            isset($_FILES['documents']['tmp_name'][$index]['requirements']) &&
+            is_array($_FILES['documents']['tmp_name'][$index]['requirements'])
         ) {
-            $fileArray  = $_FILES['documents']['name'][$index]['requirements'];
             $tmpArray   = $_FILES['documents']['tmp_name'][$index]['requirements'];
             $errorArray = $_FILES['documents']['error'][$index]['requirements'];
+            $fileArray  = $_FILES['documents']['name'][$index]['requirements'];
 
-            foreach ($fileArray as $reqKey => $originalName) {
-                if ($errorArray[$reqKey] !== 0 || empty($originalName)) {
+            foreach ($tmpArray as $reqKey => $tmpPath) {
+                if ($errorArray[$reqKey] !== 0 || empty($tmpPath)) {
                     continue;
                 }
 
-                $ext     = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
-                $allowed = ["pdf", "jpg", "jpeg", "png", "doc", "docx"];
-
-                if (!in_array($ext, $allowed)) {
-                    continue;
-                }
-
+                $originalName   = $fileArray[$reqKey];
                 $requirement_id = intval($reqKey);
-                $newName = time() . "_" . $index . "_" . $requirement_id . "_" . preg_replace("/[^a-zA-Z0-9\._-]/", "_", $originalName);
 
-                if (move_uploaded_file($tmpArray[$reqKey], $reqUploadDir . $newName)) {
-                    $filePath = "assets/uploads/requirements/" . $newName;
-
+                $filePath = uploadToCloudinary($tmpPath);
+                if ($filePath) {
                     $reqStmt = mysqli_prepare(
                         $conn,
                         "INSERT INTO request_requirement_files (request_id, requirement_id, file_name, file_path, status) VALUES (?, ?, ?, ?, 'Pending')"
