@@ -129,6 +129,15 @@ if ($contact_id) {
     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <link rel="stylesheet" href="../assets/css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Anti-Flicker Script: Load dark mode before page render -->
+<script>
+    if (localStorage.getItem("darkMode") === "enabled") {
+        document.documentElement.classList.add("dark-mode");
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.classList.add("dark-mode");
+        });
+    }
+</script>
 
     <style>
         body {

@@ -72,6 +72,15 @@ $_SESSION['unread_notifications'] =$unread_count;
     <link rel="stylesheet" href="../assets/css/student.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Anti-Flicker Script: Load dark mode before page render -->
+<script>
+    if (localStorage.getItem("darkMode") === "enabled") {
+        document.documentElement.classList.add("dark-mode");
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.classList.add("dark-mode");
+        });
+    }
+</script>
     
     <style>
         body {

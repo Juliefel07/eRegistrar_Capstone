@@ -70,8 +70,9 @@ $notify_msg_checked  = ($user_prefs['notify_messages'] ?? 1) == 1 ? 'checked' : 
 
     <style>
         :root {
-            --primary: #0056b3;
-            --primary-hover: #004494;
+            --primary: #4338ca;
+            --primary-hover: #3730a3;
+            --primary-light: #e0e7ff;
             --bg-color: #f8fafc;
             --card-bg: #ffffff;
             --border: #e2e8f0;
@@ -81,8 +82,9 @@ $notify_msg_checked  = ($user_prefs['notify_messages'] ?? 1) == 1 ? 'checked' : 
 
         /* DARK MODE CSS VARIABLE OVERRIDES */
         body.dark-mode {
-            --primary: #38bdf8;
-            --primary-hover: #0284c7;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-light: #1e1b4b;
             --bg-color: #0f172a;
             --card-bg: #1e293b;
             --border: #334155;
@@ -123,11 +125,19 @@ $notify_msg_checked  = ($user_prefs['notify_messages'] ?? 1) == 1 ? 'checked' : 
         .settings-card h2 {
             font-size: 22px;
             font-weight: 700;
-            color: var(--primary);
+            color: var(--text);
             display: flex;
             align-items: center;
             gap: 10px;
             margin-bottom: 6px;
+        }
+
+        .settings-card h2 i {
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 16px;
         }
 
         .settings-description {
@@ -144,7 +154,7 @@ $notify_msg_checked  = ($user_prefs['notify_messages'] ?? 1) == 1 ? 'checked' : 
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: var(--text-muted);
-            margin: 20px 0 12px;
+            margin: 24px 0 12px;
         }
 
         .settings-item {
@@ -227,11 +237,7 @@ $notify_msg_checked  = ($user_prefs['notify_messages'] ?? 1) == 1 ? 'checked' : 
         }
 
         input:checked + .slider {
-            background-color: #0056b3;
-        }
-
-        body.dark-mode input:checked + .slider {
-            background-color: #38bdf8;
+            background-color: var(--primary);
         }
 
         input:checked + .slider:before {
@@ -240,7 +246,7 @@ $notify_msg_checked  = ($user_prefs['notify_messages'] ?? 1) == 1 ? 'checked' : 
 
         .btn-save {
             width: 100%;
-            background-color: #0056b3;
+            background-color: var(--primary);
             color: #ffffff;
             border: none;
             padding: 14px;
@@ -248,20 +254,18 @@ $notify_msg_checked  = ($user_prefs['notify_messages'] ?? 1) == 1 ? 'checked' : 
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s ease;
+            transition: background 0.2s ease, transform 0.1s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            margin-top: 20px;
-        }
-
-        body.dark-mode .btn-save {
-            background-color: #0284c7;
+            margin-top: 24px;
+            box-shadow: 0 2px 4px rgba(67, 56, 202, 0.2);
         }
 
         .btn-save:hover {
             background-color: var(--primary-hover);
+            transform: translateY(-1px);
         }
 
         .alert {
@@ -287,13 +291,13 @@ $notify_msg_checked  = ($user_prefs['notify_messages'] ?? 1) == 1 ? 'checked' : 
         }
 
         body.dark-mode .alert-success {
-            background-color: #064e3b;
+            background-color: rgba(6, 78, 59, 0.4);
             color: #6ee7b7;
             border-color: #047857;
         }
 
         body.dark-mode .alert-error {
-            background-color: #7f1d1d;
+            background-color: rgba(127, 29, 29, 0.4);
             color: #fca5a5;
             border-color: #b91c1c;
         }
@@ -339,10 +343,10 @@ $notify_msg_checked  = ($user_prefs['notify_messages'] ?? 1) == 1 ? 'checked' : 
             <?php endif; ?>
 
             <!-- Appearance Section -->
-            <div class="section-subtitle">Appearance</div>
+            <div class="section-subtitle" style="margin-top: 0;">Appearance</div>
             <div class="settings-item">
                 <div class="settings-item-info">
-                    <h3><i class="fa-solid fa-moon" style="color: #6366f1;"></i> Dark Mode</h3>
+                    <h3><i class="fa-solid fa-moon" style="color: var(--primary);"></i> Dark Mode</h3>
                     <p>Switch between light and dark portal appearance.</p>
                 </div>
                 <label class="switch">

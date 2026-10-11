@@ -64,6 +64,15 @@ if (!empty($ref)) {
     <link rel="stylesheet" href="../assets/css/student.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Anti-Flicker Script: Load dark mode before page render -->
+<script>
+    if (localStorage.getItem("darkMode") === "enabled") {
+        document.documentElement.classList.add("dark-mode");
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.classList.add("dark-mode");
+        });
+    }
+</script>
 
     <style>
         * { box-sizing: border-box; }
@@ -72,8 +81,8 @@ if (!empty($ref)) {
         .page-wrapper { width: 100%; display: flex; flex-direction: column; min-height: 100vh; }
         .main-content { max-width: 800px; width: 100%; margin: 20px auto; padding: 0 16px; flex: 1; }
 
-        .card { background: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #e2e8f0; }
-        .card h3 { margin-top: 0; font-size: 1.2rem; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+        .card { background: #ffffff; padding: 20px; color: black !important; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #e2e8f0; }
+        .card h3 { margin-top: 0; font-size: 1.2rem; color: #031026 !important; display: flex; align-items: center; gap: 8px; }
         
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.875rem; color: #475569; }

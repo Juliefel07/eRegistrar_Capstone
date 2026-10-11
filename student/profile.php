@@ -41,6 +41,15 @@ function displayValue($value)
     <!-- Base Stylesheets -->
     <link rel="stylesheet" href="../assets/css/student.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
+    <!-- Anti-Flicker Script: Load dark mode before page render -->
+<script>
+    if (localStorage.getItem("darkMode") === "enabled") {
+        document.documentElement.classList.add("dark-mode");
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.classList.add("dark-mode");
+        });
+    }
+</script>
 
     <style>
         body {

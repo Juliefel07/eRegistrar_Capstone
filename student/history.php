@@ -180,6 +180,15 @@ if (!$result) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/student.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
+    <!-- Anti-Flicker Script: Load dark mode before page render -->
+<script>
+    if (localStorage.getItem("darkMode") === "enabled") {
+        document.documentElement.classList.add("dark-mode");
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.classList.add("dark-mode");
+        });
+    }
+</script>
 
     <style>
         .student-main {
@@ -198,13 +207,13 @@ if (!$result) {
 
         .history-card h2 {
             font-size: 20px;
-            color: #333;
+            color: #04021d !important ;
             margin-bottom: 5px;
         }
 
         .history-card p {
             font-size: 13px;
-            color: #6c757d;
+            color: #04026f !important;
             margin-bottom: 20px;
         }
 

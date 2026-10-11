@@ -159,19 +159,21 @@ if (empty($nav_profile_img)) {
     }
 
     .desktop-search-form {
-        display: flex;
-        align-items: center;
+        display: flex !important;
+        align-items: center !important;
+        flex-shrink: 0 !important;
     }
 
     .search-pill {
-        width: 280px;
-        display: flex;
-        align-items: center;
-        background: #f1f3f5;
-        padding: 6px 12px;
-        border-radius: 20px;
-        gap: 8px;
-        border: 1px solid #e9ecef;
+        width: 280px !important;
+        display: flex !important;
+        align-items: center !important;
+        background: #f1f3f5 !important;
+        padding: 6px 12px !important;
+        border-radius: 20px !important;
+        gap: 8px !important;
+        border: 1px solid #e9ecef !important;
+        flex-shrink: 0 !important;
     }
 
     .search-pill input {

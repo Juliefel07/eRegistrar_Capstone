@@ -15,32 +15,26 @@ $pk_check = mysqli_query($conn, "SHOW COLUMNS FROM users LIKE 'user_id'");
 $id_col = ($pk_check && mysqli_num_rows($pk_check) > 0) ? 'user_id' : 'id';
 
 // Helper function to handle Cloudinary and local profile avatars safely
+// Helper function to handle Cloudinary and local profile avatars safely
 function getStudentAvatar($img_path) {
     if (empty($img_path)) return null;
     $img_path = trim($img_path);
     
-    // If it's already an absolute Cloudinary or http/https URL, return it directly
+    // If it's a Cloudinary URL or absolute web link, return it directly
     if (preg_match('/^https?:\/\//i', $img_path)) {
         return $img_path;
     }
     
-    // Otherwise, check local paths
+    // If it's stored as a relative filename, point it to the uploads folder
     $clean_name = ltrim(str_replace(['../', 'student/uploads/', 'assets/uploads/'], '', $img_path), '/');
-    $possible_paths = [
-        "../assets/uploads/" . $clean_name,
-        "../student/uploads/" . $clean_name,
-        "assets/uploads/" . $clean_name
-    ];
     
-    foreach ($possible_paths as $path) {
-        if (file_exists(__DIR__ . "/" . $path)) {
-            return $path;
-        }
+    // If running on localhost and files are in student uploads or assets
+    if (!empty($clean_name)) {
+        return "../student/uploads/" . $clean_name;
     }
     
     return null;
 }
-
 // 1. AJAX ENDPOINT FOR REAL-TIME UNREAD CHECK
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'check_unread') {
     header('Content-Type: application/json');

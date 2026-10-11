@@ -47,185 +47,282 @@ $result = mysqli_stmt_get_result($stmt);
     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/student.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
+    <!-- Anti-Flicker Script: Load dark mode before page render -->
+<script>
+    if (localStorage.getItem("darkMode") === "enabled") {
+        document.documentElement.classList.add("dark-mode");
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.classList.add("dark-mode");
+        });
+    }
+</script>
 
     <style>
+        :root {
+            --primary: #4338ca;
+            --primary-hover: #3730a3;
+            --primary-light: #e0e7ff;
+            --bg-main: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius-lg: 16px;
+            --radius-md: 8px;
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+        }
+
         body {
-            background: #f4f7fb;
-            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-main);
             margin: 0;
             padding: 0;
+            -webkit-font-smoothing: antialiased;
         }
 
         .student-main {
-            padding: 20px 15px;
-            max-width: 1000px;
+            padding: 32px 24px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding-bottom: 90px;
+            padding-bottom: 100px;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
         }
 
         .student-main h1 {
-            font-size: 22px;
-            color: #1e3a8a;
-            margin-bottom: 4px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0 0 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .student-main h1 i {
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 8px;
+            border-radius: var(--radius-md);
+            font-size: 18px;
         }
 
         .student-main p.subtitle {
-            font-size: 13px;
-            color: #6b7280;
-            margin-bottom: 20px;
+            font-size: 14px;
+            color: var(--text-muted);
+            margin: 0;
         }
 
-        .payment-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
+        /* Table Wrapper Styles */
+        .table-container {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
         }
 
-        .payment-card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            border: 1px solid #e5e7eb;
-            transition: transform 0.2s, box-shadow 0.2s;
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
         }
 
-        .payment-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        .modern-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            white-space: nowrap;
         }
 
-        .payment-icon {
-            font-size: 24px;
-            color: #2563eb;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .tracking-tag {
-            font-size: 11px;
-            font-weight: 700;
-            color: #475569;
-            background: #f1f5f9;
-            padding: 3px 8px;
-            border-radius: 4px;
-        }
-
-        .payment-info h3 {
-            font-size: 16px;
-            color: #1f2937;
-            margin: 0 0 4px 0;
-            word-break: break-word;
-        }
-
-        .payment-info p {
+        .modern-table th {
+            background: #f8fafc;
+            color: var(--text-muted);
             font-size: 12px;
-            color: #6b7280;
-            margin: 0 0 12px 0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
         }
 
-        .payment-info h2 {
-            font-size: 20px;
-            color: #111827;
-            margin: 0 0 12px 0;
+        .modern-table td {
+            padding: 16px 20px;
+            font-size: 14px;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
         }
 
+        .modern-table tbody tr {
+            transition: background 0.15s ease;
+        }
+
+        .modern-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .modern-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Tracking Badge */
+        .tracking-tag {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+            background: #f1f5f9;
+            padding: 5px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        /* Document details cell */
+        .doc-title {
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .doc-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Status Badges */
         .payment-status {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             padding: 4px 10px;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
             text-transform: capitalize;
-            margin-bottom: 15px;
+        }
+
+        .payment-status::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
         }
 
         .payment-status.approved, .payment-status.paid, .payment-status.completed {
-            background: #d1fae5;
-            color: #065f46;
+            background: #dcfce7;
+            color: #166534;
+        }
+        .payment-status.approved::before, .payment-status.paid::before, .payment-status.completed::before {
+            background: #22c55e;
         }
 
         .payment-status.pending {
-            background: #fff3cd;
-            color: #856404;
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .payment-status.pending::before {
+            background: #f59e0b;
         }
 
-        /* View Action Buttons */
-        .history-btn {
-            display: flex;
+        /* Table Action Button */
+        .table-btn {
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 6px;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 7px 14px;
+            border-radius: var(--radius-md);
             font-size: 13px;
             font-weight: 600;
             text-decoration: none;
-            text-align: center;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s ease;
             border: none;
-            width: 100%;
-            box-sizing: border-box;
-            background: #0284c7;
+            background: var(--primary);
             color: #ffffff;
+            box-shadow: 0 1px 2px rgba(67, 56, 202, 0.2);
         }
 
-        .history-btn:hover {
-            background: #0369a1;
+        .table-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
         }
 
         /* Empty State */
         .empty-payment {
-            grid-column: 1 / -1;
-            background: #ffffff;
-            padding: 40px 20px;
+            padding: 60px 24px;
             text-align: center;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-            color: #6b7280;
+            color: var(--text-muted);
         }
 
         .empty-payment i {
-            font-size: 36px;
-            color: #9ca3af;
+            font-size: 42px;
+            color: #cbd5e1;
             margin-bottom: 12px;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 50%;
         }
 
-        /* Modal Styles */
+        .empty-payment h3 {
+            font-size: 16px;
+            color: var(--text-main);
+            margin: 0 0 4px 0;
+            font-weight: 600;
+        }
+
+        .empty-payment p {
+            font-size: 13px;
+            margin: 0;
+        }
+
+        /* Modern Modal Styles */
         .modal-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
             z-index: 1000;
             justify-content: center;
             align-items: center;
-            padding: 16px;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .modal-container {
-            background: #ffffff;
+            background: var(--surface);
             width: 100%;
-            max-width: 520px;
-            border-radius: 12px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-width: 580px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
             overflow: hidden;
+            transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid var(--border);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: scale(1);
         }
 
         .modal-header {
-            padding: 16px 20px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
+            padding: 20px 24px;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -233,36 +330,69 @@ $result = mysqli_stmt_get_result($stmt);
 
         .modal-header h3 {
             margin: 0;
-            font-size: 1.1rem;
-            color: #333;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .modal-close-btn {
-            background: none;
+            background: #f1f5f9;
             border: none;
-            font-size: 1.25rem;
-            color: #6c757d;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 16px;
+            color: var(--text-muted);
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .modal-close-btn:hover {
+            background: #e2e8f0;
+            color: var(--text-main);
         }
 
         .modal-body {
-            padding: 20px;
+            padding: 24px;
             text-align: center;
+            background: #f8fafc;
+            max-height: 70vh;
+            overflow-y: auto;
         }
 
         .modal-footer {
-            padding: 12px 20px;
-            background: #f8f9fa;
-            border-top: 1px solid #e9ecef;
-            text-align: right;
+            padding: 16px 24px;
+            background: #ffffff;
+            border-top: 1px solid var(--border);
             display: flex;
-            gap: 8px;
+            gap: 10px;
             justify-content: flex-end;
         }
 
-        @media (max-width: 576px) {
-            .student-main { padding: 15px 10px; }
-            .payment-container { grid-template-columns: 1fr; }
+        .modal-footer .table-btn {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-secondary {
+            background: #f1f5f9 !important;
+            color: var(--text-muted) !important;
+            box-shadow: none !important;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0 !important;
+            color: var(--text-main) !important;
+        }
+
+        @media (max-width: 640px) {
+            .student-main { padding: 20px 16px; }
         }
     </style>
 </head>
@@ -272,52 +402,75 @@ $result = mysqli_stmt_get_result($stmt);
     <?php include("navbar.php"); ?>
 
     <div class="student-main">
-        <h1><i class="fa-solid fa-vault" style="color: #1e3a8a;"></i> Receipt Storage</h1>
-        <p class="subtitle">View and access official payment receipts issued for your document requests.</p>
+        <div class="page-header">
+            <h1><i class="fa-solid fa-vault"></i> Receipt Storage</h1>
+            <p class="subtitle">View and access official payment receipts issued for your document requests.</p>
+        </div>
 
-        <div class="payment-container">
-            <?php if (mysqli_num_rows($result) > 0): ?>
-                <?php while ($row = mysqli_fetch_assoc($result)): ?>
-                    <?php 
-                        $totalFee = ($row['fee'] ?? 0) * ($row['quantity'] ?? 1);
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>Tracking No.</th>
+                            <th>Document Details</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Request Date</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (mysqli_num_rows($result) > 0): ?>
+                            <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                                <?php 
+                                    $totalFee = ($row['fee'] ?? 0) * ($row['quantity'] ?? 1);
 
-                        // Extract valid stored receipt path
-                        $stored_receipt = !empty($row['payment_proof']) ? $row['payment_proof'] : $row['uploaded_file'];
-                        $clean_receipt  = ltrim(str_replace(['assets/uploads/', '../assets/uploads/'], '', $stored_receipt), '/');
-                        $receipt_path   = "../assets/uploads/" . $clean_receipt;
-                    ?>
-                    <div class="payment-card">
-                        <div>
-                            <div class="payment-icon">
-                                <i class="fa-solid fa-receipt"></i>
-                                <span class="tracking-tag"><?= htmlspecialchars($row['tracking_no']); ?></span>
-                            </div>
-
-                            <div class="payment-info">
-                                <h3><?= htmlspecialchars($row['document_name']); ?></h3>
-                                <p>Quantity: <?= $row['quantity']; ?> copy(ies)</p>
-                                <h2>₱<?= number_format($totalFee, 2); ?></h2>
-
-                                <span class="payment-status <?= strtolower(str_replace(' ', '-', $row['request_status'])); ?>">
-                                    <?= htmlspecialchars($row['request_status']); ?>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div>
-                            <button type="button" class="history-btn" onclick="openReceiptModal('<?= htmlspecialchars($receipt_path, ENT_QUOTES); ?>', '<?= htmlspecialchars($row['tracking_no'], ENT_QUOTES); ?>')">
-                                <i class="fa-solid fa-eye"></i> View Stored Receipt
-                            </button>
-                        </div>
-                    </div>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <div class="empty-payment">
-                    <i class="fa-solid fa-folder-open"></i>
-                    <h3>No Stored Receipts Available</h3>
-                    <p>Official receipts will appear here once attached or issued by the Accounting Office.</p>
-                </div>
-            <?php endif; ?>
+                                    // Extract valid stored receipt path
+                                    $stored_receipt = !empty($row['payment_proof']) ? $row['payment_proof'] : $row['uploaded_file'];
+                                    $clean_receipt  = ltrim(str_replace(['assets/uploads/', '../assets/uploads/'], '', $stored_receipt), '/');
+                                    $receipt_path   = "../assets/uploads/" . $clean_receipt;
+                                ?>
+                                <tr>
+                                    <td>
+                                        <span class="tracking-tag"><?= htmlspecialchars($row['tracking_no']); ?></span>
+                                    </td>
+                                    <td>
+                                        <div class="doc-title"><?= htmlspecialchars($row['document_name']); ?></div>
+                                        <div class="doc-meta"><?= $row['quantity']; ?> copy(ies)</div>
+                                    </td>
+                                    <td style="font-weight: 600;">
+                                        ₱<?= number_format($totalFee, 2); ?>
+                                    </td>
+                                    <td>
+                                        <span class="payment-status <?= strtolower(str_replace(' ', '-', $row['request_status'])); ?>">
+                                            <?= htmlspecialchars($row['request_status']); ?>
+                                        </span>
+                                    </td>
+                                    <td style="color: var(--text-muted); font-size: 13px;">
+                                        <?= date('M d, Y', strtotime($row['request_date'])); ?>
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <button type="button" class="table-btn" onclick="openReceiptModal('<?= htmlspecialchars($receipt_path, ENT_QUOTES); ?>', '<?= htmlspecialchars($row['tracking_no'], ENT_QUOTES); ?>')">
+                                            <i class="fa-solid fa-eye"></i> View Receipt
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-payment">
+                                        <i class="fa-solid fa-folder-open"></i>
+                                        <h3>No Stored Receipts Available</h3>
+                                        <p>Official receipts will appear here once attached or issued by the Accounting Office.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -325,13 +478,13 @@ $result = mysqli_stmt_get_result($stmt);
     <div id="receiptModal" class="modal-overlay">
         <div class="modal-container">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-file-invoice-dollar" style="color: #0284c7;"></i> Official Receipt View</h3>
+                <h3><i class="fa-solid fa-file-invoice-dollar" style="color: var(--primary);"></i> Official Receipt View</h3>
                 <button type="button" class="modal-close-btn" onclick="closeReceiptModal()">&times;</button>
             </div>
             <div class="modal-body" id="modalReceiptContent"></div>
             <div class="modal-footer">
-                <a id="modalReceiptDownloadBtn" href="#" target="_blank" class="history-btn" style="width: auto; padding: 6px 14px;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open Fullscreen</a>
-                <button type="button" class="history-btn" style="width: auto; background: #64748b; padding: 6px 14px;" onclick="closeReceiptModal()">Close</button>
+                <a id="modalReceiptDownloadBtn" href="#" target="_blank" class="table-btn"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open Fullscreen</a>
+                <button type="button" class="table-btn btn-secondary" onclick="closeReceiptModal()">Close</button>
             </div>
         </div>
     </div>
@@ -339,23 +492,38 @@ $result = mysqli_stmt_get_result($stmt);
     <script>
         function openReceiptModal(filePath, trackingNo) {
             const fileExt = filePath.split('.').pop().toLowerCase();
-            let previewHtml = '<div style="margin-bottom: 12px; font-weight: 600; color: #475569;">Tracking No: ' + trackingNo + '</div>';
+            let previewHtml = '<div style="margin-bottom: 14px; font-weight: 600; font-size: 13px; color: var(--text-muted); text-align: left;">Tracking No: <span style="color: var(--text-main);">' + trackingNo + '</span></div>';
             
             if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
-                previewHtml += '<img src="' + filePath + '" alt="Receipt Preview" style="max-width: 100%; max-height: 55vh; border-radius: 8px; border: 1px solid #e2e8f0;">';
+                previewHtml += '<img src="' + filePath + '" alt="Receipt Preview" style="max-width: 100%; max-height: 55vh; border-radius: 8px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); object-fit: contain;">';
             } else if (fileExt === 'pdf') {
-                previewHtml += '<iframe src="' + filePath + '" style="width: 100%; height: 50vh; border: none; border-radius: 8px;"></iframe>';
+                previewHtml += '<iframe src="' + filePath + '" style="width: 100%; height: 50vh; border: none; border-radius: 8px; background: #fff;"></iframe>';
             } else {
-                previewHtml += '<p style="color: #64748b;">Preview unavailable for this file type.</p>';
+                previewHtml += '<p style="color: var(--text-muted); padding: 30px 0;">Preview unavailable for this file type.</p>';
             }
 
             document.getElementById('modalReceiptContent').innerHTML = previewHtml;
             document.getElementById('modalReceiptDownloadBtn').href = filePath;
-            document.getElementById('receiptModal').style.display = 'flex';
+            
+            const modal = document.getElementById('receiptModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
         }
 
         function closeReceiptModal() {
-            document.getElementById('receiptModal').style.display = 'none';
+            const modal = document.getElementById('receiptModal');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        // Close modal when clicking outside of container
+        window.onclick = function(event) {
+            const modal = document.getElementById('receiptModal');
+            if (event.target === modal) {
+                closeReceiptModal();
+            }
         }
     </script>
 </body>

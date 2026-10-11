@@ -91,7 +91,15 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {
     <!-- Base Stylesheets -->
     <link rel="stylesheet" href="../assets/css/request.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
+    <!-- Anti-Flicker Script: Load dark mode before page render -->
+<script>
+    if (localStorage.getItem("darkMode") === "enabled") {
+        document.documentElement.classList.add("dark-mode");
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.classList.add("dark-mode");
+        });
+    }
+</script>
     <style>
         .request-container {
             max-width: 1000px;
@@ -420,10 +428,10 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {
                         </h4>
 
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label><i class="fa-solid fa-id-card-clip"></i> 1. Upload Student ID / Record Reference <span style="color: red;">*</span></label>
-                            <input type="file" name="student_id_file" id="student_id_file" accept="image/*,.pdf" required>
-                            <small style="color:#64748b; display:block; margin-top:4px;">Upload Student ID, or student record reference if ID was surrendered upon graduation.</small>
-                        </div>
+    <label><i class="fa-solid fa-id-card-clip"></i> 1. Upload Student ID / Record Reference <span style="color: red;">*</span></label>
+    <input type="file" name="student_id_file" id="student_id_file" accept="image/*,.pdf" required>
+    <small style="color:#64748b; display:block; margin-top:4px;">Upload Student ID, or student record reference if ID was surrendered upon graduation.</small>
+</div>
 
                         <div class="row" style="gap: 15px;">
                             <div class="form-group" style="flex: 1;">

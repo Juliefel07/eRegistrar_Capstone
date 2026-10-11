@@ -68,6 +68,15 @@ $current_step = $request ? ($status_steps[$request['status']] ?? 1) : 0;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
      <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <title>Track Document - eRegistrar</title>
+    <!-- Anti-Flicker Script: Load dark mode before page render -->
+<script>
+    if (localStorage.getItem("darkMode") === "enabled") {
+        document.documentElement.classList.add("dark-mode");
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.classList.add("dark-mode");
+        });
+    }
+</script>
 
     <style>
         /* RESET & SYSTEM STYLING */
