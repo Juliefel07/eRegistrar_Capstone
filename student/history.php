@@ -558,6 +558,11 @@ if (!$result) {
         if (!['jpg', 'jpeg', 'png', 'gif', 'pdf'].includes(fileExt) && cleanPath) {
             let urlWithoutQuery = cleanPath.split('?')[0];
             fileExt = urlWithoutQuery.split('.').pop().toLowerCase();
+            
+            // If it's a Cloudinary image URL without an extension in the path, force it to render as an image
+            if (!['jpg', 'jpeg', 'png', 'gif', 'pdf'].includes(fileExt) && (cleanPath.includes('cloudinary.com') || cleanPath.includes('image/upload'))) {
+                fileExt = 'jpg';
+            }
         }
 
                 htmlContent += '<div style="margin-bottom: 20px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;">';
