@@ -101,22 +101,25 @@ shuffle($choices);
             justify-content: center !important;
             align-items: center !important;
             flex-wrap: nowrap !important;
-            gap: 12px !important;
-            margin: 30px 0 !important;
+            gap: 10px !important;
+            margin: 25px 0 !important;
             width: 100% !important;
+            box-sizing: border-box !important;
         }
 
         .circle-btn {
-            width: 60px !important;
-            min-width: 60px !important;
-            height: 60px !important;
-            max-height: 60px !important;
-            flex-shrink: 0 !important;
+            width: 58px !important;
+            min-width: 58px !important;
+            max-width: 58px !important;
+            height: 58px !important;
+            min-height: 58px !important;
+            max-height: 58px !important;
+            flex: 0 0 58px !important;
             border-radius: 50% !important;
             background: transparent !important;
             background-color: transparent !important;
             border: 2px solid #555555 !important;
-            font-size: 20px !important;
+            font-size: 19px !important;
             font-weight: 600 !important;
             color: #333333 !important;
             cursor: pointer !important;
@@ -124,31 +127,35 @@ shuffle($choices);
             align-items: center !important;
             justify-content: center !important;
             padding: 0 !important;
+            margin: 0 !important;
             line-height: 1 !important;
             outline: none !important;
             box-shadow: none !important;
+            box-sizing: border-box !important;
             transition: all 0.25s ease-in-out !important;
         }
 
         .circle-btn:hover {
-            border-color: #2017cb !important;
+            border-color: #1453dc !important;
             color: #1453dc !important;
-            background: rgba(32, 23, 203, 0.05) !important;
+            background: rgba(20, 83, 220, 0.05) !important;
             transform: translateY(-2px) !important;
         }
 
-        /* Mobile view responsiveness to keep them perfectly round */
-        @media (max-width: 480px) {
+        /* Extra compact for smaller mobile screens */
+        @media (max-width: 400px) {
             .circle-grid {
-                gap: 8px !important;
+                gap: 6px !important;
             }
             .circle-btn {
                 width: 50px !important;
                 min-width: 50px !important;
+                max-width: 50px !important;
                 height: 50px !important;
+                min-height: 50px !important;
                 max-height: 50px !important;
-                font-size: 17px !important;
-                border-width: 1.5px !important;
+                flex: 0 0 50px !important;
+                font-size: 16px !important;
             }
         }
     </style>
