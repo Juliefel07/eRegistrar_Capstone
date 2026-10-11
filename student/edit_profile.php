@@ -182,9 +182,18 @@ if(isset($_POST['update'])){
 </div>
 
 <div class="button-group">
-    <button type="submit" name="update" class="save-btn">Save Changes</button>
+    <button type="submit" name="update" class="save-btn" id="saveBtn">Save Changes</button>
     <a href="profile.php" class="cancel-btn">Cancel</a>
 </div>
+
+<script>
+document.querySelector("form").addEventListener("submit", function() {
+    const btn = document.getElementById("saveBtn");
+    btn.innerText = "Saving...";
+    btn.style.opacity = "0.7";
+    btn.style.pointerEvents = "none";
+});
+</script>
 
 </form>
 
