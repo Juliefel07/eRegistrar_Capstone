@@ -30,9 +30,9 @@ if (isset($_GET['resend'])) {
     mysqli_query($conn, "UPDATE users SET reset_token = '$new_number', token_expiry = '$expiry' WHERE email = '$email_escaped'");
 
     // Resend email via Brevo
-    $api_key = "YOUR_BREVO_API_KEY"; // Replace with your actual Brevo API Key
+    $api_key = getenv('BREVO_API_KEY'); // Or your literal API key string
     $email_data = [
-        "sender" => ["name" => "eRegistrar", "email" => "your_verified_email@domain.com"],
+        "sender" => ["name" => "eRegistrar", "email" => "eregistrarcctc@gmail.com"],
         "to" => [["email" => $email]],
         "subject" => "New Verification Number - eRegistrar",
         "htmlContent" => "
@@ -100,21 +100,23 @@ shuffle($choices);
             display: flex !important;
             justify-content: center !important;
             align-items: center !important;
-            gap: 15px !important;
+            flex-wrap: nowrap !important;
+            gap: 12px !important;
             margin: 30px 0 !important;
             width: 100% !important;
         }
 
         .circle-btn {
-            width: 65px !important;
-            min-width: 65px !important;
-            height: 65px !important;
-            max-height: 65px !important;
+            width: 60px !important;
+            min-width: 60px !important;
+            height: 60px !important;
+            max-height: 60px !important;
+            flex-shrink: 0 !important;
             border-radius: 50% !important;
             background: transparent !important;
             background-color: transparent !important;
             border: 2px solid #555555 !important;
-            font-size: 22px !important;
+            font-size: 20px !important;
             font-weight: 600 !important;
             color: #333333 !important;
             cursor: pointer !important;
@@ -131,8 +133,23 @@ shuffle($choices);
         .circle-btn:hover {
             border-color: #2017cb !important;
             color: #1453dc !important;
-            background: rgba(255, 87, 34, 0.05) !important;
+            background: rgba(32, 23, 203, 0.05) !important;
             transform: translateY(-2px) !important;
+        }
+
+        /* Mobile view responsiveness to keep them perfectly round */
+        @media (max-width: 480px) {
+            .circle-grid {
+                gap: 8px !important;
+            }
+            .circle-btn {
+                width: 50px !important;
+                min-width: 50px !important;
+                height: 50px !important;
+                max-height: 50px !important;
+                font-size: 17px !important;
+                border-width: 1.5px !important;
+            }
         }
     </style>
 </head>
