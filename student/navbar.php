@@ -39,20 +39,30 @@ if ($user_id) {
 }
 
 // Fetch the latest profile image directly from the database
+// Fetch the latest profile image directly from the database
 $nav_profile_img = "";
 if ($user_id && isset($conn)) {
     $n_res = mysqli_query($conn, "SELECT profile_image, fullname FROM users WHERE user_id = $user_id");
     if ($n_res && mysqli_num_rows($n_res) > 0) {
         $n_row = mysqli_fetch_assoc($n_res);
-        if (!empty($n_row['profile_image']) && file_exists("uploads/" . $n_row['profile_image'])) {
-            $nav_profile_img = "uploads/" . $n_row['profile_image']; 
+        
+        // Check if profile image exists locally (handle root vs student folder paths)
+        if (!empty($n_row['profile_image'])) {
+            $local_path = "uploads/" . $n_row['profile_image'];
+            $parent_path = "../student/uploads/" . $n_row['profile_image'];
+            
+            if (file_exists($local_path)) {
+                $nav_profile_img = $local_path;
+            } elseif (file_exists($parent_path)) {
+                $nav_profile_img = $parent_path;
+            }
         }
+        
         if (!empty($n_row['fullname'])) {
             $_SESSION['fullname'] = $n_row['fullname'];
         }
     }
 }
-
 // Fallback to UI-Avatars if no profile picture is found or uploaded
 if (empty($nav_profile_img)) {
     $nav_profile_img = "https://ui-avatars.com/api/?name=" . urlencode($_SESSION['fullname'] ?? 'User') . "&background=0056b3&color=fff";
