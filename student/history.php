@@ -539,7 +539,16 @@ if (!$result) {
 
             paths.forEach((path, index) => {
                 let fileTableId = ids[index] || '';
-                let cleanPath = "../" + path.trim();
+                let rawPath = path ? path.trim() : "";
+                
+                // Properly handle Cloudinary/External URLs vs Local Relative Paths
+                let cleanPath = "";
+                if (rawPath.startsWith('http://') || rawPath.startsWith('https://')) {
+                    cleanPath = rawPath;
+                } else if (rawPath !== "") {
+                    cleanPath = "../" + rawPath;
+                }
+
                 let fileName = names[index] ? names[index].trim() : ('File ' + (index + 1));
                 let fileStatus = statuses[index] ? statuses[index].trim() : 'Pending';
                 let fileRemark = remarks[index] ? remarks[index].trim() : '';
@@ -561,15 +570,17 @@ if (!$result) {
                 htmlContent += '</div>';
 
                 // File Preview Content
-                htmlContent += '<div style="text-align: center;">';
-                if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
-                    htmlContent += '<img src="' + cleanPath + '" alt="File Preview" style="max-width: 100%; max-height: 35vh; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 8px;">';
-                } else if (fileExt === 'pdf') {
-                    htmlContent += '<iframe src="' + cleanPath + '" style="width: 100%; height: 35vh; border: none; border-radius: 6px; margin-bottom: 8px;"></iframe>';
-                } else {
-                    htmlContent += '<p style="color: #64748b; font-style: italic;">File preview unavailable.</p>';
+                if (cleanPath !== '') {
+                    htmlContent += '<div style="text-align: center;">';
+                    if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
+                        htmlContent += '<img src="' + cleanPath + '" alt="File Preview" style="max-width: 100%; max-height: 35vh; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 8px;">';
+                    } else if (fileExt === 'pdf') {
+                        htmlContent += '<iframe src="' + cleanPath + '" style="width: 100%; height: 35vh; border: none; border-radius: 6px; margin-bottom: 8px;"></iframe>';
+                    } else {
+                        htmlContent += '<p style="color: #64748b; font-style: italic; font-size: 12px;">No preview available for this file type.</p>';
+                    }
+                    htmlContent += '</div>';
                 }
-                htmlContent += '</div>';
 
                 // Re-upload Box (If File Status is Rejected)
                 if (fileStatus.toLowerCase() === 'rejected') {
@@ -585,7 +596,7 @@ if (!$result) {
                     htmlContent += '<button type="submit" class="btn reupload-btn" style="padding: 5px 12px; font-size: 11px;"><i class="fa-solid fa-upload"></i> Re-upload</button>';
                     htmlContent += '</form>';
                     htmlContent += '</div>';
-                } else {
+                } else if (cleanPath !== '') {
                     htmlContent += '<div style="text-align: center; margin-top: 6px;">';
                     htmlContent += '<a href="' + cleanPath + '" target="_blank" class="btn approve" style="font-size: 11px; padding: 4px 10px;"><i class="fa-solid fa-external-link-alt"></i> Open Fullscreen</a>';
                     htmlContent += '</div>';
@@ -639,10 +650,10 @@ if (!$result) {
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
                         <span style="color: #64748b; font-weight: 500;">Processed By:</span>
-                        <span style="font-weight: 600; color: #0284c7;"><i class="fa-solid fa-user-shield"></i> ${processorName}</span>
+                        <span style="font-weight: 600; color: #0f172a;">${processorName}</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span style="color: #64748b; font-weight: 500;">Requested Date:</span>
+                    <div style="display: flex; justify-content: space-between; padding-bottom: 2px;">
+                        <span style="color: #64748b; font-weight: 500;">Request Date:</span>
                         <span style="color: #334155;">${requestDate}</span>
                     </div>
                 </div>
@@ -651,6 +662,5 @@ if (!$result) {
             document.getElementById('detailsModal').style.display = 'flex';
         }
     </script>
-
 </body>
 </html>
