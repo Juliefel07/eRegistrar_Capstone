@@ -14,6 +14,33 @@ $student_id = isset($_GET['student_id']) ? (int)$_GET['student_id'] : null;
 $pk_check = mysqli_query($conn, "SHOW COLUMNS FROM users LIKE 'user_id'");
 $id_col = ($pk_check && mysqli_num_rows($pk_check) > 0) ? 'user_id' : 'id';
 
+// Helper function to handle Cloudinary and local profile avatars safely
+function getStudentAvatar($img_path) {
+    if (empty($img_path)) return null;
+    $img_path = trim($img_path);
+    
+    // If it's already an absolute Cloudinary or http/https URL, return it directly
+    if (preg_match('/^https?:\/\//i', $img_path)) {
+        return $img_path;
+    }
+    
+    // Otherwise, check local paths
+    $clean_name = ltrim(str_replace(['../', 'student/uploads/', 'assets/uploads/'], '', $img_path), '/');
+    $possible_paths = [
+        "../assets/uploads/" . $clean_name,
+        "../student/uploads/" . $clean_name,
+        "assets/uploads/" . $clean_name
+    ];
+    
+    foreach ($possible_paths as $path) {
+        if (file_exists(__DIR__ . "/" . $path)) {
+            return $path;
+        }
+    }
+    
+    return null;
+}
+
 // 1. AJAX ENDPOINT FOR REAL-TIME UNREAD CHECK
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'check_unread') {
     header('Content-Type: application/json');
@@ -33,13 +60,11 @@ if (isset($_POST['send']) && $student_id) {
     $message = mysqli_real_escape_string($conn, trim($_POST['message']));
 
     if (!empty($message)) {
-        // Save message to database
         mysqli_query($conn, "
             INSERT INTO messages (sender_id, receiver_id, message, status, created_at)
             VALUES ('$admin_id', '$student_id', '$message', 'Unread', NOW())
         ");
 
-        // Create System Notification for the Student
         $notif_msg = mysqli_real_escape_string($conn, "You have received a new message reply from the Registrar Office.");
         mysqli_query($conn, "
             INSERT INTO notifications (user_id, message, is_read, created_at)
@@ -62,11 +87,12 @@ if ($student_id) {
 }
 
 // 4. FETCH ALL USERS/STUDENTS WHO MESSAGED THE SYSTEM
+// 4. FETCH ALL USERS/STUDENTS WHO MESSAGED THE SYSTEM
 $students = mysqli_query($conn, "
     SELECT 
         u.{$id_col} AS student_id,
         u.fullname,
-        u.profile_image,
+        COALESCE(u.profile_image, u.profile_pic, '') AS profile_image,
         (SELECT COUNT(*) FROM messages m1 
          WHERE m1.sender_id = u.{$id_col} 
            AND m1.status = 'Unread') AS unread_count,
@@ -86,7 +112,8 @@ $student_name = "";
 $name_data = null;
 
 if ($student_id) {
-    $name_query = mysqli_query($conn, "SELECT fullname, profile_image FROM users WHERE {$id_col} = '$student_id'");
+    $name_query = mysqli_query($conn, "SELECT fullname, COALESCE(profile_image, profile_pic, '') AS profile_image FROM users WHERE {$id_col} = '$student_id'");
+    // ... rest of your code
     if ($name_query) {
         $name_data = mysqli_fetch_assoc($name_query);
         if ($name_data) {
@@ -429,10 +456,15 @@ if ($student_id) {
                        class="student-item <?php echo ($student_id == $s['student_id']) ? 'active' : ''; ?>">
 
                         <div class="student-avatar">
-                            <?php if (!empty($s['profile_image'])): ?>
-                                <img src="../student/uploads/<?php echo htmlspecialchars($s['profile_image']); ?>" alt="Profile">
+                            <?php 
+                                $avatar_path = getStudentAvatar($s['profile_image'] ?? '');
+                                $initial = strtoupper(substr($s['fullname'] ?? 'U', 0, 1));
+                            ?>
+                            <?php if ($avatar_path): ?>
+                                <img src="<?php echo htmlspecialchars($avatar_path); ?>" alt="Profile" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <span style="display:none; width:100%; height:100%; align-items:center; justify-content:center;"><?php echo $initial; ?></span>
                             <?php else: ?>
-                                <?php echo strtoupper(substr($s['fullname'], 0, 1)); ?>
+                                <?php echo $initial; ?>
                             <?php endif; ?>
                         </div>
 
@@ -458,10 +490,15 @@ if ($student_id) {
             <?php if ($chat): ?>
                 <div class="admin-chat-header">
                     <div class="student-avatar">
-                        <?php if (!empty($name_data['profile_image'])): ?>
-                            <img src="../student/uploads/<?php echo htmlspecialchars($name_data['profile_image']); ?>" alt="Profile">
+                        <?php 
+                            $chat_avatar_path = getStudentAvatar($name_data['profile_image'] ?? '');
+                            $chat_initial = strtoupper(substr($student_name ?? 'U', 0, 1));
+                        ?>
+                        <?php if ($chat_avatar_path): ?>
+                            <img src="<?php echo htmlspecialchars($chat_avatar_path); ?>" alt="Profile" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <span style="display:none; width:100%; height:100%; align-items:center; justify-content:center;"><?php echo $chat_initial; ?></span>
                         <?php else: ?>
-                            <?php echo strtoupper(substr($student_name, 0, 1)); ?>
+                            <?php echo $chat_initial; ?>
                         <?php endif; ?>
                     </div>
                     <h3><?php echo htmlspecialchars($student_name); ?></h3>
@@ -541,7 +578,6 @@ if ($student_id) {
             .then(data => {
                 if (previousUnreadCount !== null && data.unread > previousUnreadCount) {
                     showNotificationToast();
-                    // Auto reload chat if open
                     if (typeof chat !== 'undefined' && chat) {
                         location.reload();
                     }
@@ -557,7 +593,6 @@ if ($student_id) {
         setTimeout(() => { toast.style.display = 'none'; }, 4000);
     }
 
-    // Check for new messages every 4 seconds
     setInterval(checkUnreadMessages, 4000);
 </script>
 

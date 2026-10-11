@@ -17,12 +17,16 @@ $userResult = mysqli_stmt_get_result($userStmt);
 $user = mysqli_fetch_assoc($userResult);
 mysqli_stmt_close($userStmt);
 
+// Determine user account type/role
+$user_role = $user['role'] ?? $user['account_type'] ?? 'Student';
+
 // Success modal flag
 $showSuccess = false;
 $lastTrackingNo = "";
 
-if (isset($_SESSION['request_success'])) {$showSuccess = true;
-    $lastTrackingNo =$_SESSION['last_tracking_no'] ?? '';
+if (isset($_SESSION['request_success'])) {
+    $showSuccess = true;
+    $lastTrackingNo = $_SESSION['last_tracking_no'] ?? '';
     unset($_SESSION['request_success']);
     unset($_SESSION['last_tracking_no']);
 }
@@ -47,7 +51,8 @@ $docQuery = mysqli_query($conn, "
     ORDER BY FIELD(category, 'Certificates', 'Certified True Copy', 'Others'), document_name ASC
 ");
 
-while ($doc = mysqli_fetch_assoc($docQuery)) {$requirements = [];
+while ($doc = mysqli_fetch_assoc($docQuery)) {
+    $requirements = [];
     $doc_id = (int)$doc['document_id'];
     
     $reqQuery = mysqli_query($conn, "
@@ -58,7 +63,8 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {$requirements = [];
     ");
 
     if ($reqQuery) {
-        while ($req = mysqli_fetch_assoc($reqQuery)) {$requirements[] = [
+        while ($req = mysqli_fetch_assoc($reqQuery)) {
+            $requirements[] = [
                 "id"   => $req['requirement_id'],
                 "name" => $req['requirement_name']
             ];
@@ -406,21 +412,48 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {$requirements = [];
                     <textarea name="purpose" id="purpose" required placeholder="State your purpose (e.g., Employment, Board Exam, Transfer)..."></textarea>
                 </div>
 
-                <!-- FRONT AND BACK VALID ID UPLOADS -->
-                <div class="row" style="margin-top: 15px; gap: 15px;">
-                    <div class="form-group" style="flex: 1;">
-                        <label><i class="fa-solid fa-id-card"></i> Upload Front of ID <span style="color: red;">*</span></label>
-                        <input type="file" name="valid_id_front" id="valid_id_front" accept="image/*,.pdf" required>
-                        <small style="color:#666; display:block; margin-top:4px;">Upload front photo of valid school/gov't ID.</small>
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label><i class="fa-solid fa-id-card"></i> Upload Back of ID <span style="color: red;">*</span></label>
-                        <input type="file" name="valid_id_back" id="valid_id_back" accept="image/*,.pdf" required>
-                        <small style="color:#666; display:block; margin-top:4px;">Upload back photo of valid school/gov't ID.</small>
-                    </div>
-                </div>
+                <!-- DYNAMIC ID UPLOADS BASED ON ACCOUNT TYPE -->
+                <?php if ($user_role === 'Parent'): ?>
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 18px; border-radius: 8px; margin-top: 20px;">
+                        <h4 style="margin: 0 0 12px 0; color: #0f172a; font-size: 1rem;">
+                            <i class="fa-solid fa-folder-open" style="color: #2563eb;"></i> Parent Request Requirements
+                        </h4>
 
-                <button type="button" class="next-btn" onclick="nextStep(2)">Next</button>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label><i class="fa-solid fa-id-card-clip"></i> 1. Upload Student ID / Record Reference <span style="color: red;">*</span></label>
+                            <input type="file" name="student_id_file" id="student_id_file" accept="image/*,.pdf" required>
+                            <small style="color:#64748b; display:block; margin-top:4px;">Upload Student ID, or student record reference if ID was surrendered upon graduation.</small>
+                        </div>
+
+                        <div class="row" style="gap: 15px;">
+                            <div class="form-group" style="flex: 1;">
+                                <label><i class="fa-solid fa-id-card"></i> 2. Upload Front of Parent's Valid ID <span style="color: red;">*</span></label>
+                                <input type="file" name="valid_id_front" id="valid_id_front" accept="image/*,.pdf" required>
+                                <small style="color:#64748b; display:block; margin-top:4px;">Parent's government ID (Front photo).</small>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label><i class="fa-solid fa-id-card"></i> Upload Back of Parent's Valid ID <span style="color: red;">*</span></label>
+                                <input type="file" name="valid_id_back" id="valid_id_back" accept="image/*,.pdf" required>
+                                <small style="color:#64748b; display:block; margin-top:4px;">Parent's government ID (Back photo).</small>
+                            </div>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div class="row" style="margin-top: 15px; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label><i class="fa-solid fa-id-card"></i> Upload Front of Valid ID <span style="color: red;">*</span></label>
+                            <input type="file" name="valid_id_front" id="valid_id_front" accept="image/*,.pdf" required>
+                            <small style="color:#666; display:block; margin-top:4px;">Upload front photo of valid school ID or government ID.</small>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label><i class="fa-solid fa-id-card"></i> Upload Back of Valid ID <span style="color: red;">*</span></label>
+                            <input type="file" name="valid_id_back" id="valid_id_back" accept="image/*,.pdf" required>
+                            <small style="color:#666; display:block; margin-top:4px;">Upload back photo of valid school ID or government ID.</small>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <button type="button" class="next-btn" style="margin-top: 20px;" onclick="nextStep(2)">Next</button>
             </div>
 
             <!-- STEP 2: STUDENT INFORMATION -->
@@ -544,7 +577,7 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {$requirements = [];
                     </div>
                     <div class="review-item">
                         <label>ID Uploads</label>
-                        <p id="reviewValidId">Front & Back Uploaded</p>
+                        <p id="reviewValidId">Verified & Uploaded</p>
                     </div>
                     <div class="review-item">
                         <label>Applicant Name</label>
@@ -674,20 +707,11 @@ function handleDocChange(selectElement) {
         docDays.innerText = documents[docId].days + " Working Days";
         docFee.innerText = "₱" + parseFloat(documents[docId].fee).toFixed(2);
 
-        let reqList = documents[docId].requirements;
-        let html = "";
-        if (reqList.length > 0) {
-            reqList.forEach(function(item) {
-                html += `
-                <div class="requirement-item" style="margin-top: 8px;">
-                    <label style="display:block; font-size: 0.85rem; font-weight:600;">${item.name}</label>
-                    <input type="file" name="documents[${index}][requirements][${item.id}]" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
-                </div>`;
-            });
-        } else {
-            html = "<p style='font-size: 0.85rem; color: #666;'>No requirements needed for this document.</p>";
-        }
-        reqContainer.innerHTML = html;
+        reqContainer.innerHTML = `
+            <p style="font-size: 0.85rem; color: #475569; margin: 4px 0 0 0;">
+                <i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Standard requirement (Valid ID) applies.
+            </p>
+        `;
     } else {
         docName.innerText = "Select a document";
         docDesc.innerText = "Document information will appear here.";
@@ -703,7 +727,6 @@ function addDocumentItem() {
     const container = document.getElementById('documentItemsContainer');
     const newIndex = docIndexCounter++;
 
-    // Group options by category dynamically for added items
     let categories = {};
     for (let id in documents) {
         let cat = documents[id].category || 'Others';
@@ -733,7 +756,7 @@ function addDocumentItem() {
 
         <div class="form-group">
             <label>Select Document</label>
-            <select name="documents[newIndex][id]" class="document-select" onchange="handleDocChange(this)" required>
+            <select name="documents[${newIndex}][id]" class="document-select" onchange="handleDocChange(this)" required>
                 ${optionsHtml}
             </select>
         </div>
@@ -834,15 +857,98 @@ function nextStep(step) {
         });
 
         const purpose = document.getElementById('purpose').value.trim();
-        const idFront = document.getElementById('valid_id_front').files.length;
-        const idBack = document.getElementById('valid_id_back').files.length;
+        const idFront = document.getElementById('valid_id_front') ? document.getElementById('valid_id_front').files.length : 1;
+        const idBack = document.getElementById('valid_id_back') ? document.getElementById('valid_id_back').files.length : 1;
+        const studentIdFile = document.getElementById('student_id_file') ? document.getElementById('student_id_file').files.length : 1;
 
-        if (!valid || !purpose || !idFront || !idBack) {
-            showError("Please complete all document selections, purpose, and upload both the front and back of your ID.");
+        if (!valid || !purpose || !idFront || !idBack || !studentIdFile) {
+            showError("Please complete all document selections, purpose, and upload all required ID files.");
             return;
         }
     }
-    // Continue with remaining step transitions...
+
+    if (step === 3) {
+        const lastName = document.querySelector('input[name="last_name"]').value.trim();
+        const firstName = document.querySelector('input[name="first_name"]').value.trim();
+        const address = document.querySelector('input[name="address"]').value.trim();
+        const courseYear = document.querySelector('input[name="course_year"]').value.trim();
+        const contactNo = document.querySelector('input[name="contact_no"]').value.trim();
+        const email = document.querySelector('input[name="email"]').value.trim();
+        const lastSem = document.getElementById('last_semester').value;
+        const lastSY = document.getElementById('last_school_year').value;
+
+        if (!lastName || !firstName || !address || !courseYear || !contactNo || !email || !lastSem || !lastSY) {
+            showError("Please complete all required student information fields.");
+            return;
+        }
+
+        const isGraduate = document.getElementById('is_graduate').value;
+        const isFirstTime = document.getElementById('is_first_time_request').checked;
+
+        if (isGraduate === "Yes" && isFirstTime) {
+            document.getElementById('registrarNoticeModal').style.display = 'flex';
+        }
+
+        document.getElementById('reviewApplicantName').innerText = `${firstName} ${lastName}`;
+        document.getElementById('reviewSY').innerText = `${lastSem}, SY ${lastSY}`;
+        
+        let docsReview = "";
+        const items = document.querySelectorAll('#documentItemsContainer .document-item');
+        items.forEach(item => {
+            const select = item.querySelector('.document-select');
+            const qtyInput = item.querySelector('.doc-quantity');
+            const docId = select ? select.value : null;
+            const qty = qtyInput ? qtyInput.value : 1;
+            if (docId && documents[docId]) {
+                docsReview += `<div>• ${documents[docId].name} (${qty} copy/ies)</div>`;
+            }
+        });
+        document.getElementById('reviewDocument').innerHTML = docsReview || "-";
+        document.getElementById('reviewQuantity').innerText = document.getElementById('summaryQuantity').innerText;
+    }
+
+    document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+
+    document.getElementById('step' + step).classList.add('active');
+    document.getElementById('step' + step + 'Indicator').classList.add('active');
+}
+
+function previousStep(step) {
+    document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+
+    document.getElementById('step' + step).classList.add('active');
+    document.getElementById('step' + step + 'Indicator').classList.add('active');
+}
+
+function showError(msg) {
+    document.getElementById('errorText').innerText = msg;
+    document.getElementById('errorModal').style.display = 'flex';
+}
+
+function closeError() {
+    document.getElementById('errorModal').style.display = 'none';
+}
+
+function closeRegistrarNotice() {
+    document.getElementById('registrarNoticeModal').style.display = 'none';
+}
+
+function confirmRequest() {
+    document.getElementById('confirmModal').style.display = 'flex';
+}
+
+function closeConfirm() {
+    document.getElementById('confirmModal').style.display = 'none';
+}
+
+function submitRequest() {
+    document.getElementById('requestForm').submit();
+}
+
+function closeSuccess() {
+    document.getElementById('successModal').style.display = 'none';
 }
 </script>
 </body>

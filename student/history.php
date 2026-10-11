@@ -28,20 +28,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_proof'])) {
             
             $allowed_exts = ['jpg', 'jpeg', 'png', 'pdf'];
             if (in_array($file_ext, $allowed_exts)) {
-                $new_filename = "proof_" . $request_id . "_" . time() . "." . $file_ext;
-                $upload_dir = __DIR__ . "/../assets/uploads/";
                 
-                if (!is_dir($upload_dir)) {
-                    mkdir($upload_dir, 0777, true);
-                }
+                // Cloudinary Configuration
+                $cloud_name = "wfz1gkkl"; 
+                $upload_preset = "eregistrar_preset";
+
+                $target_url = "https://api.cloudinary.com/v1_1/" . $cloud_name . "/image/upload";
                 
-                if (move_uploaded_file($file_tmp, $upload_dir . $new_filename)) {
+                $data = [
+                    'file' => new CURLFile($file_tmp),
+                    'upload_preset' => $upload_preset
+                ];
+
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $target_url);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                $response = curl_exec($ch);
+                curl_close($ch);
+
+                $responseData = json_decode($response, true);
+
+                if (isset($responseData['secure_url'])) {
+                    $cloudinary_url = $responseData['secure_url'];
+
                     $update_stmt = mysqli_prepare($conn, "UPDATE requests SET payment_proof = ?, status = 'Payment Uploaded' WHERE request_id = ? AND user_id = ?");
-                    mysqli_stmt_bind_param($update_stmt, "sii", $new_filename, $request_id, $user_id);
+                    mysqli_stmt_bind_param($update_stmt, "sii", $cloudinary_url, $request_id, $user_id);
                     mysqli_stmt_execute($update_stmt);
                     
                     header("Location: history.php?success=uploaded");
                     exit();
+                } else {
+                    $new_filename = "proof_" . $request_id . "_" . time() . "." . $file_ext;
+                    $upload_dir = __DIR__ . "/../assets/uploads/";
+                    if (!is_dir($upload_dir)) { @mkdir($upload_dir, 0777, true); }
+                    
+                    if (@move_uploaded_file($file_tmp, $upload_dir . $new_filename)) {
+                        $db_path = "assets/uploads/" . $new_filename;
+                        $update_stmt = mysqli_prepare($conn, "UPDATE requests SET payment_proof = ?, status = 'Payment Uploaded' WHERE request_id = ? AND user_id = ?");
+                        mysqli_stmt_bind_param($update_stmt, "sii", $db_path, $request_id, $user_id);
+                        mysqli_stmt_execute($update_stmt);
+                        
+                        header("Location: history.php?success=uploaded");
+                        exit();
+                    }
                 }
             }
         }
@@ -52,22 +83,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_proof'])) {
 // 2. Handle Single Rejected File Re-upload
 // ==============================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reupload_single_file'])) {
-    $file_table_id = intval($_POST['file_table_id']); // Maps to `id` column
+    $file_table_id = intval($_POST['file_table_id']); 
     $request_id = intval($_POST['request_id']);
 
-    // Verify ownership of the request
     $check_stmt = mysqli_prepare($conn, "
         SELECT rf.id, rf.file_path 
         FROM request_requirement_files rf 
         JOIN requests r ON rf.request_id = r.request_id 
         WHERE rf.id = ? AND r.user_id = ?
     ");
-    mysqli_stmt_bind_param($check_stmt, "ii", $file_table_id,$user_id);
+    mysqli_stmt_bind_param($check_stmt, "ii", $file_table_id, $user_id);
     mysqli_stmt_execute($check_stmt);
     $check_res = mysqli_stmt_get_result($check_stmt);
 
     if (mysqli_num_rows($check_res) > 0) {
-        if (isset($_FILES['new_file']) && $_FILES['new_file']['error'] === UPLOAD_ERR_OK) {$tmp_name = $_FILES['new_file']['tmp_name'];$filename = $_FILES['new_file']['name'];$ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));$allowed_exts = ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'doc'];
+        if (isset($_FILES['new_file']) && $_FILES['new_file']['error'] === UPLOAD_ERR_OK) {
+            $tmp_name = $_FILES['new_file']['tmp_name'];
+            $filename = $_FILES['new_file']['name'];$ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));$allowed_exts = ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'doc'];
 
             if (in_array($ext, $allowed_exts)) {$upload_dir = __DIR__ . "/../assets/uploads/requirements/";
                 if (!is_dir($upload_dir)) {
@@ -78,7 +110,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reupload_single_file'
                 $relative_path = "assets/uploads/requirements/" . $new_filename;
 
                 if (move_uploaded_file($tmp_name, $upload_dir .$new_filename)) {
-                    // Update the specific rejected row & reset status back to Pending
                     $update_file = mysqli_prepare($conn, "
                         UPDATE request_requirement_files 
                         SET file_name = ?, file_path = ?, status = 'Pending', remarks = NULL, uploaded_at = NOW() 
@@ -87,7 +118,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reupload_single_file'
                     mysqli_stmt_bind_param($update_file, "ssi", $filename, $relative_path,$file_table_id);
                     mysqli_stmt_execute($update_file);
 
-                    // Reset main request status to Pending for admin re-evaluation
                     $update_req = mysqli_prepare($conn, "UPDATE requests SET status = 'Pending' WHERE request_id = ?");
                     mysqli_stmt_bind_param($update_req, "i", $request_id);
                     mysqli_stmt_execute($update_req);
@@ -228,6 +258,7 @@ if (!$result) {
         .status.reupload { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
         .status.completed { background: #cce5ff; color: #004085; }
         .status.claimed { background: #d1fae5; color: #065f46; }
+        .status.payment-uploaded { background: #e0e7ff; color: #3730a3; }
 
         .btn {
             display: inline-flex;
@@ -389,7 +420,7 @@ if (!$result) {
                                     <!-- Status Column -->
                                     <td>
                                         <?php 
-                                            $file_statuses = !empty($row['file_statuses']) ? explode('\vert{}\vert{}', $row['file_statuses']) : [];
+                                            $file_statuses = !empty($row['file_statuses']) ? explode('||', $row['file_statuses']) : [];
                                             $has_rejected_file = in_array('Rejected',$file_statuses);
                                         ?>
 
@@ -440,32 +471,47 @@ if (!$result) {
                                         </button>
                                     </td>
 
-                                    <!-- Proof of Payment Column -->
-                                    <td>
-                                        <?php 
-                                            $status_lower = strtolower(trim($row['request_status']));
-                                            $is_approved_for_payment = in_array($status_lower, ['approved', 'payment uploaded', 'processing', 'completed', 'claimed']);
-                                        ?>
+<td>
+    <?php 
+        $status_lower = strtolower(trim($row['request_status']));
+        $is_approved_for_payment = in_array($status_lower, ['approved', 'payment uploaded', 'processing', 'completed', 'claimed']);
+    ?>
 
-                                        <?php if ($is_approved_for_payment): ?>
-                                            <?php if (!empty($row['payment_proof'])): ?>
-                                                <button type="button" class="btn view-receipt" onclick="openModal('receiptModal', 'modalReceiptContent', 'modalReceiptDownloadBtn', '../assets/uploads/<?= htmlspecialchars($row['payment_proof'], ENT_QUOTES); ?>', '<?= htmlspecialchars($row['payment_proof'], ENT_QUOTES); ?>', '<?= htmlspecialchars($row['tracking_no'], ENT_QUOTES); ?>')">
-                                                    <i class="fa-solid fa-receipt"></i> View Receipt
-                                                </button>
-                                            <?php else: ?>
-                                                <form action="history.php" method="POST" enctype="multipart/form-data" style="margin: 0; display: inline-block;" onsubmit="return confirm('Upload this payment receipt?');">
-                                                    <input type="hidden" name="request_id" value="<?= $row['request_id']; ?>">
-                                                    <label class="btn upload-btn" style="cursor: pointer; margin: 0;">
-                                                        <i class="fa-solid fa-upload"></i> Upload
-                                                        <input type="file" name="payment_proof" accept=".jpg, .jpeg, .png, .pdf" required style="display: none;" onchange="this.form.submit()">
-                                                    </label>
-                                                    <input type="hidden" name="upload_proof" value="1">
-                                                </form>
-                                            <?php endif; ?>
-                                        <?php else: ?>
-                                            <span class="no-action">Awaiting Approval</span>
-                                        <?php endif; ?>
-                                    </td>
+    <?php if ($is_approved_for_payment): ?>
+        <?php if (!empty($row['payment_proof'])): ?>
+            <?php 
+                $proofPath = trim($row['payment_proof']);
+                // Check if it's already an absolute URL (Cloudinary or http/https)
+                if (preg_match('/^https?:\/\//i', $proofPath)) {
+                    $proofSrc = $proofPath;
+                } else {
+                    // Ensure we don't duplicate ../ if it's already included
+                    $cleanProofPath = ltrim(str_replace('../', '', $proofPath), '/');
+                    // If it already starts with assets/uploads/, use ../, otherwise prepend ../assets/uploads/
+                    if (strpos($cleanProofPath, 'assets/uploads/') === 0) {
+                        $proofSrc = '../' . $cleanProofPath;
+                    } else {
+                        $proofSrc = '../assets/uploads/' . $cleanProofPath;
+                    }
+                }
+            ?>
+            <button type="button" class="btn view-receipt" onclick="openModal('receiptModal', 'modalReceiptContent', 'modalReceiptDownloadBtn', '<?= htmlspecialchars($proofSrc, ENT_QUOTES); ?>', '<?= htmlspecialchars($proofPath, ENT_QUOTES); ?>', '<?= htmlspecialchars($row['tracking_no'], ENT_QUOTES); ?>')">
+                <i class="fa-solid fa-receipt"></i> View Receipt
+            </button>
+        <?php else: ?>
+            <form action="history.php" method="POST" enctype="multipart/form-data" style="margin: 0; display: inline-block;" onsubmit="return confirm('Upload this payment receipt?');">
+                <input type="hidden" name="request_id" value="<?= $row['request_id']; ?>">
+                <label class="btn upload-btn" style="cursor: pointer; margin: 0;">
+                    <i class="fa-solid fa-upload"></i> Upload
+                    <input type="file" name="payment_proof" accept=".jpg, .jpeg, .png, .pdf" required style="display: none;" onchange="this.form.submit()">
+                </label>
+                <input type="hidden" name="upload_proof" value="1">
+            </form>
+        <?php endif; ?>
+    <?php else: ?>
+        <span class="no-action">Awaiting Approval</span>
+    <?php endif; ?>
+</td>
                                 </tr>
                             <?php endwhile; ?>
                         </tbody>
@@ -541,7 +587,6 @@ if (!$result) {
                 let fileTableId = ids[index] || '';
                 let rawPath = path ? path.trim() : "";
                 
-                // Properly handle Cloudinary/External URLs vs Local Relative Paths
                 let cleanPath = "";
                 if (rawPath.startsWith('http://') || rawPath.startsWith('https://')) {
                     cleanPath = rawPath;
@@ -550,24 +595,21 @@ if (!$result) {
                 }
 
                 let fileName = names[index] ? names[index].trim() : ('File ' + (index + 1));
-        let fileStatus = statuses[index] ? statuses[index].trim() : 'Pending';
-        let fileRemark = remarks[index] ? remarks[index].trim() : '';
-        
-        // Extract extension from file name, or fallback to extracting it from the cleanPath URL if missing
-        let fileExt = fileName.includes('.') ? fileName.split('.').pop().toLowerCase() : '';
-        if (!['jpg', 'jpeg', 'png', 'gif', 'pdf'].includes(fileExt) && cleanPath) {
-            let urlWithoutQuery = cleanPath.split('?')[0];
-            fileExt = urlWithoutQuery.split('.').pop().toLowerCase();
-            
-            // If it's a Cloudinary image URL without an extension in the path, force it to render as an image
-            if (!['jpg', 'jpeg', 'png', 'gif', 'pdf'].includes(fileExt) && (cleanPath.includes('cloudinary.com') || cleanPath.includes('image/upload'))) {
-                fileExt = 'jpg';
-            }
-        }
+                let fileStatus = statuses[index] ? statuses[index].trim() : 'Pending';
+                let fileRemark = remarks[index] ? remarks[index].trim() : '';
+                
+                let fileExt = fileName.includes('.') ? fileName.split('.').pop().toLowerCase() : '';
+                if (!['jpg', 'jpeg', 'png', 'gif', 'pdf'].includes(fileExt) && cleanPath) {
+                    let urlWithoutQuery = cleanPath.split('?')[0];
+                    fileExt = urlWithoutQuery.split('.').pop().toLowerCase();
+                    
+                    if (!['jpg', 'jpeg', 'png', 'gif', 'pdf'].includes(fileExt) && (cleanPath.includes('cloudinary.com') || cleanPath.includes('image/upload'))) {
+                        fileExt = 'jpg';
+                    }
+                }
 
                 htmlContent += '<div style="margin-bottom: 20px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;">';
                 
-                // File Header & Status Badge
                 htmlContent += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">';
                 htmlContent += '<span style="font-weight: 600; font-size: 0.88rem; color: #1e293b;"><i class="fa-solid fa-file"></i> ' + fileName + '</span>';
                 
@@ -580,7 +622,6 @@ if (!$result) {
                 }
                 htmlContent += '</div>';
 
-                // File Preview Content
                 if (cleanPath !== '') {
                     htmlContent += '<div style="text-align: center;">';
                     if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
@@ -593,7 +634,6 @@ if (!$result) {
                     htmlContent += '</div>';
                 }
 
-                // Re-upload Box (If File Status is Rejected)
                 if (fileStatus.toLowerCase() === 'rejected') {
                     htmlContent += '<div style="margin-top: 10px; padding: 10px; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px;">';
                     if (fileRemark !== '') {
@@ -621,20 +661,27 @@ if (!$result) {
         }
 
         function openModal(modalId, contentId, downloadBtnId, filePath, fileName, trackingNo) {
-            let previewHtml = '';
-            const fileExt = fileName.split('.').pop().toLowerCase();
-            
-            if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
-                previewHtml = '<img src="' + filePath + '" alt="File Preview" style="max-width: 100%; max-height: 50vh; border-radius: 6px; border: 1px solid #e9ecef;">';
-            } else if (fileExt === 'pdf') {
-                previewHtml = '<iframe src="' + filePath + '" style="width: 100%; height: 50vh; border: none; border-radius: 6px;"></iframe>';
-            }
-            previewHtml = '<div style="margin-bottom: 10px; font-weight: 600; color: #495057;">Tracking No: ' + trackingNo + '</div>' + previewHtml;
+    let previewHtml = '';
+    
+    // Check if the file path is a Cloudinary URL or has an image extension
+    const isCloudinary = filePath.includes('cloudinary.com') || filePath.includes('image/upload');
+    const fileExt = fileName ? fileName.split('.').pop().toLowerCase() : '';
+    
+    if (isCloudinary || ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExt)) {
+        previewHtml = '<img src="' + filePath + '" alt="File Preview" style="max-width: 100%; max-height: 50vh; border-radius: 6px; border: 1px solid #e9ecef;">';
+    } else if (fileExt === 'pdf' || filePath.toLowerCase().includes('.pdf')) {
+        previewHtml = '<iframe src="' + filePath + '" style="width: 100%; height: 50vh; border: none; border-radius: 6px;"></iframe>';
+    } else {
+        // Fallback for image preview
+        previewHtml = '<img src="' + filePath + '" alt="File Preview" style="max-width: 100%; max-height: 50vh; border-radius: 6px; border: 1px solid #e9ecef;">';
+    }
+    
+    previewHtml = '<div style="margin-bottom: 10px; font-weight: 600; color: #495057;">Tracking No: ' + trackingNo + '</div>' + previewHtml;
 
-            document.getElementById(contentId).innerHTML = previewHtml;
-            document.getElementById(downloadBtnId).href = filePath;
-            document.getElementById(modalId).style.display = 'flex';
-        }
+    document.getElementById(contentId).innerHTML = previewHtml;
+    document.getElementById(downloadBtnId).href = filePath;
+    document.getElementById(modalId).style.display = 'flex';
+}
 
         function openDetailsModal(trackingNo, documentName, purpose, quantity, status, requestDate, processorName) {
             let htmlContent = `

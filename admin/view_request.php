@@ -18,7 +18,7 @@ $request_id = intval($_GET['id']);
 
 // FETCH REQUEST DETAILS (Prepared Statement)
 $stmt = mysqli_prepare($conn, "
-    SELECT r.*, d.document_name, d.fee, u.fullname
+    SELECT r.*, d.document_name, d.fee, u.fullname, u.role, u.account_type, u.email, u.contact_no
     FROM requests r
     JOIN documents d ON r.document_id = d.document_id
     JOIN users u ON r.user_id = u.user_id
@@ -34,6 +34,7 @@ if (mysqli_num_rows($requestResult) == 0) {
 }
 
 $request = mysqli_fetch_assoc($requestResult);
+$user_role = $request['role'] ?? $request['account_type'] ?? 'Student';
 
 // HANDLE REQUIREMENT REJECTION
 if (isset($_POST['reject_requirement'])) {
@@ -45,7 +46,7 @@ if (isset($_POST['reject_requirement'])) {
         SET status = 'Rejected', remarks = ?
         WHERE id = ?
     ");
-    mysqli_stmt_bind_param($rejectStmt, "si", $remarks,$file_id);
+    mysqli_stmt_bind_param($rejectStmt, "si", $remarks, $file_id);
     mysqli_stmt_execute($rejectStmt);
 
     $getInfoStmt = mysqli_prepare($conn, "
@@ -62,8 +63,8 @@ if (isset($_POST['reject_requirement'])) {
 
     if ($info = mysqli_fetch_assoc($infoResult)) {
         createNotification(
-            $conn,$info['user_id'],
-            "Your requirement '" . $info['req_display_name'] . "' for request " . $info['tracking_no'] . " was rejected. Please review the remarks and upload a corrected file."
+            $conn, $info['user_id'],
+            "Your requirement '" . $info['req_display_name'] . "' for request " . $info['tracking_no'] . " was rejected. Remarks: " . $remarks
         );
     }
 
@@ -87,7 +88,11 @@ $filesResult = mysqli_stmt_get_result($filesStmt);
 $idFiles = [];$otherFiles = [];
 
 while ($row = mysqli_fetch_assoc($filesResult)) {
-    if (stripos($row['file_name'], 'Valid ID') !== false || is_null($row['requirement_id'])) {
+    if (
+        stripos($row['file_name'], 'Valid ID') !== false || 
+        stripos($row['file_name'], 'Student ID') !== false || 
+        is_null($row['requirement_id'])
+    ) {
         $idFiles[] =$row;
     } else {
         $otherFiles[] =$row;
@@ -291,7 +296,6 @@ if ($percent >= 100) {$progressColor = "#059669"; // Green
         .badge.verified, .badge.approved { background-color: #d1fae5; color: #047857; }
         .badge.rejected { background-color: #fee2e2; color: #b91c1c; }
 
-        /* PROFESSIONAL ENTERPRISE BUTTON STYLING */
         .btn {
             padding: 7px 14px;
             border-radius: 6px;
@@ -453,13 +457,6 @@ if ($percent >= 100) {$progressColor = "#059669"; // Green
             border-color: var(--registrar-blue);
             box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.15);
         }
-
-        @media (max-width: 768px) {
-            .admin-content { padding: 16px; }
-            .file-card-header { flex-direction: column; align-items: flex-start; }
-            .file-actions { width: 100%; }
-            .file-actions .btn { flex: 1; }
-        }
     </style>
 </head>
 <body>
@@ -491,8 +488,12 @@ if ($percent >= 100) {$progressColor = "#059669"; // Green
                 <span style="font-family: monospace; color: var(--registrar-blue); font-size: 0.95rem;"><?= htmlspecialchars($request['tracking_no']); ?></span>
             </div>
             <div class="request-item">
-                <strong>Student Name</strong>
+                <strong>Applicant Name</strong>
                 <span><?= htmlspecialchars($request['fullname'] ?? 'N/A'); ?></span>
+            </div>
+            <div class="request-item">
+                <strong>Account Type</strong>
+                <span><i class="fa-solid fa-user-tag"></i> <?= htmlspecialchars($user_role); ?></span>
             </div>
             <div class="request-item">
                 <strong>Document Requested</strong>
@@ -513,29 +514,50 @@ if ($percent >= 100) {$progressColor = "#059669"; // Green
         </div>
     </div>
 
-    <!-- UPLOADED VALID IDs SECTION -->
+    <!-- UPLOADED IDENTIFICATION SECTION (DYNAMIC LABELS BASED ON ROLE) -->
     <div class="card">
         <h3 class="card-header-title">
-            <i class="fa-solid fa-id-card" style="color: var(--registrar-blue);"></i> Student Valid ID Uploads
+            <i class="fa-solid fa-id-card" style="color: var(--registrar-blue);"></i> 
+            <?= ($user_role === 'Parent') ? 'Parent & Student Identification Verification' : 'Student Valid ID Verification'; ?>
         </h3>
         
         <?php if (!empty($idFiles)): ?>
             <div class="request-grid">
-                <?php foreach ($idFiles as$idFile): ?>
+                <?php foreach ($idFiles as $index =>$idFile): ?>
+                    <?>
                     <?php 
-                        $cleanPath = ltrim(str_replace(['assets/uploads/', '../assets/uploads/'], '',$idFile['file_path']), '/');
-                        $fullPath = "../assets/uploads/" . $cleanPath;
+                        $rawPath =$idFile['file_path'];
+                        if (strpos($rawPath, 'http://') === 0 || strpos($rawPath, 'https://') === 0) {
+                            $fullPath =$rawPath;
+                        } else {
+                            $cleanPath = ltrim(str_replace(['assets/uploads/', '../assets/uploads/'], '',$rawPath), '/');
+                            $fullPath = "../assets/uploads/" . $cleanPath;
+                        }
+
+                        // Smart Dynamic Labeling for Admin Verification
+                        $displayLabel =$idFile['requirement_name'];
+                        if ($user_role === 'Parent') {
+                            if ($index === 0) {$displayLabel = "Student ID / Record Reference";
+                            } else {
+                                $displayLabel = "Parent's Valid Government ID (Front/Back)";
+                            }
+                        } else {
+                            if ($index === 0) {$displayLabel = "Valid ID / School ID (Front)";
+                            } else {
+                                $displayLabel = "Valid ID / School ID (Back)";
+                            }
+                        }
                     ?>
                     <div class="request-item" style="background: #ffffff;">
-                        <strong><?= htmlspecialchars($idFile['requirement_name']); ?></strong>
+                        <strong><?= htmlspecialchars($displayLabel); ?></strong>
                         <div style="margin: 8px 0;">
                             <span class="badge <?= strtolower($idFile['status']); ?>">
                                 <?= htmlspecialchars($idFile['status']); ?>
                             </span>
                         </div>
                         <div style="display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap;">
-                            <button type="button" class="btn btn-secondary" onclick="openImageModal('<?= htmlspecialchars($fullPath, ENT_QUOTES); ?>', '<?= htmlspecialchars($idFile['requirement_name'], ENT_QUOTES); ?>')">
-                                <i class="fa-solid fa-eye"></i> Inspect ID
+                            <button type="button" class="btn btn-secondary" onclick="openImageModal('<?= htmlspecialchars($fullPath, ENT_QUOTES); ?>', '<?= htmlspecialchars($displayLabel, ENT_QUOTES); ?>')">
+                                <i class="fa-solid fa-eye"></i> Inspect File
                             </button>
                             <?php if ($idFile['status'] == "Pending"): ?>
                                 <a class="btn btn-primary" href="verify_requirement.php?id=<?= $idFile['id']; ?>&request=<?=$request_id; ?>">
@@ -556,7 +578,7 @@ if ($percent >= 100) {$progressColor = "#059669"; // Green
             </div>
         <?php else: ?>
             <div style="color: var(--slate-600); font-size: 0.88rem; font-style: italic;">
-                No valid ID files uploaded for this request.
+                No identification files uploaded for this request.
             </div>
         <?php endif; ?>
     </div>
@@ -575,7 +597,7 @@ if ($percent >= 100) {$progressColor = "#059669"; // Green
         </div>
     </div>
 
-    <!-- Uploaded Requirements List -->
+    <!-- Uploaded Additional Requirements List -->
     <h3 style="font-size: 1.05rem; color: var(--registrar-navy); margin: 24px 0 14px 0; font-weight: 700;">Uploaded Document Requirements</h3>
 
     <?php if (!empty($otherFiles)): ?>
@@ -593,7 +615,12 @@ if ($percent >= 100) {$progressColor = "#059669"; // Green
 
                     <div class="file-actions">
                         <?php 
-                            $cleanReqPath = "../assets/uploads/" . ltrim(str_replace(['assets/uploads/', '../assets/uploads/'], '', $row['file_path']), '/');
+                            $rawReqPath =$row['file_path'];
+                            if (strpos($rawReqPath, 'http://') === 0 || strpos($rawReqPath, 'https://') === 0) {
+                                $cleanReqPath =$rawReqPath;
+                            } else {
+                                $cleanReqPath = "../assets/uploads/" . ltrim(str_replace(['assets/uploads/', '../assets/uploads/'], '', $rawReqPath), '/');
+                            }
                         ?>
                         <button type="button" class="btn btn-secondary" onclick="openImageModal('<?= htmlspecialchars($cleanReqPath, ENT_QUOTES); ?>', '<?= htmlspecialchars($row['requirement_name'], ENT_QUOTES); ?>')">
                             <i class="fa-solid fa-eye"></i> View File
@@ -679,7 +706,7 @@ if ($percent >= 100) {$progressColor = "#059669"; // Green
 
 <script>
 function openImageModal(filePath, title) {
-    const fileExt = filePath.split('.').pop().toLowerCase();
+    const fileExt = filePath.split('?')[0].split('.').pop().toLowerCase();
     let bodyHtml = '';
     
     if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExt)) {
@@ -687,7 +714,8 @@ function openImageModal(filePath, title) {
     } else if (fileExt === 'pdf') {
         bodyHtml = `<iframe src="${filePath}" style="width: 100%; height: 70vh; border: none; border-radius: 4px; background: #fff;"></iframe>`;
     } else {
-        bodyHtml = `<p style="color: #cbd5e1;">Preview unavailable for this file format.</p>`;
+        bodyHtml = `<img src="${filePath}" alt="Preview" style="max-width: 100%
+        ; max-height: 70vh; border-radius: 4px; object-fit: contain;">`;
     }
 
     document.getElementById("modalTitle").innerHTML = `<i class="fa-solid fa-file-shield" style="color: var(--registrar-blue);"></i> ${title}`;

@@ -18,7 +18,7 @@ SELECT
     d.document_name,
     r.purpose,
     r.quantity,
-    r.status,
+    r.status AS request_status,
     r.request_date,
     r.payment_proof,
     p.fullname AS processor_name
@@ -30,7 +30,7 @@ SELECT
     ORDER BY r.request_date DESC
 ";
 
-$result = mysqli_query($conn,$sql);
+$result = mysqli_query($conn, $sql);
 
 if (!$result) {
     die("Database query failed: " . mysqli_error($conn));
@@ -435,7 +435,7 @@ if (!$result) {
 
                                 <td data-label="Status">
                                     <?php
-                                    $status = $row['status'];$badgeClass = 'badge-pending';
+                                    $status = $row['request_status'];$badgeClass = 'badge-pending';
 
                                     if ($status === 'Approved')$badgeClass = 'badge-approved';
                                     elseif ($status === 'Processing')$badgeClass = 'badge-processing';
@@ -451,12 +451,34 @@ if (!$result) {
 
                                 <!-- Payment Proof Column -->
                                 <td data-label="Payment Proof">
-                                    <?php if (!empty($row['payment_proof'])): ?>
-                                        <a class="btn-action btn-receipt" href="../assets/uploads/<?php echo htmlspecialchars($row['payment_proof']); ?>" target="_blank">
-                                            <i class="fa-solid fa-receipt"></i> View Receipt
-                                        </a>
+                                    <?php 
+                                        $status_lower = strtolower(trim($row['request_status']));
+                                        $is_approved_for_payment = in_array($status_lower, ['approved', 'payment uploaded', 'processing', 'completed', 'claimed']);
+                                    ?>
+
+                                    <?php if ($is_approved_for_payment): ?>
+                                        <?php if (!empty($row['payment_proof'])): ?>
+                                            <?php 
+                                                $proofPath = trim($row['payment_proof']);
+                                                if (preg_match('/^https?:\/\//i', $proofPath)) {
+                                                    $proofSrc =$proofPath;
+                                                } else {
+                                                    $cleanProofPath = ltrim(str_replace('../', '',$proofPath), '/');
+                                                    if (strpos($cleanProofPath, 'assets/uploads/') === 0) {
+                                                        $proofSrc = '../' .$cleanProofPath;
+                                                    } else {
+                                                        $proofSrc = '../assets/uploads/' .$cleanProofPath;
+                                                    }
+                                                }
+                                            ?>
+                                            <button type="button" class="btn-action btn-receipt" onclick="openModal('receiptModal', 'modalReceiptContent', 'modalReceiptDownloadBtn', '<?= htmlspecialchars($proofSrc, ENT_QUOTES); ?>', '<?= htmlspecialchars($proofPath, ENT_QUOTES); ?>', '<?= htmlspecialchars($row['tracking_no'], ENT_QUOTES); ?>')">
+                                                <i class="fa-solid fa-receipt"></i> View Receipt
+                                            </button>
+                                        <?php else: ?>
+                                            <span class="text-muted">No Receipt Uploaded</span>
+                                        <?php endif; ?>
                                     <?php else: ?>
-                                        <span class="text-muted">No Receipt Yet</span>
+                                        <span class="text-muted">Awaiting Approval</span>
                                     <?php endif; ?>
                                 </td>
 
@@ -479,7 +501,7 @@ if (!$result) {
                                 <td data-label="Action">
                                     <div class="action-group">
                                         <?php 
-                                            $admin_status_lower = strtolower(trim($row['status']));
+                                            $admin_status_lower = strtolower(trim($row['request_status']));
                                         ?>
 
                                         <?php if ($admin_status_lower === 'claimed'): ?>
@@ -489,7 +511,7 @@ if (!$result) {
                                                 '<?php echo htmlspecialchars($row['document_name'], ENT_QUOTES); ?>',
                                                 '<?php echo htmlspecialchars($row['purpose'] ?? 'N/A', ENT_QUOTES); ?>',
                                                 '<?php echo (int)$row['quantity']; ?>',
-                                                '<?php echo htmlspecialchars($row['status'], ENT_QUOTES); ?>',
+                                                '<?php echo htmlspecialchars($row['request_status'], ENT_QUOTES); ?>',
                                                 '<?php echo date("M d, Y h:i A", strtotime($row['request_date'])); ?>',
                                                 '<?php echo htmlspecialchars($row['processor_name'] ?? 'None', ENT_QUOTES); ?>'
                                             )">
@@ -501,28 +523,28 @@ if (!$result) {
                                             </a>
                                         <?php endif; ?>
 
-                                        <?php if ($row['status'] == "Pending"): ?>
+                                        <?php if ($row['request_status'] == "Pending"): ?>
                                             <span class="text-muted">Awaiting Payment</span>
 
-                                        <?php elseif ($row['status'] == "Payment Uploaded" || ($row['status'] == "Approved" && !empty($row['payment_proof']))): ?>
+                                        <?php elseif ($row['request_status'] == "Payment Uploaded" || ($row['request_status'] == "Approved" && !empty($row['payment_proof']))): ?>
                                             <a class="btn-action" href="processing.php?id=<?php echo $row['request_id']; ?>">
                                                 <i class="fa-solid fa-gears"></i> Start Processing
                                             </a>
 
-                                        <?php elseif ($row['status'] == "Processing"): ?>
+                                        <?php elseif ($row['request_status'] == "Processing"): ?>
                                             <a class="btn-action" href="ready.php?id=<?php echo $row['request_id']; ?>">
                                                 <i class="fa-solid fa-box-archive"></i> Ready for Claim
                                             </a>
 
-                                        <?php elseif ($row['status'] == "Ready for Claim"): ?>
+                                        <?php elseif ($row['request_status'] == "Ready for Claim"): ?>
                                             <a class="btn-action" href="claimed.php?id=<?php echo $row['request_id']; ?>">
                                                 <i class="fa-solid fa-check-double"></i> Mark Claimed
                                             </a>
 
-                                        <?php elseif ($row['status'] == "Claimed"): ?>
+                                        <?php elseif ($row['request_status'] == "Claimed"): ?>
                                             <span class="text-muted"><i class="fa-solid fa-circle-check"></i> Completed</span>
 
-                                        <?php elseif ($row['status'] == "Rejected"): ?>
+                                        <?php elseif ($row['request_status'] == "Rejected"): ?>
                                             <span class="text-muted"><i class="fa-solid fa-circle-xmark"></i> Rejected</span>
 
                                         <?php endif; ?>
@@ -546,7 +568,22 @@ if (!$result) {
 
 </div>
 
-<!-- Floating Details Modal Structure -->
+<!-- 1. Receipt Modal Structure -->
+<div id="receiptModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-receipt" style="color: #0284c7;"></i> Payment Receipt Preview</h3>
+            <button type="button" class="modal-close-btn" onclick="closeModal('receiptModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="modalReceiptContent" style="text-align: center;"></div>
+        <div class="modal-footer">
+            <a id="modalReceiptDownloadBtn" href="#" target="_blank" class="btn-action btn-receipt" style="margin-right: 5px;"><i class="fa-solid fa-external-link-alt"></i> Open Fullscreen</a>
+            <button type="button" class="btn-action btn-secondary-action" onclick="closeModal('receiptModal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Request Details Modal Structure -->
 <div id="detailsModal" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header">
@@ -563,6 +600,30 @@ if (!$result) {
 </div>
 
 <script>
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    function openModal(modalId, contentId, downloadBtnId, filePath, fileName, trackingNo) {
+        let previewHtml = '';
+        const isCloudinary = filePath.includes('cloudinary.com') || filePath.includes('image/upload');
+        const fileExt = fileName ? fileName.split('.').pop().toLowerCase() : '';
+        
+        if (isCloudinary || ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExt)) {
+            previewHtml = '<img src="' + filePath + '" alt="File Preview" style="max-width: 100%; max-height: 50vh; border-radius: 6px; border: 1px solid #e9ecef;">';
+        } else if (fileExt === 'pdf' || filePath.toLowerCase().includes('.pdf')) {
+            previewHtml = '<iframe src="' + filePath + '" style="width: 100%; height: 50vh; border: none; border-radius: 6px;"></iframe>';
+        } else {
+            previewHtml = '<img src="' + filePath + '" alt="File Preview" style="max-width: 100%; max-height: 50vh; border-radius: 6px; border: 1px solid #e9ecef;">';
+        }
+        
+        previewHtml = '<div style="margin-bottom: 10px; font-weight: 600; color: #495057;">Tracking No: ' + trackingNo + '</div>' + previewHtml;
+
+        document.getElementById(contentId).innerHTML = previewHtml;
+        document.getElementById(downloadBtnId).href = filePath;
+        document.getElementById(modalId).style.display = 'flex';
+    }
+
     function openDetailsModal(trackingNo, studentName, documentName, purpose, quantity, status, date, processorName) {
         const content = `
             <div class="modal-row"><span class="label">Tracking No:</span> <span>${trackingNo}</span></div>
@@ -584,9 +645,13 @@ if (!$result) {
 
     // Close modal when clicking outside of the card box
     window.onclick = function(event) {
-        const modal = document.getElementById('detailsModal');
-        if (event.target === modal) {
-            modal.style.display = 'none';
+        const receiptModal = document.getElementById('receiptModal');
+        const detailsModal = document.getElementById('detailsModal');
+        if (event.target === receiptModal) {
+            receiptModal.style.display = 'none';
+        }
+        if (event.target === detailsModal) {
+            detailsModal.style.display = 'none';
         }
     }
 </script>

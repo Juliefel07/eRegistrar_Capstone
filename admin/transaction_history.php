@@ -56,20 +56,18 @@ if (!empty($search_query) && !empty($columns)) {
 
 $where_sql = count($where_clauses) > 0 ? "WHERE " . implode(" AND ", $where_clauses) : "";
 
-// Check if processed_by column exists before joining users table
+// Check if processed_by and document joins are valid
 $has_processed_by = in_array('processed_by', $columns);
-if ($has_processed_by) {
-    $query = "SELECT r.*, u.fullname AS processor_name 
-              FROM requests r 
-              LEFT JOIN users u ON r.processed_by = u.user_id 
-              $where_sql 
-              ORDER BY r.$sort_column DESC LIMIT 100";
-} else {
-    $query = "SELECT r.*, 'System Admin' AS processor_name 
-              FROM requests r 
-              $where_sql 
-              ORDER BY r.$sort_column DESC LIMIT 100";
-}
+
+$processor_select = $has_processed_by ? "u.fullname AS processor_name" : "'System Admin' AS processor_name";
+$processor_join = $has_processed_by ? "LEFT JOIN users u ON r.processed_by = u.user_id" : "";
+
+$query = "SELECT r.*, d.document_name, $processor_select 
+          FROM requests r 
+          LEFT JOIN documents d ON r.document_id = d.document_id 
+          $processor_join 
+          $where_sql 
+          ORDER BY r.$sort_column DESC LIMIT 100";
 
 $transactions_result = @mysqli_query($conn, $query);
 ?>
@@ -466,21 +464,22 @@ $transactions_result = @mysqli_query($conn, $query);
                 <tbody>
                     <?php if ($transactions_result && mysqli_num_rows($transactions_result) > 0): ?>
                         <?php while ($row = mysqli_fetch_assoc($transactions_result)): ?>
-                            <?php 
-                                $date_val = $row['created_at'] ?? $row['date_requested'] ?? $row['request_date'] ?? $row['date'] ?? null;
-                                $formatted_date = $date_val ? date("M d, Y • h:i A", strtotime($date_val)) : 'N/A';
-                                
-                                $ref_val = $row['tracking_number'] ?? $row['reference_no'] ?? ($row['id'] ?? 'RECORD');
-                                $student_name = $row['student_name'] ?? $row['fullname'] ?? $row['name'] ?? 'N/A';
-                                
-                                $doc_type = $row['document_type'] ?? $row['doc_type'] ?? $row['document'] ?? $row['type'] ?? 'N/A';
-                                $processed_by = $row['processor_name'] ?? $row['processed_by_name'] ?? $row['admin_name'] ?? 'System / Registrar Admin';
-                                
-                                $id_no = $row['student_id'] ?? $row['id_number'] ?? $row['school_id'] ?? 'N/A';
-                                $purpose = $row['purpose'] ?? $row['reason'] ?? 'N/A';
-                                $copies = $row['copies'] ?? $row['number_of_copies'] ?? '1';
-                            ?>
-                            <tr>
+    <?php 
+        $date_val = $row['request_date'] ?? $row['created_at'] ?? $row['date_requested'] ?? null;
+        $formatted_date = $date_val ? date("M d, Y • h:i A", strtotime($date_val)) : 'N/A';
+        
+        $ref_val = $row['tracking_no'] ?? $row['tracking_number'] ?? $row['reference_no'] ?? ('REQ-' . $row['request_id']);
+        $student_name = $row['fullname'] ?? $row['student_name'] ?? 'N/A';
+        
+        // <--- THIS IS THE PART YOU ARE LOOKING FOR:
+        $doc_type = $row['document_name'] ?? $row['document_type'] ?? $row['doc_type'] ?? $row['document'] ?? $row['type'] ?? 'N/A';
+        
+        $processed_by = $row['processor_name'] ?? 'System / Registrar Admin';
+        $purpose = $row['purpose'] ?? 'N/A';
+        $copies = $row['quantity'] ?? $row['copies'] ?? '1';
+    ?>
+    <tr>
+        <!-- Table columns continue here -->
                                 <td><strong><?= htmlspecialchars($ref_val); ?></strong></td>
                                 <td><?= htmlspecialchars($student_name); ?></td>
                                 <td><span style="font-weight: 500; color: var(--primary);"><?= htmlspecialchars($doc_type); ?></span></td>
