@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['reset_email'] = $email;
 
         // Send via Brevo API
-        $apiKey = getenv('BREVO_API_KEY'); // Replace with your actual Brevo API Key
+        $api_key = getenv('BREVO_API_KEY'); // Replace with your actual Brevo API Key
         $email_data = [
             "sender" => ["name" => "eRegistrar", "email" => "eregistrarcctc@gmail.com"],
             "to" => [["email" => $email]],
