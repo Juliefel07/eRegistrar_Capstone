@@ -244,8 +244,8 @@ function displayValue($value)
     <div class="profile-card">
         <div class="profile-header">
             <div class="profile-avatar">
-                <?php if (!empty($user['profile_image']) && file_exists("uploads/" . $user['profile_image'])): ?>
-                    <img src="uploads/<?= htmlspecialchars($user['profile_image']); ?>" alt="Profile">
+                <?php if (!empty($user['profile_image'])): ?>
+                    <img src="<?= $user['profile_image']; ?>" alt="Profile">
                 <?php else: ?>
                     <?= strtoupper(substr($user['fullname'] ?? $user['first_name'] ?? 'U', 0, 1)); ?>
                 <?php endif; ?>

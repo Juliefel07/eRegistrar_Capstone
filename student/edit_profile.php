@@ -10,14 +10,7 @@ if(!isset($_SESSION['user_id'])){
 $user_id = $_SESSION['user_id'];
 
 // Get current user data
-$result = mysqli_query($conn,
-"
-SELECT * 
-FROM users
-WHERE user_id='$user_id'
-"
-);
-
+$result = mysqli_query($conn, "SELECT * FROM users WHERE user_id='$user_id'");
 $user = mysqli_fetch_assoc($result);
 
 // Update profile
@@ -26,32 +19,32 @@ if(isset($_POST['update'])){
     $course = mysqli_real_escape_string($conn, $_POST['course'] ?? '');
     $year_level = mysqli_real_escape_string($conn, $_POST['year_level'] ?? '');
     $contact_no = mysqli_real_escape_string($conn, $_POST['contact_no'] ?? '');
-    $birthdate = mysqli_real_escape_string($conn, $_POST['birthdate'] ?? '');
     $gender = mysqli_real_escape_string($conn, $_POST['gender'] ?? '');
     $address = mysqli_real_escape_string($conn, $_POST['address'] ?? '');
     $guardian_name = mysqli_real_escape_string($conn, $_POST['guardian_name'] ?? '');
     $emergency_contact = mysqli_real_escape_string($conn, $_POST['emergency_contact'] ?? '');
     $bio = mysqli_real_escape_string($conn, $_POST['bio'] ?? '');
 
-    // Keep old image
+    // Handle birthdate safely (set to NULL if empty)
+    if (!empty($_POST['birthdate'])) {
+        $birthdate_val = "'" . mysqli_real_escape_string($conn, $_POST['birthdate']) . "'";
+    } else {
+        $birthdate_val = "NULL";
+    }
+
+    // Keep old image data by default
     $profile_image = $user['profile_image'];
 
-    // Upload new image
+    // Process image upload into Base64 (stored directly in DB)
     if(isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == 0){
         $file = $_FILES['profile_image'];
-        $extension = strtolower(
-            pathinfo($file['name'], PATHINFO_EXTENSION)
-        );
-
+        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         $allowed = ["jpg", "jpeg", "png", "webp"];
 
         if(in_array($extension, $allowed)){
-            $newName = "profile_".$user_id."_".time().".".$extension;
-            $uploadPath = "uploads/".$newName;
-
-            if(move_uploaded_file($file['tmp_name'], $uploadPath)){
-                $profile_image = $newName;
-            }
+            $image_data = file_get_contents($file['tmp_name']);
+            $base64_image = 'data:image/' . $extension . ';base64,' . base64_encode($image_data);
+            $profile_image = mysqli_real_escape_string($conn, $base64_image);
         }
     }
 
@@ -61,7 +54,7 @@ if(isset($_POST['update'])){
     course='$course',
     year_level='$year_level',
     contact_no='$contact_no',
-    birthdate='$birthdate',
+    birthdate=$birthdate_val,
     gender='$gender',
     address='$address',
     guardian_name='$guardian_name',
@@ -81,7 +74,7 @@ if(isset($_POST['update'])){
         </script>";
         exit();
     }else{
-        echo mysqli_error($conn);
+        echo "Database Error: " . mysqli_error($conn);
     }
 }
 ?>
@@ -101,11 +94,11 @@ if(isset($_POST['update'])){
 <div class="profile-header">
 
 <div class="profile-avatar">
-<?php if(!empty($user['profile_image'])){ ?>
-<img src="uploads/<?php echo htmlspecialchars($user['profile_image']); ?>" alt="Profile">
-<?php }else{ ?>
+<?php if(!empty($user['profile_image'])): ?>
+<img src="<?php echo $user['profile_image']; ?>" alt="Profile">
+<?php else: ?>
 <?php echo strtoupper(substr($user['fullname'] ?? 'U', 0, 1)); ?>
-<?php } ?>
+<?php endif; ?>
 </div>
 
 <h2>Edit Profile</h2>
