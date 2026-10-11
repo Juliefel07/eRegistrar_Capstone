@@ -1,273 +1,58 @@
 <?php
-
 session_start();
+require_once __DIR__ . "/includes/db.php";
 
-
-if(!isset($_SESSION['reset_user'])){
-
-    header("Location: login.php");
+// Ensure user passed the code verification step
+if (!isset($_SESSION['verified_reset']) || !$_SESSION['verified_reset'] || !isset($_SESSION['reset_email'])) {
+    header("Location: forgot_password.php");
     exit();
-
 }
-
-
-// Generate captcha
-
-$captcha = substr(
-    str_shuffle("ABCDEFGHJKLMNPQRSTUVWXYZ23456789"),
-    0,
-    6
-);
-
-
-$_SESSION['captcha'] = $captcha;
-
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Reset Password</title>
+    <title>New Password</title>
     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <link rel="stylesheet" href="assets/css/style.css">
-
 </head>
-
-
 <body>
 
-
-<?php
-
-if(isset($_SESSION['error'])){
-
-?>
-
+<?php if (isset($_SESSION['error'])): ?>
 <div class="modal-error" id="errorModal">
-
     <div class="modal-box">
-
         <h3>Error</h3>
-
-        <p>
-            <?php echo $_SESSION['error']; ?>
-        </p>
-
-        <button onclick="closeModal()">
-            OK
-        </button>
-
+        <p><?php echo $_SESSION['error']; ?></p>
+        <button onclick="closeModal('errorModal')">OK</button>
     </div>
-
 </div>
+<?php unset($_SESSION['error']); endif; ?>
 
-
-<?php
-
-unset($_SESSION['error']);
-
-}
-
-?>
-
-
-
-<div class="reset-wrapper">
-        <a href="index.php" class="back-button">
-            Back 
-        </a>
-
-
-
-    <!-- LEFT IMAGE -->
-
+<div class="login-wrapper">
     <div class="login-image">
-
-        <img src="assets/images/reset-illustration.png"
-             alt="Reset Password">
-
+        <img src="assets/images/reset-illustration.png" alt="New Password Illustration">
     </div>
-
-
-
-
-
-    <!-- RIGHT FORM -->
-
-    <div class="reset-card">
-
-
-
-        <img src="assets/images/logosss.png"
-             alt="eRegistrar Logo"
-             class="logo">
-
-
-
-        <h2>
-            Reset Password
-        </h2>
-
-
-
-        <p class="description">
-            Create your new password.
-        </p>
-
-
-
-
+    <div class="login-card">
+        <img src="assets/images/logosss.png" alt="eRegistrar Logo" class="logo">
+        <h2>New Password</h2>
+        <p class="description">Create your new password.</p>
 
         <form action="reset_password_process.php" method="POST">
+            <label>Enter New Password</label>
+            <input type="password" name="password" placeholder="At least 8 characters" required>
 
+            <label>Confirm Password</label>
+            <input type="password" name="confirm_password" placeholder="Confirm password" required>
 
-
-            <label>
-                New Password
-            </label>
-
-
-            <input
-            type="password"
-            name="password"
-            placeholder="Enter new password"
-            required>
-
-
-
-
-
-            <label>
-                Confirm Password
-            </label>
-
-
-            <input
-            type="password"
-            name="confirm_password"
-            placeholder="Confirm password"
-            required>
-
-
-
-
-
-            <label>
-                Captcha Code
-            </label>
-
-
-<div class="captcha-box">
-
-
-    <input
-    type="text"
-    name="captcha"
-    placeholder="Enter code"
-    required>
-
-
-    <span class="captcha">
-
-        <?php echo $_SESSION['captcha']; ?>
-
-    </span>
-
-
-</div>
-
-<div class="human-check">
-
-    <label class="robot-box">
-
-        <input
-            type="checkbox"
-            name="human_check"
-            value="yes"
-            >
-
-        <span class="checkmark"></span>
-
-        <span class="robot-text">
-            I'm not a robot
-        </span>
-
-        <img src="assets/images/recaptcha.png"
-             alt="Captcha"
-             class="captcha-logo">
-
-    </label>
-
-</div>
-
-
-
-
-
-            <button type="submit">
-
-                Change Password
-
-            </button>
-
-
-
+            <button type="submit" style="margin-top: 20px;">Send</button>
         </form>
-
-
-
-
-
-<p class="text-center login-footer">
-
-    Remember your password?
-
-    <a href="login.php">
-        Login Here
-    </a>
-
-</p>
-
-
     </div>
-
-
-
 </div>
-
-
-
-
 
 <script>
-
-function closeModal(){
-
-    document.getElementById("errorModal").style.display="none";
-
-}
-
+function closeModal(id) { document.getElementById(id).style.display = "none"; }
 </script>
-
-
-<div id="errorModal" class="modal">
-    <div class="modal-content">
-        <h3>Error</h3>
-        <p id="modalMessage"></p>
-
-        <button type="button" onclick="closeModal()">
-            OK
-        </button>
-    </div>
-</div>
 </body>
-
 </html>

@@ -3,147 +3,88 @@ session_start();
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Forgot Password</title>
     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <link rel="stylesheet" href="assets/css/style.css">
-
 </head>
-
 
 <body>
 
-
 <?php
-
-if(isset($_SESSION['error'])){
-
+// Display Error Message Modal
+if (isset($_SESSION['error'])) {
 ?>
-
 <div class="modal-error" id="errorModal">
-
     <div class="modal-box">
-
         <h3>Error</h3>
-
-        <p>
-            <?php echo $_SESSION['error']; ?>
-        </p>
-
-        <button onclick="closeModal()">
-            OK
-        </button>
-
+        <p><?php echo $_SESSION['error']; ?></p>
+        <button onclick="closeModal('errorModal')">OK</button>
     </div>
-
 </div>
-
-
 <?php
-
-unset($_SESSION['error']);
-
+    unset($_SESSION['error']);
 }
-
 ?>
 
-
+<?php
+// Display Success Modal with your requested message
+if (isset($_SESSION['success'])) {
+?>
+<div class="modal-error" id="successModal">
+    <div class="modal-box">
+        <h3>Success</h3>
+        <p><?php echo $_SESSION['success']; ?></p>
+        <button onclick="closeModal('successModal')">OK</button>
+    </div>
+</div>
+<?php
+    unset($_SESSION['success']);
+}
+?>
 
 <div class="login-wrapper">
 
-
     <div class="login-image">
-
-        <img src="assets/images/login-illustration.png"
-             alt="Forgot Password">
-
+        <img src="assets/images/login-illustration.png" alt="Forgot Password">
     </div>
-
-
-
 
     <div class="login-card">
 
+        <img src="assets/images/logosss.png" alt="eRegistrar Logo" class="logo">
 
-        <img src="assets/images/logosss.png"
-             alt="eRegistrar Logo"
-             class="logo">
-
-
-
-        <h2>
-            Forgot Password
-        </h2>
-
-
+        <h2>Forgot Password</h2>
 
         <p class="description">
             Enter your registered email address to reset your password.
         </p>
 
-
-
-
         <form action="forgot_password_process.php" method="POST">
 
+            <label>Email Address</label>
+            <input type="email" name="email" placeholder="Enter your email" required>
 
-            <label>
-                Email Address
-            </label>
-
-
-            <input 
-            type="email"
-            name="email"
-            placeholder="Enter your email"
-            required>
-
-
-
-            <button type="submit">
-                Continue
-            </button>
-
+            <button type="submit">Continue</button>
 
         </form>
 
-
-
         <p class="text-center">
-
-            <a href="login.php">
-                Back to Login
-            </a>
-
+            <a href="login.php">Back to Login</a>
         </p>
-
 
     </div>
 
-
-
 </div>
 
-
-
-
 <script>
-
-function closeModal(){
-
-    document.getElementById("errorModal").style.display="none";
-
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = "none";
 }
-
 </script>
 
-
 </body>
-
 </html>

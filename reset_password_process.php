@@ -1,161 +1,49 @@
 <?php
-
 session_start();
+require_once __DIR__ . "/includes/db.php";
 
-require_once "includes/db.php";
-
-
-// Check reset session
-
-if(!isset($_SESSION['reset_user'])){
-
-    header("Location: login.php");
-    exit();
-
-}
-
-
-
-// Get user id
-
-$user_id = $_SESSION['reset_user'];
-
-
-
-// Get form data
-
-$password = $_POST['password'];
-
-$confirm = $_POST['confirm_password'];
-
-$captcha = $_POST['captcha'];
-
-$human_check = $_POST['human_check'] ?? '';
-
-
-
-
-
-// Verify captcha
-
-if($captcha != $_SESSION['captcha']){
-
-
-    $_SESSION['error'] = "Invalid captcha code.";
-
-
-    header("Location: reset_password.php");
-
-    exit();
-
-}
-
-
-
-
-
-// Verify human checkbox
-
-$human_check = $_POST['human_check'] ?? '';
-
-if ($human_check !== 'yes') {
-    $_SESSION['error'] = "Please verify that you are human.";
-    header("Location: reset_password.php");
+if (!isset($_SESSION['verified_reset']) || !$_SESSION['verified_reset'] || !isset($_SESSION['reset_email'])) {
+    header("Location: forgot_password.php");
     exit();
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = $_SESSION['reset_email'];
+    $password = $_POST['password'] ?? '';
+    $confirm = $_POST['confirm_password'] ?? '';
 
+    if (strlen($password) < 8) {
+        $_SESSION['error'] = "Password must be at least 8 characters long.";
+        header("Location: reset_password.php");
+        exit();
+    }
 
+    if ($password !== $confirm) {
+        $_SESSION['error'] = "Passwords do not match.";
+        header("Location: reset_password.php");
+        exit();
+    }
 
-// Check password match
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    $email_escaped = mysqli_real_escape_string($conn, $email);
 
-if($password != $confirm){
+    // Update password and clear reset tokens
+    $update = mysqli_query($conn, "UPDATE users SET password = '$hashed_password', reset_token = NULL, token_expiry = NULL WHERE email = '$email_escaped'");
 
+    if ($update) {
+        // Clear all reset session data
+        unset($_SESSION['reset_email']);
+        unset($_SESSION['verified_reset']);
 
-    $_SESSION['error'] = "Passwords do not match.";
-
-
-    header("Location: reset_password.php");
-
+        header("Location: login.php?reset=success");
+        exit();
+    } else {
+        $_SESSION['error'] = "Failed to update password. Please try again.";
+        header("Location: reset_password.php");
+        exit();
+    }
+} else {
+    header("Location: forgot_password.php");
     exit();
-
 }
-
-
-
-
-
-// Encrypt password
-
-$hashed_password = password_hash(
-
-    $password,
-
-    PASSWORD_DEFAULT
-
-);
-
-
-
-
-
-
-// Update password
-
-$update = mysqli_query($conn,
-
-
-"
-
-UPDATE users
-
-SET password='$hashed_password'
-
-WHERE user_id='$user_id'
-
-"
-
-
-);
-
-
-
-
-
-
-
-if($update){
-
-
-    // Clear reset sessions
-
-    unset($_SESSION['reset_user']);
-
-    unset($_SESSION['captcha']);
-
-
-
-    header("Location: login.php?reset=success");
-
-
-    exit();
-
-
-
-}else{
-
-
-    $_SESSION['error'] = "Failed to update password.";
-
-
-    header("Location: reset_password.php");
-
-
-    exit();
-
-
-}
-
-
-
 ?>
