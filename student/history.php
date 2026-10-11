@@ -550,9 +550,15 @@ if (!$result) {
                 }
 
                 let fileName = names[index] ? names[index].trim() : ('File ' + (index + 1));
-                let fileStatus = statuses[index] ? statuses[index].trim() : 'Pending';
-                let fileRemark = remarks[index] ? remarks[index].trim() : '';
-                let fileExt = fileName.split('.').pop().toLowerCase();
+        let fileStatus = statuses[index] ? statuses[index].trim() : 'Pending';
+        let fileRemark = remarks[index] ? remarks[index].trim() : '';
+        
+        // Extract extension from file name, or fallback to extracting it from the cleanPath URL if missing
+        let fileExt = fileName.includes('.') ? fileName.split('.').pop().toLowerCase() : '';
+        if (!['jpg', 'jpeg', 'png', 'gif', 'pdf'].includes(fileExt) && cleanPath) {
+            let urlWithoutQuery = cleanPath.split('?')[0];
+            fileExt = urlWithoutQuery.split('.').pop().toLowerCase();
+        }
 
                 htmlContent += '<div style="margin-bottom: 20px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;">';
                 
