@@ -39,22 +39,27 @@ if ($user_id) {
 }
 
 // Fetch the latest profile image directly from the database
-// Fetch the latest profile image directly from the database
 $nav_profile_img = "";
 if ($user_id && isset($conn)) {
     $n_res = mysqli_query($conn, "SELECT profile_image, fullname FROM users WHERE user_id = $user_id");
     if ($n_res && mysqli_num_rows($n_res) > 0) {
         $n_row = mysqli_fetch_assoc($n_res);
         
-        // Check if profile image exists locally (handle root vs student folder paths)
+        // Check if profile_image contains Base64 data or a physical file
         if (!empty($n_row['profile_image'])) {
-            $local_path = "uploads/" . $n_row['profile_image'];
-            $parent_path = "../student/uploads/" . $n_row['profile_image'];
-            
-            if (file_exists($local_path)) {
-                $nav_profile_img = $local_path;
-            } elseif (file_exists($parent_path)) {
-                $nav_profile_img = $parent_path;
+            if (strpos($n_row['profile_image'], 'data:image') === 0) {
+                // Base64 string stored directly from the database
+                $nav_profile_img = $n_row['profile_image'];
+            } else {
+                // Fallback for physical files
+                $local_path = "uploads/" . $n_row['profile_image'];
+                $parent_path = "../student/uploads/" . $n_row['profile_image'];
+                
+                if (file_exists($local_path)) {
+                    $nav_profile_img = $local_path;
+                } elseif (file_exists($parent_path)) {
+                    $nav_profile_img = $parent_path;
+                }
             }
         }
         
@@ -63,7 +68,8 @@ if ($user_id && isset($conn)) {
         }
     }
 }
-// Fallback to UI-Avatars if no profile picture is found or uploaded
+
+// Fallback to UI-Avatars if no profile picture is found
 if (empty($nav_profile_img)) {
     $nav_profile_img = "https://ui-avatars.com/api/?name=" . urlencode($_SESSION['fullname'] ?? 'User') . "&background=0056b3&color=fff";
 }
@@ -219,7 +225,6 @@ if (empty($nav_profile_img)) {
         font-weight: bold;
     }
 
-    /* Inline badge for links */
     .link-badge {
         background: #dc3545;
         color: #fff;
@@ -558,7 +563,7 @@ if (empty($nav_profile_img)) {
             </div>
         </form>
 
-        <!-- Notification Bell with explicit ID for live JS updates -->
+        <!-- Notification Bell -->
         <a href="notifications.php" class="icon-badge" style="text-decoration: none;">
             <i class="fa-regular fa-bell"></i>
             <span class="badge" id="navNotificationBadge" style="<?= $notification_count > 0 ? '' : 'display: none;'; ?>">
@@ -592,7 +597,7 @@ if (empty($nav_profile_img)) {
         <button id="drawerCloseBtn" style="border:none; background:none; font-size:18px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
-    <!-- Mobile Search Bar (Inside Hamburger Drawer) -->
+    <!-- Mobile Search Bar -->
     <form action="search.php" method="GET" class="mobile-search-form">
         <div class="mobile-search-pill">
             <i class="fa-solid fa-magnifying-glass" style="color: #aaa; font-size: 12px;"></i>
