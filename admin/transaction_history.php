@@ -42,7 +42,7 @@ if (!empty($search_query) && !empty($columns)) {
     $safe_search = mysqli_real_escape_string($conn, $search_query);
     $search_conditions = [];
     
-    $possible_search_cols = ['tracking_number', 'reference_no', 'student_name', 'fullname', 'name', 'document_type', 'doc_type', 'document'];
+    $possible_search_cols = ['tracking_number', 'reference_no', 'student_name', 'fullname', 'name', 'document_type', 'doc_type', 'document', 'student_no'];
     foreach ($possible_search_cols as $col) {
         if (in_array($col, $columns)) {
             $search_conditions[] = "r.$col LIKE '%$safe_search%'";
@@ -56,15 +56,18 @@ if (!empty($search_query) && !empty($columns)) {
 
 $where_sql = count($where_clauses) > 0 ? "WHERE " . implode(" AND ", $where_clauses) : "";
 
-// Check if processed_by and document joins are valid
+// Check if processed_by join is valid
 $has_processed_by = in_array('processed_by', $columns);
 
 $processor_select = $has_processed_by ? "u.fullname AS processor_name" : "'System Admin' AS processor_name";
 $processor_join = $has_processed_by ? "LEFT JOIN users u ON r.processed_by = u.user_id" : "";
 
-$query = "SELECT r.*, d.document_name, $processor_select 
+// Safe query joining users table for student number if available
+$query = "SELECT r.*, d.document_name, $processor_select, 
+          u_student.student_no AS user_student_no 
           FROM requests r 
           LEFT JOIN documents d ON r.document_id = d.document_id 
+          LEFT JOIN users u_student ON r.user_id = u_student.user_id 
           $processor_join 
           $where_sql 
           ORDER BY r.$sort_column DESC LIMIT 100";
@@ -189,7 +192,6 @@ $transactions_result = @mysqli_query($conn, $query);
             background-color: var(--primary-hover);
         }
 
-        /* Table Card Styling */
         .table-card {
             background: var(--card-bg);
             border-radius: var(--radius-md);
@@ -340,8 +342,8 @@ $transactions_result = @mysqli_query($conn, $query);
         }
 
         .modal-close:hover {
-            background: var(--danger-bg, #fee2e2);
-            color: var(--danger, #ef4444);
+            background: #fee2e2;
+            color: #ef4444;
         }
 
         .modal-body {
@@ -464,22 +466,28 @@ $transactions_result = @mysqli_query($conn, $query);
                 <tbody>
                     <?php if ($transactions_result && mysqli_num_rows($transactions_result) > 0): ?>
                         <?php while ($row = mysqli_fetch_assoc($transactions_result)): ?>
-    <?php 
-        $date_val = $row['request_date'] ?? $row['created_at'] ?? $row['date_requested'] ?? null;
-        $formatted_date = $date_val ? date("M d, Y • h:i A", strtotime($date_val)) : 'N/A';
-        
-        $ref_val = $row['tracking_no'] ?? $row['tracking_number'] ?? $row['reference_no'] ?? ('REQ-' . $row['request_id']);
-        $student_name = $row['fullname'] ?? $row['student_name'] ?? 'N/A';
-        
-        // <--- THIS IS THE PART YOU ARE LOOKING FOR:
-        $doc_type = $row['document_name'] ?? $row['document_type'] ?? $row['doc_type'] ?? $row['document'] ?? $row['type'] ?? 'N/A';
-        
-        $processed_by = $row['processor_name'] ?? 'System / Registrar Admin';
-        $purpose = $row['purpose'] ?? 'N/A';
-        $copies = $row['quantity'] ?? $row['copies'] ?? '1';
-    ?>
-    <tr>
-        <!-- Table columns continue here -->
+                            <?php 
+                                $date_val = $row['request_date'] ?? $row['created_at'] ?? $row['date_requested'] ?? null;
+                                $formatted_date = $date_val ? date("M d, Y • h:i A", strtotime($date_val)) : 'N/A';
+                                
+                                $ref_val = $row['tracking_no'] ?? $row['tracking_number'] ?? $row['reference_no'] ?? ('REQ-' . $row['request_id']);
+                                $student_name = $row['fullname'] ?? $row['student_name'] ?? 'N/A';
+                                
+                                // Safely retrieve student number from requests table or joined user table account
+                                $student_no = 'N/A';
+                                if (!empty($row['student_no'])) {
+                                    $student_no = $row['student_no'];
+                                } elseif (!empty($row['user_student_no'])) {
+                                    $student_no = $row['user_student_no'];
+                                }
+                                
+                                $doc_type = $row['document_name'] ?? $row['document_type'] ?? $row['doc_type'] ?? $row['document'] ?? $row['type'] ?? 'N/A';
+                                
+                                $processed_by = $row['processor_name'] ?? 'System / Registrar Admin';
+                                $purpose = $row['purpose'] ?? 'N/A';
+                                $copies = $row['quantity'] ?? $row['copies'] ?? '1';
+                            ?>
+                            <tr>
                                 <td><strong><?= htmlspecialchars($ref_val); ?></strong></td>
                                 <td><?= htmlspecialchars($student_name); ?></td>
                                 <td><span style="font-weight: 500; color: var(--primary);"><?= htmlspecialchars($doc_type); ?></span></td>
@@ -491,7 +499,7 @@ $transactions_result = @mysqli_query($conn, $query);
                                     <button type="button" class="btn-view" 
                                         data-ref="<?= htmlspecialchars($ref_val); ?>"
                                         data-name="<?= htmlspecialchars($student_name); ?>"
-                                        data-idno="<?= htmlspecialchars($id_no); ?>"
+                                        data-idno="<?= htmlspecialchars($student_no); ?>"
                                         data-doctype="<?= htmlspecialchars($doc_type); ?>"
                                         data-copies="<?= htmlspecialchars($copies); ?>"
                                         data-purpose="<?= htmlspecialchars($purpose); ?>"

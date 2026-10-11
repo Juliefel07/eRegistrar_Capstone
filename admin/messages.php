@@ -14,27 +14,31 @@ $student_id = isset($_GET['student_id']) ? (int)$_GET['student_id'] : null;
 $pk_check = mysqli_query($conn, "SHOW COLUMNS FROM users LIKE 'user_id'");
 $id_col = ($pk_check && mysqli_num_rows($pk_check) > 0) ? 'user_id' : 'id';
 
-// Helper function to handle Cloudinary and local profile avatars safely
-// Helper function to handle Cloudinary and local profile avatars safely
+// Helper function to handle Base64 images, Cloudinary URLs, and local file paths safely
 function getStudentAvatar($img_path) {
     if (empty($img_path)) return null;
     $img_path = trim($img_path);
     
-    // If it's a Cloudinary URL or absolute web link, return it directly
-    if (preg_match('/^https?:\/\//i', $img_path)) {
+    // Ignore invalid placeholder strings stored in the database
+    if (in_array(strtolower($img_path), ['profile', 'profil', 'default', 'default.png', 'avatar.png', 'none', 'null'])) {
+        return null;
+    }
+    
+    // If it's a Base64 image data string or a web URL, return it directly
+    if (strpos($img_path, 'data:image/') === 0 || preg_match('/^https?:\/\//i', $img_path)) {
         return $img_path;
     }
     
     // If it's stored as a relative filename, point it to the uploads folder
-    $clean_name = ltrim(str_replace(['../', 'student/uploads/', 'assets/uploads/'], '', $img_path), '/');
+    $clean_name = ltrim(str_replace(['../', 'student/uploads/', 'admin/uploads/', 'assets/uploads/'], '', $img_path), '/');
     
-    // If running on localhost and files are in student uploads or assets
-    if (!empty($clean_name)) {
+    if (!empty($clean_name) && !in_array(strtolower($clean_name), ['profile', 'profil', 'default'])) {
         return "../student/uploads/" . $clean_name;
     }
     
     return null;
 }
+
 // 1. AJAX ENDPOINT FOR REAL-TIME UNREAD CHECK
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'check_unread') {
     header('Content-Type: application/json');
@@ -81,11 +85,10 @@ if ($student_id) {
 }
 
 // 4. FETCH ALL USERS/STUDENTS WHO MESSAGED THE SYSTEM
-// 4. FETCH ALL USERS/STUDENTS WHO MESSAGED THE SYSTEM
 $students = mysqli_query($conn, "
     SELECT 
         u.{$id_col} AS student_id,
-        u.fullname,
+        COALESCE(u.fullname, 'Unknown User') AS fullname,
         COALESCE(u.profile_image, u.profile_pic, '') AS profile_image,
         (SELECT COUNT(*) FROM messages m1 
          WHERE m1.sender_id = u.{$id_col} 
@@ -106,8 +109,14 @@ $student_name = "";
 $name_data = null;
 
 if ($student_id) {
-    $name_query = mysqli_query($conn, "SELECT fullname, COALESCE(profile_image, profile_pic, '') AS profile_image FROM users WHERE {$id_col} = '$student_id'");
-    // ... rest of your code
+    $name_query = mysqli_query($conn, "
+        SELECT 
+            COALESCE(fullname, 'Unknown User') AS fullname, 
+            COALESCE(profile_image, profile_pic, '') AS profile_image 
+        FROM users 
+        WHERE {$id_col} = '$student_id'
+    ");
+    
     if ($name_query) {
         $name_data = mysqli_fetch_assoc($name_query);
         if ($name_data) {
@@ -270,6 +279,7 @@ if ($student_id) {
             border-bottom: 1px solid #f1f5f9;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 14px;
         }
 
@@ -278,6 +288,24 @@ if ($student_id) {
             font-size: 1.05rem;
             font-weight: 700;
             color: #0f172a;
+        }
+
+        .btn-view-profile {
+            background: #f1f5f9;
+            color: #2563eb;
+            padding: 8px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .btn-view-profile:hover {
+            background: #e2e8f0;
         }
 
         .admin-chat-body {
@@ -483,20 +511,29 @@ if ($student_id) {
         <div class="admin-chat">
             <?php if ($chat): ?>
                 <div class="admin-chat-header">
-                    <div class="student-avatar">
-                        <?php 
-                            $chat_avatar_path = getStudentAvatar($name_data['profile_image'] ?? '');
-                            $chat_initial = strtoupper(substr($student_name ?? 'U', 0, 1));
-                        ?>
-                        <?php if ($chat_avatar_path): ?>
-                            <img src="<?php echo htmlspecialchars($chat_avatar_path); ?>" alt="Profile" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <span style="display:none; width:100%; height:100%; align-items:center; justify-content:center;"><?php echo $chat_initial; ?></span>
-                        <?php else: ?>
-                            <?php echo $chat_initial; ?>
-                        <?php endif; ?>
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <div class="student-avatar">
+                            <?php 
+                                $chat_avatar_path = getStudentAvatar($name_data['profile_image'] ?? '');
+                                $chat_initial = strtoupper(substr($student_name ?? 'U', 0, 1));
+                            ?>
+                            <?php if ($chat_avatar_path): ?>
+                                <img src="<?php echo htmlspecialchars($chat_avatar_path); ?>" alt="Profile" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <span style="display:none; width:100%; height:100%; align-items:center; justify-content:center;"><?php echo $chat_initial; ?></span>
+                            <?php else: ?>
+                                <?php echo $chat_initial; ?>
+                            <?php endif; ?>
+                        </div>
+                        <div>
+                            <h3><?php echo htmlspecialchars($student_name); ?></h3>
+                            <small style="color: #64748b; font-size: 0.78rem;">Active Conversation</small>
+                        </div>
                     </div>
-                    <h3><?php echo htmlspecialchars($student_name); ?></h3>
-                </div>
+                    
+                    <!-- View Profile Button -->
+<a href="student_profile.php?id=<?php echo $student_id; ?>" class="btn-view-profile">
+    <i class="fa-solid fa-user"></i> View Profile
+</a>
 
                 <div class="admin-chat-body" id="chatBox">
                     <?php while ($row = mysqli_fetch_assoc($chat)): ?>
