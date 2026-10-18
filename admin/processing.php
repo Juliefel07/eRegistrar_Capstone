@@ -3,6 +3,7 @@ session_start();
 
 require_once __DIR__ . "/../includes/db.php";
 require_once __DIR__ . "/../includes/notification.php";
+require_once __DIR__ . "/../includes/send_verification.php"; // Include Brevo email functions
 
 // Check if user is logged in and has Admin or Staff role
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array($_SESSION['role'], ['Admin', 'Staff'])) {
@@ -18,9 +19,11 @@ $id = intval($_GET['id']);
 $admin_id = intval($_SESSION['user_id']);
 
 $get = mysqli_query($conn, "
-    SELECT user_id, tracking_no 
-    FROM requests 
-    WHERE request_id = '$id'
+    SELECT r.user_id, r.tracking_no, u.email, u.fullname, d.document_name 
+    FROM requests r
+    JOIN users u ON r.user_id = u.user_id
+    JOIN documents d ON r.document_id = d.document_id
+    WHERE r.request_id = '$id'
 ");
 
 $data = mysqli_fetch_assoc($get);
@@ -37,10 +40,20 @@ $sql = "
 ";
 
 if (mysqli_query($conn, $sql)) {
+    // 1. System Dashboard Notification
     createNotification(
         $conn,
         $data['user_id'],
         "Your request " . $data['tracking_no'] . " is now being processed."
+    );
+
+    // 2. Brevo API Email Notification
+    sendStatusUpdateEmail(
+        $data['email'],
+        $data['fullname'],
+        $data['tracking_no'],
+        'Processing',
+        $data['document_name']
     );
 
     header("Location: requests.php");
