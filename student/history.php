@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_proof'])) {
                 
                 // Cloudinary Configuration
                 $cloud_name = "wfz1gkkl"; 
-                $upload_preset = "eregistrar_preset";
+                $upload_preset = "custom_media_preset";
 
                 $target_url = "https://api.cloudinary.com/v1_1/" . $cloud_name . "/image/upload";
                 
