@@ -15,6 +15,10 @@ session_start();
 
 <!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- ADD THIS LINE FOR THE EYE ICON -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
 /* =========================================================
@@ -168,7 +172,35 @@ body {
     font-size: 0.9rem;
     color: var(--text-light);
 }
+.input-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
 
+/* Adjust input padding so text doesn't hide under the left SVG or right eye icon */
+.input-icon-wrapper input {
+    width: 100%;
+    padding-left: 42px !important;  /* Space for the left lock SVG */
+    padding-right: 42px !important; /* Space for the right eye icon */
+}
+
+/* Style for the right-side eye icon */
+.input-icon-wrapper .toggle-password {
+    position: absolute;
+    right: 14px;
+    cursor: pointer;
+    color: var(--text-muted, #94a3b8);
+    font-size: 1rem;
+    z-index: 10;
+    transition: color 0.2s ease;
+    user-select: none;
+}
+
+.input-icon-wrapper .toggle-password:hover {
+    color: #ffffff;
+}
 /* PERFECT INPUT & ICON POSITIONING */
 .input-icon-wrapper {
     position: relative !important;
@@ -415,14 +447,19 @@ if(isset($_GET['reset'])){
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="password">Password</label>
-                <div class="input-icon-wrapper">
-                    <!-- LOCK SVG ICON -->
-                    <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                </div>
-            </div>
+           <div class="form-group">
+    <label for="password">Password</label>
+    <div class="input-icon-wrapper">
+        <!-- LOCK SVG ICON (Stays on the left) -->
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        
+        <!-- Password Input -->
+        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        
+        <!-- EYE TOGGLE ICON (Added on the right) -->
+        <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('password', this)"></i>
+    </div>
+</div>
 
             <button type="submit">Login</button>
         </form>
@@ -445,6 +482,21 @@ function closeModal(){
 
 function closeSuccessModal(){
     document.getElementById("successModal").style.display = "none";
+}
+
+function togglePasswordVisibility(inputId, iconElement) {
+    const passwordInput = document.getElementById(inputId);
+    if (!passwordInput) return;
+
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        iconElement.classList.remove("fa-eye");
+        iconElement.classList.add("fa-eye-slash");
+    } else {
+        passwordInput.type = "password";
+        iconElement.classList.remove("fa-eye-slash");
+        iconElement.classList.add("fa-eye");
+    }
 }
 </script>
 

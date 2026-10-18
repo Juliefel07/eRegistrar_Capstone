@@ -289,13 +289,14 @@ if (empty($nav_profile_img)) {
     }
 
     .user-avatar {
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid var(--light-sky);
-    }
-
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 2px solid var(--light-sky) !important;
+}
     .user-name-text {
         font-size: 0.9rem;
         font-weight: 600;
@@ -484,6 +485,13 @@ if (empty($nav_profile_img)) {
         border-color: #334155 !important;
         box-shadow: 0 10px 25px rgba(0,0,0,0.4) !important;
     }
+    .brand-e {
+    color: #3982DC !important;
+}
+
+.brand-registrar {
+    color: #ffffff !important;
+}
 
     body.dark-mode .dropdown-menu a {
         color: #e2e8f0 !important;
@@ -517,13 +525,14 @@ if (empty($nav_profile_img)) {
         </button>
 
         <a href="dashboard.php" class="nav-brand">
-            <img src="../assets/images/logo1.png" alt="eRegistrar Logo" class="brand-logo-img">
-            <div class="brand-text">
-                <h2>eRegistrar</h2>
-                
-                <span>Student Portal</span>
-            </div>
-        </a>
+    <img src="../assets/images/logo1.png" alt="eRegistrar Logo" class="brand-logo-img">
+    <div class="brand-text" style="min-width: 130px !important;">
+        <h2 style="margin: 0; font-size: 40px !important; font-weight: 800; line-height: 1.1; display: flex !important; align-items: center !important; white-space: nowrap !important;">
+            <span style="color: #3982DC !important;">e</span><span style="color: #ffffff !important;">Registrar</span>
+        </h2>
+        <span style="font-size: 0.72rem; color: #B9D4F3; font-weight: 600; display: block; margin-top: 2px; white-space: nowrap;">Student Portal</span>
+    </div>
+</a>
 
         <!-- Desktop Navigation Links -->
         <ul class="nav-links">
@@ -584,12 +593,17 @@ if (empty($nav_profile_img)) {
 <div class="drawer-overlay" id="drawerOverlay"></div>
 <div class="mobile-drawer" id="mobileDrawer">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <img src="../assets/images/logo1.png" alt="Logo" style="width: 40px; height: 40px; object-fit: contain;">
-            <h3 style="margin: 0; font-size: 1.1rem; color: #2e1bdd; font-weight: 800;">eRegistrar</h3>
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <img src="../assets/images/logo1.png" alt="Logo" style="width: 40px; height: 40px; object-fit: contain;">
+        <div style="display: flex; flex-direction: column;">
+            <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #ffffff; line-height: 1.2;">
+                <span style="color: #3982DC;">e</span>Registrar
+            </h3>
+            <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 600; margin-top: 2px; text-transform: uppercase;">Student Portal</span>
         </div>
-        <button id="drawerCloseBtn" style="border:none; background:rgba(255,255,255,0.1); color:#ffffff; width: 32px; height: 32px; border-radius: 50%; font-size:1rem; cursor:pointer; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-xmark"></i></button>
     </div>
+    <button id="drawerCloseBtn" style="border:none; background:rgba(255,255,255,0.1); color:#ffffff; width: 32px; height: 32px; border-radius: 50%; font-size:1rem; cursor:pointer; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-xmark"></i></button>
+</div>
 
     <!-- Mobile Search Bar -->
     <form action="search.php" method="GET" style="margin-bottom: 16px;">

@@ -562,7 +562,49 @@ body {
     align-items: center !important;
     gap: 6px !important;
 }
+@media (max-width: 768px) {
+    .form-grid {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+}
+@media (max-width: 850px) {
+    /* Equalize button container layout */
+    .step-buttons, 
+    .form-buttons, 
+    .btn-container {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 12px !important;
+        width: 100% !important;
+        margin-top: 20px !important;
+    }
 
+    /* Force both Back and Next buttons to have matching height & flex behavior */
+    .step-buttons button,
+    .step-buttons .btn-secondary,
+    .step-buttons .btn-next,
+    .step-buttons .btn-submit,
+    #parentBack,
+    #parentNext,
+    #toStep2,
+    #toStep3,
+    #toStep4 {
+        flex: 1 !important; /* Makes both buttons take equal 50% width */
+        height: 48px !important; /* Fixed touch-friendly height for both */
+        min-height: 48px !important;
+        max-height: 48px !important;
+        line-height: normal !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 !important;
+        padding: 0 16px !important;
+        font-size: 0.95rem !important;
+        box-sizing: border-box !important;
+    }
+}
 /* RESPONSIVE */
 @media (max-width: 900px) {
     .register-container {

@@ -360,6 +360,130 @@ body {
         padding: 24px 16px;
         overflow-y: auto;
     }
+    /* =========================================================
+   MOBILE INPUT & FORM GRID OPTIMIZATION
+   ========================================================= */
+
+/* Ensure form containers handle scrolling cleanly on mobile */
+.right-panel form {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.form-step {
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+/* Base input styles for touch targets */
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100% !important;
+    font-size: 16px !important; /* Prevents iOS auto-zoom on focus */
+    padding: 12px 14px !important;
+    border-radius: var(--radius-md, 12px) !important;
+    box-sizing: border-box !important;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   RESPONSIVE LAYOUT FOR MOBILE SCREENS (≤ 768px)
+   ========================================================= */
+@media (max-width: 768px) {
+    /* Stack 2-column grids into a single vertical column */
+    .form-grid, 
+    .grid-2, 
+    .student-card .form-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    .form-group {
+        width: 100% !important;
+        margin-bottom: 0 !important;
+    }
+
+    .form-group label {
+        font-size: 0.85rem !important;
+        margin-bottom: 6px !important;
+        display: block !important;
+    }
+
+    /* Make buttons easy to tap with thumbs */
+    .step-buttons,
+    .btn-container {
+        display: flex !important;
+        gap: 10px !important;
+        margin-top: 16px !important;
+        padding-bottom: 10px !important;
+    }
+
+    .step-buttons button,
+    .btn-next,
+    .btn-secondary,
+    .btn-submit {
+        flex: 1 !important;
+        padding: 12px 16px !important;
+        font-size: 0.95rem !important;
+        min-height: 48px !important; /* Mobile touch target standard */
+    }
+
+    /* Adjust padding in step review & linked student card */
+    .review-card,
+    .student-card {
+        padding: 16px !important;
+        margin-bottom: 12px !important;
+    }
+    /* =========================================================
+   STRICT SIZING FOR BUTTON CONTAINER & BOTH BUTTONS
+   ========================================================= */
+
+/* Make button row align side-by-side with equal width */
+.step-buttons, 
+.form-buttons, 
+.btn-container,
+.step-navigation {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    width: 100% !important;
+    margin-top: 16px !important;
+}
+
+/* Force EVERY button in the steps to have identical dimensions */
+.step-buttons button,
+.step-buttons a,
+.form-buttons button,
+.btn-container button,
+.step-navigation button,
+#toStep2, #toStep3, #toStep4,
+#parentBack, #parentNext {
+    flex: 1 1 0% !important; /* Forces both buttons to split 50/50 evenly */
+    height: 44px !important;   /* Matching compact height */
+    min-height: 44px !important;
+    max-height: 44px !important;
+    padding: 0 16px !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    border-radius: 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+}
+    .review-item {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        font-size: 0.85rem !important;
+        padding: 8px 0 !important;
+    }
+}
 }
 </style>
 
