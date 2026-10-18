@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reupload_single_file'
                 
                 // Cloudinary Configuration
                 $cloud_name = "wfz1gkkl"; 
-                $upload_preset = "eregistrar_preset";
+                $upload_preset = "custom_media_preset";
                 $target_url = "https://api.cloudinary.com/v1_1/" . $cloud_name . "/image/upload";
                 
                 $data = [
