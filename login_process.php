@@ -153,7 +153,7 @@ if (isset($_GET['reset'])) {
     <!-- LOGIN CARD -->
     <div class="login-card">
 
-        <img src="assets/images/logosss.png" alt="eRegistrar Logo" class="logo">
+        <img src="assets/images/logo1.png" alt="eRegistrar Logo" class="logo">
 
         <h2>eRegistrar</h2>
 

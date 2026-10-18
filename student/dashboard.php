@@ -45,6 +45,8 @@ $student_announcements = mysqli_query($conn, "
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts for Cursive Style -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
     <title>eRegistrar - Student Portal</title>
     <!-- Anti-Flicker Script: Load dark mode before page render -->
 <script>
@@ -93,26 +95,51 @@ $student_announcements = mysqli_query($conn, "
             padding: 20px 16px;
         }
 
-        /* Hero Banner */
+        /* Hero Banner with Background Image & Gradient Overlay */
         .hero-banner {
-            background: linear-gradient(135deg, #0056b3, #002d62);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(0, 86, 179, 0.75) 100%), 
+                        url('../assets/images/welcome-admin.png') no-repeat center center / cover;
             color: white;
             border-radius: var(--radius-lg);
-            padding: 30px;
+            padding: 36px;
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 4px 14px rgba(0,86,179,0.15);
+            position: relative;
+            overflow: hidden;
         }
 
         .hero-text h1 {
-            font-size: 24px;
-            margin-bottom: 8px;
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        /* Cursive Styling for "Welcome back," */
+        .hero-text .welcome-text {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.8rem;
+            font-weight: 400;
+            color: #ffffff;
+            display: block;
+            margin-bottom: -10px;
+        }
+
+        /* Cursive Styling for Student Name */
+        .hero-text .student-name {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3.5rem;
+            font-weight: 400;
+            color: #578EF5; /* Glowing gold */
+            text-shadow: 0 2px 20px rgba(253, 224, 71, 0.4);
+            display: inline-block;
         }
 
         .hero-text p {
-            font-size: 13px;
+            font-size: 14px;
             opacity: 0.9;
             margin-bottom: 20px;
             max-width: 500px;
@@ -326,10 +353,8 @@ $student_announcements = mysqli_query($conn, "
                 font-weight: bold;
                 color: var(--text-muted);
             }
-            
         }
     </style>
-    
 </head>
 <body>
 
@@ -342,7 +367,10 @@ $student_announcements = mysqli_query($conn, "
         <!-- Hero Section -->
         <section class="hero-banner">
             <div class="hero-text">
-                <h1>Welcome back, <?= htmlspecialchars($_SESSION['fullname']); ?></h1>
+                <h1>
+                    <span class="welcome-text">Welcome back,</span>
+                    <span class="student-name"><?= htmlspecialchars($_SESSION['fullname']); ?></span> !
+                </h1>
                 <p>Manage your document requests, monitor progress, and receive real-time updates from the Registrar's Office.</p>
                 <a href="request.php" class="btn-request"><i class="fa-solid fa-file-circle-plus"></i> Request Document</a>
             </div>

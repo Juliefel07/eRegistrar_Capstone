@@ -47,6 +47,7 @@ $claimed_count = mysqli_fetch_assoc($result)['total'] ?? 0;
     <link rel="stylesheet" href="../assets/css/dashboard.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
 
     <style>
         /* Modern Base Styles */
@@ -66,19 +67,22 @@ $claimed_count = mysqli_fetch_assoc($result)['total'] ?? 0;
         }
 
         /* Hero Welcome Banner */
-        .dashboard-welcome {
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #2563eb 80%, #60a5fa 100%);
-            border-radius: 14px;
-            padding: 36px;
-            color: #ffffff;
-            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25), 0 8px 10px -6px rgba(15, 23, 42, 0.25);
-            margin-bottom: 28px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+        /* Hero Welcome Banner with Background Image */
+.dashboard-welcome {
+    /* Replace '../assets/images/your-banner-bg.jpg' with the actual path to your image */
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 58, 138, 0.75) 100%), 
+                url('../assets/images/welcome-admin.png') no-repeat center center / cover;
+    border-radius: 14px;
+    padding: 36px;
+    color: #ffffff;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25), 0 8px 10px -6px rgba(15, 23, 42, 0.25);
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
         .dashboard-welcome-content {
             position: relative;
@@ -121,22 +125,37 @@ $claimed_count = mysqli_fetch_assoc($result)['total'] ?? 0;
         }
 
         /* Large Multi-Line Title Styling */
-        .dashboard-welcome h2 {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: #ffffff;
-            margin: 0 0 12px 0;
-            line-height: 1.15;
-            letter-spacing: -0.5px;
-        }
+        /* Hero Welcome Banner Typography */
+.dashboard-welcome h2 {
+    font-size: 2.3rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 14px 0;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    font-family: 'Inter', 'Segoe UI', sans-serif; /* Clean, modern font */
+}
 
-        /* Admin Name Highlight */
-        .dashboard-welcome h2 .admin-name {
-            color: #fde047; /* Glowing gold */
-            font-weight: 900;
-            text-shadow: 0 2px 12px rgba(253, 224, 71, 0.35);
-        }
+/* Style for "Welcome back," specifically */
+.dashboard-welcome h2 .welcome-text {
+    font-family: 'Great Vibes', cursive;
+    font-size: 3rem; /* Makes the cursive text stand out nicely */
+    font-weight: 400;
+    color: #e9eff3; /* Optional: Matching gold color, or change to #ffffff for pure white */
+    display: block;
+    margin-bottom: 2px;
+    letter-spacing: 1px;
+}
 
+/* Admin Name Highlight */
+.dashboard-welcome h2 .admin-name {
+    font-family: 'Great Vibes', cursive;
+    font-size: 3.5rem; /* Make the name large and prominent */
+    font-weight: 400;
+    color: #AEC4D4; /* Glowing gold */
+    text-shadow: 0 2px 20px rgba(253, 224, 71, 0.4);
+    display: inline-block;
+}
         .dashboard-welcome p {
             font-size: 1rem;
             color: rgba(255, 255, 255, 0.9);
@@ -325,9 +344,9 @@ $claimed_count = mysqli_fetch_assoc($result)['total'] ?? 0;
                     <i class="fa-solid fa-shield-halved"></i> Administrator Portal
                 </div>
                 <h2>
-                    Welcome back,<br>
-                    <span class="admin-name"><?php echo htmlspecialchars($_SESSION['fullname']); ?></span> ! 
-                </h2>
+    <span class="welcome-text">Welcome back,</span>
+    <span class="admin-name"><?php echo htmlspecialchars($_SESSION['fullname']); ?></span> ! 
+</h2>
                 <p>Manage student records, monitor document requests, and oversee registrar operations seamlessly.</p>
             </div>
             

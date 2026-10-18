@@ -35,7 +35,7 @@ if (!isset($_SESSION['verified_reset']) || !$_SESSION['verified_reset'] || !isse
         <img src="assets/images/reset-illustration.png" alt="New Password Illustration">
     </div>
     <div class="login-card">
-        <img src="assets/images/logosss.png" alt="eRegistrar Logo" class="logo">
+        <img src="assets/images/logo1.png" alt="eRegistrar Logo" class="logo">
         <h2>New Password</h2>
         <p class="description">Create your new password.</p>
 

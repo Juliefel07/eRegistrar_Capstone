@@ -11,7 +11,7 @@
 
         <h2>
 
-            <img src="../assets/images/logosss.png" 
+            <img src="../assets/images/.png" 
                  class="portal-logo">
 
             eRegistrar

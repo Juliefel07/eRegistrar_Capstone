@@ -162,29 +162,7 @@ a:hover{
     left: 20px;
     z-index: 1000;
 }
-@media screen and (max-width: 768px) {
 
-    /* Sleek Mobile Back Button */
-    .back-button {
-        position: absolute !important;
-        top: 15px !important;
-        left: 15px !important;
-        z-index: 99 !important;
-        
-        /* Adjusted sizing */
-        padding: 5px 12px !important;    /* Smaller padding */
-        font-size: 12px !important;      /* Smaller text */
-        border-radius: 6px !important;   /* Sleeker rounded corners */
-        
-        background-color: #ffffff !important;
-        color: #475569 !important;
-        border: 1px solid #cbd5e1 !important;
-        font-weight: 500 !important;
-        text-decoration: none !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
-    }
-
-}
 .back-button a {
     color: #0d6efd;
     text-decoration: none;

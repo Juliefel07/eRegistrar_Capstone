@@ -2,8 +2,9 @@
 session_start();
 require_once __DIR__ . "/../includes/db.php";
 require_once __DIR__ . "/../includes/notification.php";
+require_once __DIR__ . "/../includes/send_verification.php"; // Include Brevo email functions
 
-// Ensure admin is logged in (adjust session check based on your admin role setup)
+// Ensure admin is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../login.php");
     exit();
@@ -24,12 +25,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mysqli_stmt_bind_param($updateStmt, "i", $request_id);
             
             if (mysqli_stmt_execute($updateStmt)) {
-                // Get user_id to send notification
-                $userQuery = mysqli_query($conn, "SELECT user_id, tracking_no FROM requests WHERE request_id = $request_id");
+                // Get user details, tracking no, and document name to send notification & email
+                $userQuery = mysqli_query($conn, "
+                    SELECT u.user_id, u.email, u.fullname, r.tracking_no, d.document_name 
+                    FROM requests r
+                    JOIN users u ON r.user_id = u.user_id
+                    JOIN documents d ON r.document_id = d.document_id
+                    WHERE r.request_id = $request_id
+                ");
+                
                 if ($reqData = mysqli_fetch_assoc($userQuery)) {
+                    // System Dashboard Notification
                     createNotification($conn, $reqData['user_id'], "Your requirements for request ({$reqData['tracking_no']}) have been verified. You can now view and print your Payment Slip.");
+                    
+                    // Brevo API Email Notification
+                    sendStatusUpdateEmail(
+                        $reqData['email'], 
+                        $reqData['fullname'], 
+                        $reqData['tracking_no'], 
+                        'Payment Slip Generated', 
+                        $reqData['document_name']
+                    );
                 }
-                $success_msg = "Requirements verified successfully! Payment slip unlocked for the student.";
+                $success_msg = "Requirements verified successfully! Payment slip unlocked and notification email sent to the student.";
             } else {
                 $error_msg = "Failed to update request status.";
             }
@@ -40,11 +58,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mysqli_stmt_bind_param($updateStmt, "si", $reason, $request_id);
             
             if (mysqli_stmt_execute($updateStmt)) {
-                $userQuery = mysqli_query($conn, "SELECT user_id, tracking_no FROM requests WHERE request_id = $request_id");
+                $userQuery = mysqli_query($conn, "
+                    SELECT u.user_id, u.email, u.fullname, r.tracking_no, d.document_name 
+                    FROM requests r
+                    JOIN users u ON r.user_id = u.user_id
+                    JOIN documents d ON r.document_id = d.document_id
+                    WHERE r.request_id = $request_id
+                ");
+                
                 if ($reqData = mysqli_fetch_assoc($userQuery)) {
+                    // System Dashboard Notification
                     createNotification($conn, $reqData['user_id'], "Your request ({$reqData['tracking_no']}) was rejected. Reason: $reason");
+                    
+                    // Brevo API Email Notification
+                    sendStatusUpdateEmail(
+                        $reqData['email'], 
+                        $reqData['fullname'], 
+                        $reqData['tracking_no'], 
+                        'Rejected (Reason: ' . $reason . ')', 
+                        $reqData['document_name']
+                    );
                 }
-                $success_msg = "Request marked as rejected.";
+                $success_msg = "Request marked as rejected and email notification sent.";
             } else {
                 $error_msg = "Failed to reject request.";
             }
@@ -167,7 +202,7 @@ $result = mysqli_stmt_get_result($stmt);
                                         <form method="POST" style="display:inline-block;">
                                             <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
                                             <input type="hidden" name="action" value="verify_requirements">
-                                            <button type="submit" class="btn-sm btn-success" onclick="return confirm('Verify requirements and generate/unlock payment slip for this student?')">
+                                            <button type="submit" class="btn-sm btn-success" onclick="return confirm('Verify requirements, unlock payment slip, and email the student?')">
                                                 <i class="fa-solid fa-check"></i> Verify & Generate Slip
                                             </button>
                                         </form>
@@ -195,7 +230,7 @@ $result = mysqli_stmt_get_result($stmt);
 <div class="modal" id="rejectModal">
     <div class="modal-content">
         <h3>Reject Request</h3>
-        <p style="font-size:0.9rem; color:#666;">Please specify why this request is being rejected:</p>
+        <p style="font-size:0.9rem; color:#666;">Please specify why this request is being rejected (this will be emailed to the student):</p>
         <form method="POST" id="rejectForm">
             <input type="hidden" name="request_id" id="rejectRequestId">
             <input type="hidden" name="action" value="reject">

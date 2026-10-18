@@ -71,91 +71,121 @@ if ($user_id && isset($conn)) {
 
 // Fallback to UI-Avatars if no profile picture is found
 if (empty($nav_profile_img)) {
-    $nav_profile_img = "https://ui-avatars.com/api/?name=" . urlencode($_SESSION['fullname'] ?? 'User') . "&background=0056b3&color=fff";
+    $nav_profile_img = "https://ui-avatars.com/api/?name=" . urlencode($_SESSION['fullname'] ?? 'User') . "&background=1F5CAB&color=fff";
 }
 ?>
 
-<!-- FontAwesome for Icons -->
+<!-- Google Fonts & FontAwesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-<!-- Navbar Styles -->
 <style>
+    /* =========================================================
+       DARK ACADEMIC BLUE NAVBAR (MATCHED TO INDEX.PHP)
+       ========================================================= */
+    :root {
+        --deep-blue: #1F5CAB;
+        --bright-blue: #3982DC;
+        --sky-blue: #75AAE7;
+        --light-sky: #B9D4F3;
+        --pale-bg: #DBE9F9;
+        --navbar-dark: #0f2d59;
+        --heading-color: #0f172a;
+        --text-muted: #475569;
+        --border-color: #cbd5e1;
+        --radius-md: 12px;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+
     .navbar {
-        background: #ffffff;
-        height: 65px;
+        background-color: var(--navbar-dark) !important;
+        height: 70px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 20px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        padding: 0 32px;
+        box-shadow: 0 4px 20px rgba(15, 45, 89, 0.35);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         position: sticky;
         top: 0;
         z-index: 1000;
+        box-sizing: border-box;
     }
 
     .nav-brand {
         display: flex !important;
         align-items: center !important;
-        gap: 10px !important;
+        gap: 12px !important;
         text-decoration: none !important;
     }
 
     .brand-logo-img {
-        width: 38px !important;
-        height: 38px !important;
+        width: 42px !important;
+        height: 42px !important;
         object-fit: contain !important;
-        border-radius: 50% !important;
         flex-shrink: 0 !important;
     }
 
     .brand-text h2 {
-        font-size: 16px !important;
-        font-weight: 700 !important;
-        color: var(--primary, #0056b3) !important;
-        line-height: 1.1 !important;
+        font-size: 1.25rem !important;
+        font-weight: 800 !important;
+        color: #ffffff !important;
+        line-height: 1.2 !important;
         margin: 0 !important;
         padding: 0 !important;
+        letter-spacing: -0.02em;
     }
 
     .brand-text span {
-        font-size: 11px !important;
-        font-weight: 400 !important;
-        color: var(--text-muted, #6c757d) !important;
+        font-size: 0.78rem !important;
+        font-weight: 600 !important;
+        color: var(--light-sky) !important;
         display: block !important;
         line-height: 1 !important;
         margin-top: 2px !important;
+        letter-spacing: 0.02em;
     }
 
     .nav-links {
         display: flex;
         list-style: none;
-        gap: 8px;
+        gap: 6px;
         margin: 0;
         padding: 0;
+        align-items: center;
     }
 
     .nav-links a {
         text-decoration: none;
-        color: #555;
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 500;
+        color: #e2e8f0;
+        padding: 8px 14px;
+        border-radius: var(--radius-md);
+        font-size: 0.9rem;
+        font-weight: 600;
         display: flex;
         align-items: center;
-        gap: 6px;
-        transition: all 0.2s;
+        gap: 8px;
+        transition: all 0.2s ease;
     }
 
-    .nav-links a:hover, .nav-links a.active {
-        background: #f0f6ff;
-        color: var(--primary, #0056b3);
+    .nav-links a:hover {
+        color: #ffffff;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-links a.active {
+        color: #ffffff !important;
+        background-color: var(--deep-blue) !important;
+        box-shadow: 0 4px 12px rgba(31, 92, 171, 0.35);
     }
 
     .nav-user {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 16px;
     }
 
     .desktop-search-form {
@@ -165,73 +195,73 @@ if (empty($nav_profile_img)) {
     }
 
     .search-pill {
-        width: 280px !important;
+        width: 240px !important;
         display: flex !important;
         align-items: center !important;
-        background: #f1f3f5 !important;
-        padding: 6px 12px !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        padding: 8px 14px !important;
         border-radius: 20px !important;
         gap: 8px !important;
-        border: 1px solid #e9ecef !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
         flex-shrink: 0 !important;
+        transition: all 0.2s ease;
+    }
+
+    .search-pill:focus-within {
+        background: rgba(255, 255, 255, 0.15) !important;
+        border-color: var(--light-sky) !important;
     }
 
     .search-pill input {
         border: none;
         background: transparent;
         outline: none;
-        font-size: 13px;
+        font-size: 0.88rem;
+        color: #ffffff;
         width: 100%;
     }
 
-    .mobile-search-form {
-        margin-bottom: 15px;
-    }
-
-    .mobile-search-pill {
-        display: flex;
-        align-items: center;
-        background: #f8f9fa;
-        padding: 8px 12px;
-        border-radius: 20px;
-        gap: 8px;
-        border: 1px solid #e0e0e0;
-    }
-
-    .mobile-search-pill input {
-        border: none;
-        background: transparent;
-        outline: none;
-        font-size: 13px;
-        width: 100%;
+    .search-pill input::placeholder {
+        color: #94a3b8;
     }
 
     .icon-badge {
         position: relative;
         cursor: pointer;
-        color: #555;
-        font-size: 16px;
+        color: #e2e8f0;
+        font-size: 1.1rem;
         display: flex;
         align-items: center;
+        padding: 8px 10px;
+        border-radius: var(--radius-md);
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        transition: all 0.2s;
+    }
+
+    .icon-badge:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
     }
 
     .icon-badge .badge {
         position: absolute;
-        top: -6px;
-        right: -6px;
-        background: #dc3545;
+        top: -4px;
+        right: -4px;
+        background: #ef4444;
         color: #fff;
         font-size: 9px;
-        padding: 2px 5px;
+        padding: 2px 6px;
         border-radius: 10px;
-        font-weight: bold;
+        font-weight: 800;
+        border: 2px solid var(--navbar-dark);
     }
 
     .link-badge {
-        background: #dc3545;
+        background: #ef4444;
         color: #fff;
         font-size: 10px;
-        font-weight: 700;
+        font-weight: 800;
         padding: 2px 6px;
         border-radius: 10px;
         margin-left: auto;
@@ -246,24 +276,33 @@ if (empty($nav_profile_img)) {
     .user-profile {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.08);
+        padding: 6px 14px 6px 6px;
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        transition: background 0.2s;
+    }
+
+    .user-profile:hover {
+        background: rgba(255, 255, 255, 0.15);
     }
 
     .user-avatar {
-        width: 36px;
-        height: 36px;
+        width: 34px;
+        height: 34px;
         border-radius: 50%;
         object-fit: cover;
-        border: 2px solid #e0eeff;
+        border: 2px solid var(--light-sky);
     }
 
     .user-name-text {
-        font-size: 13px;
+        font-size: 0.9rem;
         font-weight: 600;
-        color: #333;
+        color: #ffffff;
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 6px;
     }
 
     .dropdown-menu {
@@ -271,104 +310,14 @@ if (empty($nav_profile_img)) {
         position: absolute;
         right: 0;
         top: 100%;
-        margin-top: 0;
-        padding-top: 8px;
+        margin-top: 10px;
         background: #ffffff;
-        min-width: 180px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        border-radius: 8px;
-        border: 1px solid var(--border, #e9ecef);
-        padding-bottom: 6px;
+        min-width: 200px;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.25);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-color);
+        padding: 6px;
         z-index: 1001;
-    }
-
-    /* GLOBAL DARK MODE OVERRIDES FOR NAVBAR & HEADER */
-    body.dark-mode {
-        --bg-color: #0f172a !important;
-        --card-bg: #1e293b !important;
-        --border: #334155 !important;
-        --text: #f8fafc !important;
-        --text-muted: #94a3b8 !important;
-        background-color: var(--bg-color) !important;
-        color: var(--text) !important;
-    }
-
-    body.dark-mode .navbar {
-        background: #1e293b !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
-        border-bottom: 1px solid #334155 !important;
-    }
-
-    body.dark-mode .nav-links a {
-        color: #cbd5e1 !important;
-    }
-
-    body.dark-mode .nav-links a:hover, 
-    body.dark-mode .nav-links a.active {
-        background: #334155 !important;
-        color: #38bdf8 !important;
-    }
-
-    body.dark-mode .user-name-text {
-        color: #f8fafc !important;
-    }
-
-    body.dark-mode .search-pill,
-    body.dark-mode .mobile-search-pill {
-        background: #0f172a !important;
-        border-color: #334155 !important;
-    }
-
-    body.dark-mode .search-pill input,
-    body.dark-mode .mobile-search-pill input {
-        color: #f8fafc !important;
-    }
-
-    body.dark-mode .dropdown-menu {
-        background: #1e293b !important;
-        border-color: #334155 !important;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
-    }
-
-    body.dark-mode .dropdown-menu a {
-        color: #e2e8f0 !important;
-    }
-
-    body.dark-mode .dropdown-menu a:hover {
-        background: #334155 !important;
-        color: #38bdf8 !important;
-    }
-
-    body.dark-mode .mobile-drawer {
-        background: #1e293b !important;
-        border-right: 1px solid #334155 !important;
-    }
-
-    body.dark-mode .drawer-menu a {
-        color: #e2e8f0 !important;
-    }
-
-    body.dark-mode .drawer-menu a:hover {
-        background: #334155 !important;
-        color: #38bdf8 !important;
-    }
-
-    body.dark-mode .mobile-bottom-nav {
-        background: #1e293b !important;
-        border-top: 1px solid #334155 !important;
-    }
-
-    body.dark-mode .mobile-bottom-nav a {
-        color: #94a3b8 !important;
-    }
-
-    body.dark-mode .mobile-bottom-nav a.active,
-    body.dark-mode .mobile-bottom-nav a:hover {
-        color: #38bdf8 !important;
-    }
-
-    body.dark-mode .mobile-hamburger {
-        color: #f8fafc !important;
     }
 
     .user-dropdown::before {
@@ -383,27 +332,29 @@ if (empty($nav_profile_img)) {
     .dropdown-menu a {
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 10px 16px;
-        font-size: 13px;
-        color: #333;
+        gap: 10px;
+        padding: 10px 14px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--heading-color);
         text-decoration: none;
-        transition: background 0.2s;
+        border-radius: 8px;
+        transition: all 0.2s;
     }
 
     .dropdown-menu a:hover {
-        background: #f0f6ff;
-        color: var(--primary, #0056b3);
+        background: var(--pale-bg);
+        color: var(--deep-blue);
     }
 
     .dropdown-menu a.logout-link:hover {
-        background: #fff5f5;
-        color: #dc3545;
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
     }
 
     .dropdown-divider {
         height: 1px;
-        background: var(--border, #e9ecef);
+        background: var(--border-color);
         margin: 4px 0;
     }
 
@@ -411,26 +362,28 @@ if (empty($nav_profile_img)) {
         display: block;
     }
 
+    /* Mobile Drawer & Mobile Bottom Bar */
     .mobile-hamburger {
         display: none;
         background: none;
         border: none;
-        font-size: 20px;
-        color: #333;
+        font-size: 1.4rem;
+        color: #ffffff;
         cursor: pointer;
     }
 
     .mobile-drawer {
         position: fixed;
         top: 0;
-        left: -280px;
-        width: 280px;
+        left: -300px;
+        width: 300px;
         height: 100%;
-        background: #ffffff;
+        background: var(--navbar-dark);
         z-index: 2000;
-        transition: left 0.3s ease;
-        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-        padding: 20px;
+        transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 5px 0 25px rgba(0, 0, 0, 0.4);
+        padding: 24px;
+        box-sizing: border-box;
         overflow-y: auto;
     }
 
@@ -440,7 +393,8 @@ if (empty($nav_profile_img)) {
         display: none;
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,0.4);
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(2px);
         z-index: 1999;
     }
 
@@ -448,24 +402,26 @@ if (empty($nav_profile_img)) {
 
     .drawer-menu {
         list-style: none;
-        margin-top: 10px;
+        margin-top: 15px;
         padding: 0;
     }
 
     .drawer-menu a {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 12px 10px;
-        color: #333;
+        gap: 14px;
+        padding: 12px 14px;
+        color: #cbd5e1;
         text-decoration: none;
-        font-size: 14px;
-        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border-radius: var(--radius-md);
+        transition: all 0.2s;
     }
 
-    .drawer-menu a:hover {
-        background: #f0f6ff;
-        color: var(--primary, #0056b3);
+    .drawer-menu a:hover, .drawer-menu a.active {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
     }
 
     .mobile-bottom-nav {
@@ -474,11 +430,12 @@ if (empty($nav_profile_img)) {
         bottom: 0;
         left: 0;
         right: 0;
-        background: #ffffff;
-        border-top: 1px solid var(--border, #e9ecef);
+        background: var(--navbar-dark);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
         padding: 8px 0;
         justify-content: space-around;
         z-index: 1000;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
     }
 
     .mobile-bottom-nav a {
@@ -486,23 +443,24 @@ if (empty($nav_profile_img)) {
         flex-direction: column;
         align-items: center;
         text-decoration: none;
-        color: #6c757d;
-        font-size: 10px;
-        gap: 3px;
+        color: #94a3b8;
+        font-size: 0.72rem;
+        font-weight: 600;
+        gap: 4px;
         position: relative;
     }
 
     .mobile-bottom-nav a.active, .mobile-bottom-nav a:hover {
-        color: var(--primary, #0056b3);
+        color: var(--light-sky);
     }
 
-    .mobile-bottom-nav i { font-size: 18px; }
+    .mobile-bottom-nav i { font-size: 1.2rem; }
 
     .mobile-bottom-nav .badge {
         position: absolute;
-        top: 0;
+        top: -2px;
         right: calc(50% - 14px);
-        background: #dc3545;
+        background: #ef4444;
         color: #fff;
         font-size: 8px;
         padding: 1px 4px;
@@ -510,11 +468,41 @@ if (empty($nav_profile_img)) {
         font-weight: bold;
     }
 
-    @media (max-width: 1100px) {
+    /* Dark Mode Overrides */
+    body.dark-mode {
+        --bg-color: #0f172a !important;
+        --card-bg: #1e293b !important;
+        --border: #334155 !important;
+        --text: #f8fafc !important;
+        --text-muted: #94a3b8 !important;
+        background-color: var(--bg-color) !important;
+        color: var(--text) !important;
+    }
+
+    body.dark-mode .dropdown-menu {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.4) !important;
+    }
+
+    body.dark-mode .dropdown-menu a {
+        color: #e2e8f0 !important;
+    }
+
+    body.dark-mode .dropdown-menu a:hover {
+        background: rgba(57, 130, 220, 0.2) !important;
+        color: var(--light-sky) !important;
+    }
+
+    @media (max-width: 1200px) {
         .user-name-text { display: none; }
     }
 
     @media (max-width: 992px) {
+        .navbar {
+            padding: 0 20px;
+            height: 64px;
+        }
         .nav-links, .desktop-search-form { display: none !important; }
         .mobile-hamburger { display: block; }
         .mobile-bottom-nav { display: flex; }
@@ -523,15 +511,16 @@ if (empty($nav_profile_img)) {
 
 <!-- TOP NAVIGATION BAR -->
 <nav class="navbar">
-    <div style="display: flex; align-items: center; gap: 12px;">
+    <div style="display: flex; align-items: center; gap: 14px;">
         <button class="mobile-hamburger" id="drawerOpenBtn">
             <i class="fa-solid fa-bars"></i>
         </button>
 
         <a href="dashboard.php" class="nav-brand">
-            <img src="../assets/images/logosss.png" alt="eRegistrar Logo" class="brand-logo-img">
+            <img src="../assets/images/logo1.png" alt="eRegistrar Logo" class="brand-logo-img">
             <div class="brand-text">
                 <h2>eRegistrar</h2>
+                
                 <span>Student Portal</span>
             </div>
         </a>
@@ -543,7 +532,7 @@ if (empty($nav_profile_img)) {
             <li><a href="history.php" class="<?= ($current_page == 'history.php') ? 'active' : ''; ?>"><i class="fa-solid fa-clock-rotate-left"></i> History</a></li>
             <li><a href="track.php" class="<?= ($current_page == 'track.php') ? 'active' : ''; ?>"><i class="fa-solid fa-location-crosshairs"></i> Track</a></li>
             <li><a href="payments.php" class="<?= ($current_page == 'payments.php') ? 'active' : ''; ?>"><i class="fa-solid fa-wallet"></i> Payments</a></li>
-            <li><a href="claim_stub.php" class="<?= ($current_page == 'claim_stub.php') ? 'active' : ''; ?>"><i class="fa-solid fa-receipt"></i> Claim Stub</a></li>
+            <li><a href="claim_stub.php" class="<?= ($current_page == 'claim_stub.php') ? 'active' : ''; ?>"><i class="fa-solid fa-receipt"></i> Receipts</a></li>
             <li>
                 <a href="messages.php" class="<?= ($current_page == 'messages.php') ? 'active' : ''; ?>">
                     <i class="fa-solid fa-envelope"></i> Messages
@@ -560,13 +549,13 @@ if (empty($nav_profile_img)) {
         <!-- Desktop Search Form -->
         <form action="search.php" method="GET" class="desktop-search-form">
             <div class="search-pill">
-                <i class="fa-solid fa-magnifying-glass" style="color: #aaa; font-size: 12px;"></i>
+                <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8; font-size: 12px;"></i>
                 <input type="text" name="q" placeholder="Search request..." value="<?= htmlspecialchars($_GET['q'] ?? ''); ?>" required>
             </div>
         </form>
 
         <!-- Notification Bell -->
-        <a href="notifications.php" class="icon-badge" style="text-decoration: none;">
+        <a href="notifications.php" class="icon-badge" style="text-decoration: none;" title="Notifications">
             <i class="fa-regular fa-bell"></i>
             <span class="badge" id="navNotificationBadge" style="<?= $notification_count > 0 ? '' : 'display: none;'; ?>">
                 <?= $notification_count; ?>
@@ -577,7 +566,7 @@ if (empty($nav_profile_img)) {
         <div class="user-dropdown">
             <div class="user-profile">
                 <img src="<?= htmlspecialchars($nav_profile_img); ?>" class="user-avatar" alt="User">
-                <span class="user-name-text"><?= htmlspecialchars($_SESSION['fullname'] ?? 'Student'); ?> <i class="fa-solid fa-chevron-down" style="font-size:10px;"></i></span>
+                <span class="user-name-text"><?= htmlspecialchars($_SESSION['fullname'] ?? 'Student'); ?> <i class="fa-solid fa-chevron-down" style="font-size:10px; color: var(--light-sky);"></i></span>
             </div>
 
             <!-- Dropdown Menu -->
@@ -594,37 +583,41 @@ if (empty($nav_profile_img)) {
 <!-- MOBILE NAVIGATION SIDE DRAWER -->
 <div class="drawer-overlay" id="drawerOverlay"></div>
 <div class="mobile-drawer" id="mobileDrawer">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
-        <h3 style="margin: 0; font-size: 18px; color: var(--primary, #0056b3);">eRegistrar</h3>
-        <button id="drawerCloseBtn" style="border:none; background:none; font-size:18px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="../assets/images/logo1.png" alt="Logo" style="width: 40px; height: 40px; object-fit: contain;">
+            <h3 style="margin: 0; font-size: 1.1rem; color: #2e1bdd; font-weight: 800;">eRegistrar</h3>
+        </div>
+        <button id="drawerCloseBtn" style="border:none; background:rgba(255,255,255,0.1); color:#ffffff; width: 32px; height: 32px; border-radius: 50%; font-size:1rem; cursor:pointer; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
     <!-- Mobile Search Bar -->
-    <form action="search.php" method="GET" class="mobile-search-form">
-        <div class="mobile-search-pill">
-            <i class="fa-solid fa-magnifying-glass" style="color: #aaa; font-size: 12px;"></i>
-            <input type="text" name="q" placeholder="Search requests..." value="<?= htmlspecialchars($_GET['q'] ?? ''); ?>" required>
+    <form action="search.php" method="GET" style="margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; background: rgba(255,255,255,0.08); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); gap: 8px;">
+            <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8; font-size: 12px;"></i>
+            <input type="text" name="q" placeholder="Search requests..." value="<?= htmlspecialchars($_GET['q'] ?? ''); ?>" style="border:none; background:transparent; outline:none; color:#fff; font-size:0.88rem; width:100%;" required>
         </div>
     </form>
 
     <ul class="drawer-menu">
-        <li><a href="dashboard.php"><i class="fa-solid fa-house"></i> Dashboard</a></li>
-        <li><a href="request.php"><i class="fa-solid fa-file-signature"></i> Request Document</a></li>
-        <li><a href="history.php"><i class="fa-solid fa-clock-rotate-left"></i> Request History</a></li>
-        <li><a href="track.php"><i class="fa-solid fa-location-crosshairs"></i> Track Status</a></li>
-        <li><a href="payments.php"><i class="fa-solid fa-wallet"></i> Payments</a></li>
-        <li><a href="claim_stub.php"><i class="fa-solid fa-receipt"></i> Claim Stub</a></li>
+        <li><a href="dashboard.php" class="<?= ($current_page == 'dashboard.php') ? 'active' : ''; ?>"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+        <li><a href="request.php" class="<?= ($current_page == 'request.php') ? 'active' : ''; ?>"><i class="fa-solid fa-file-signature"></i> Request Document</a></li>
+        <li><a href="history.php" class="<?= ($current_page == 'history.php') ? 'active' : ''; ?>"><i class="fa-solid fa-clock-rotate-left"></i> Request History</a></li>
+        <li><a href="track.php" class="<?= ($current_page == 'track.php') ? 'active' : ''; ?>"><i class="fa-solid fa-location-crosshairs"></i> Track Status</a></li>
+        <li><a href="payments.php" class="<?= ($current_page == 'payments.php') ? 'active' : ''; ?>"><i class="fa-solid fa-wallet"></i> Payments</a></li>
+        <li><a href="claim_stub.php" class="<?= ($current_page == 'claim_stub.php') ? 'active' : ''; ?>"><i class="fa-solid fa-receipt"></i> Receipts</a></li>
         <li>
-            <a href="messages.php">
+            <a href="messages.php" class="<?= ($current_page == 'messages.php') ? 'active' : ''; ?>">
                 <i class="fa-solid fa-envelope"></i> Messages
                 <span class="link-badge" id="drawerMsgBadge" style="<?= $unread_msg_count > 0 ? '' : 'display: none;'; ?>">
                     <?= $unread_msg_count; ?>
                 </span>
             </a>
         </li>
-        <li><a href="profile.php"><i class="fa-solid fa-user-pen"></i> Edit Profile</a></li>
-        <li><a href="settings.php"><i class="fa-solid fa-gear"></i> Settings</a></li>
-        <li><a href="../logout.php" style="color:#dc3545;"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+        <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 12px 0;"></div>
+        <li><a href="profile.php" class="<?= ($current_page == 'profile.php') ? 'active' : ''; ?>"><i class="fa-solid fa-user-pen"></i> Edit Profile</a></li>
+        <li><a href="settings.php" class="<?= ($current_page == 'settings.php') ? 'active' : ''; ?>"><i class="fa-solid fa-gear"></i> Settings</a></li>
+        <li><a href="../logout.php" style="color:#fca5a5;"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
     </ul>
 </div>
 

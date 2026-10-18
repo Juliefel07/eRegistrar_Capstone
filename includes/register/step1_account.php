@@ -88,7 +88,7 @@
 
 <div class="step-buttons">
 
-    <a href="index.php" class="btn-back">
+    <a href="login.php" class="btn-back">
 
         <i class="fa-solid fa-arrow-left"></i>
 

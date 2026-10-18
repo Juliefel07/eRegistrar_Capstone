@@ -33,2801 +33,544 @@ body{
 }
 
 
-/* ==========================================
-   CONTAINER
-========================================== */
+/*NEW STYLE*/
+/* =========================================================
+   STEP 1: ACCOUNT SELECTION (DARK THEME & PERFECT FIT)
+   ========================================================= */
+/* =========================================================
+   eREGISTRAR - FINAL WORKING REGISTER STYLESHEET
+   ========================================================= */
 
-.register-container{
-
-    width:1200px;
-
-    min-height:750px;
-
-    background:#fff;
-
-    border-radius:25px;
-
-    overflow:hidden;
-
-    display:flex;
-
-    box-shadow:0 20px 60px rgba(0,0,0,.12);
-
+:root {
+    --deep-blue: #1F5CAB;
+    --bright-blue: #3982DC;
+    --sky-blue: #75AAE7;
+    --card-dark: #0a192f;
+    --border-dark: rgba(255, 255, 255, 0.12);
+    --text-light: #f8fafc;
+    --text-muted: #94a3b8;
 }
 
-
-/* ==========================================
-   LEFT PANEL
-========================================== */
-
-.left-panel{
-
-    width:38%;
-
-    background:#547A95;
-
-    color:#fff;
-
-    padding:60px;
-
-    display:flex;
-
-    flex-direction:column;
-
-    justify-content:center;
-
-    align-items:center;
-
-    text-align:center;
-
+* {
+    box-sizing: border-box !important;
 }
 
-.logo{
-
-    width:90px;
-
-    margin-bottom:30px;
-
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--text-light);
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 16px;
 }
 
-.left-panel h1{
-
-    font-size:38px;
-
-    font-weight:700;
-
-    margin-bottom:15px;
-
+/* BACK BUTTON */
+.back-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    border: 1px solid var(--border-dark);
+    backdrop-filter: blur(8px);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
 }
 
-.left-panel p{
-
-    font-size:17px;
-
-    line-height:1.7;
-
-    opacity:.9;
-
-    margin-bottom:45px;
-
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(-3px);
 }
 
-.illustration{
-
-    width:90%;
-
+/* CONTAINER - EXACT WIDTH WITH SMOOTH AUTO-SCROLLING */
+.register-container {
+    display: flex !important;
+    width: 100% !important;
+    max-width: 950px !important;
+    min-height: 560px !important;
+    max-height: 88vh !important;
+    background: var(--card-dark) !important;
+    border-radius: 20px !important;
+    border: 1px solid var(--border-dark) !important;
+    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.45) !important;
+    overflow: hidden !important;
+    margin: auto !important;
 }
 
-
-/* ==========================================
-   RIGHT PANEL
-========================================== */
-
-.right-panel{
-
-    width:62%;
-
-    padding:50px 60px;
-
+/* LEFT PANEL */
+.left-panel {
+    flex: 0.9 !important;
+    background: linear-gradient(135deg, #0f2d59 0%, #1F5CAB 100%) !important;
+    padding: 30px 24px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    border-right: 1px solid var(--border-dark) !important;
 }
 
-
-/* ==========================================
-   STEP
-========================================== */
-
-.form-step{
-
-    display:none;
-
+.left-panel .logo {
+    width: 60px !important;
+    height: 60px !important;
+    object-fit: contain !important;
+    margin-bottom: 10px !important;
 }
 
-.form-step.active{
-
-    display:block;
-
+.left-panel h1 {
+    font-size: 1.5rem !important;
+    font-weight: 800 !important;
+    margin: 0 0 6px 0 !important;
+    color: #ffffff !important;
 }
 
-
-/* ==========================================
-   HEADER
-========================================== */
-
-.step-header{
-
-    margin-bottom:35px;
-
+.left-panel p {
+    color: #B9D4F3 !important;
+    font-size: 0.85rem !important;
+    line-height: 1.35 !important;
+    margin: 0 0 16px 0 !important;
+    max-width: 260px !important;
 }
 
-.step-header h2{
-
-    font-size:30px;
-
-    color:#1e3a8a;
-
-    margin-bottom:8px;
-
+.left-panel .illustration {
+    max-width: 65% !important;
+    height: auto !important;
+    object-fit: contain !important;
 }
 
-.step-header p{
-
-    color:#6b7280;
-
-    font-size:15px;
-
+/* RIGHT PANEL - SCROLLABLE WITHOUT VISIBLE SCROLLBAR */
+.right-panel {
+    flex: 1.1 !important;
+    padding: 28px 32px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    background-color: var(--card-dark) !important;
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
 }
 
-
-/* ==========================================
-   PROGRESS BAR
-========================================== */
-
-.progress{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    margin-bottom:50px;
-
+.right-panel::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
-.step{
-
-    display:flex;
-
-    flex-direction:column;
-
-    align-items:center;
-
-    flex:1;
-
-}
-@media (max-width:768px){
-
-.circle{
-    width:38px;
-    height:38px;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    border-radius:50%;
-    border:2px solid #dbeafe;
-
-    background:#fff;
-    color:#94a3b8;
-
-    font-size:15px;
-    font-weight:700;
-
-    line-height:1;
-    flex-shrink:0;
+/* STEPPER BAR */
+.progress {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 20px !important;
+    padding: 0 4px !important;
+    flex-shrink: 0 !important;
 }
 
-.step.active .circle{
-    background:#2563eb;
-    border-color:#2563eb;
-    color:#fff;
+.progress .step {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 3px !important;
 }
 
-.step.completed .circle{
-    background:#22c55e;
-    border-color:#22c55e;
-    color:#fff;
+.progress .step .circle {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid var(--border-dark) !important;
+    color: var(--text-muted) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 800 !important;
+    font-size: 0.8rem !important;
 }
 
+.progress .step span {
+    font-size: 0.68rem !important;
+    font-weight: 700 !important;
+    color: var(--text-muted) !important;
+    text-transform: uppercase !important;
 }
 
-.step span{
-
-    margin-top:10px;
-
-    font-size:13px;
-
-    color:#6b7280;
-
+.progress .step.active .circle {
+    background: var(--bright-blue) !important;
+    border-color: #60a5fa !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 12px rgba(57, 130, 220, 0.5) !important;
 }
 
-.line{
-
-    height:3px;
-
-    flex:1;
-
-    background:#dbe4f3;
-
-    margin:0 10px;
-
+.progress .step.active span {
+    color: #ffffff !important;
 }
 
-
-/* ==========================================
-   ACCOUNT CARDS
-========================================== */
-
-.account-selection{
-
-    display:grid;
-
-    grid-template-columns:repeat(2,1fr);
-
-    gap:25px;
-
+.progress .line {
+    flex: 1 !important;
+    height: 2px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    margin-bottom: 12px !important;
 }
 
-.account-card{
-
-    cursor:pointer;
-
+/* FORM STEP DISPLAY LOGIC */
+.form-step {
+    display: none !important;
+    flex-direction: column !important;
 }
 
-.account-card input{
-
-    display:none;
-
+.form-step.active {
+    display: flex !important;
 }
 
-.card-content{
-
-    border:2px solid #e5e7eb;
-
-    border-radius:18px;
-
-    padding:35px;
-
-    text-align:center;
-
-    transition:.35s;
-
-    background:#fff;
-
+/* HEADERS */
+.step-header h2 {
+    font-size: 1.35rem !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    margin: 0 0 4px 0 !important;
 }
 
-.card-content:hover{
-
-    border-color:#2563eb;
-
-    transform:translateY(-5px);
-
-    box-shadow:0 15px 35px rgba(37,99,235,.15);
-
+.step-header p {
+    font-size: 0.82rem !important;
+    color: var(--text-muted) !important;
+    margin: 0 0 16px 0 !important;
 }
 
-.account-card input:checked + .card-content{
-
-    border-color:#2563eb;
-
-    background:#eff6ff;
-
+/* STEP 1 & 2 CARDS (Compact / Non-Scrollable) */
+/* Ensure the selection grids stretch items evenly */
+.account-selection, .level-selection {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 14px !important; /* Increased spacing between options */
+    margin-bottom: 16px !important;
+    align-items: stretch !important; /* Forces equal height for both cards */
 }
 
-.icon{
-
-    width:75px;
-
-    height:75px;
-
-    margin:auto;
-
-    border-radius:50%;
-
-    background:#dbeafe;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    margin-bottom:20px;
-
+/* Ensure card wrappers take full height */
+.account-card, .level-card {
+    position: relative !important;
+    display: flex !important; /* Changed to flex to let child expand */
+    flex-direction: column !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+    height: 100% !important;
 }
 
-.icon i{
-
-    color:#2563eb;
-
-    font-size:32px;
-
+/* Make card content larger, padded, and centered */
+.account-card .card-content,
+.level-card .card-content {
+    flex: 1 !important; /* Expands to fill the card completely */
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--border-dark) !important;
+    border-radius: 12px !important; /* Slightly more rounded edges */
+    padding: 18px 14px !important; /* Increased padding for a larger target */
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+    box-sizing: border-box !important;
+}
+/* 1. HIDE RADIO BUTTONS ENTIRELY */
+.account-card input[type="radio"],
+.level-card input[type="radio"] {
+    position: absolute !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    pointer-events: none !important;
+    margin: 0 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
 }
 
-.card-content h3{
-
-    margin-bottom:10px;
-
-    color:#1f2937;
-
+/* 2. CARD WRAPPER - EQUAL STRETCH */
+.account-card, .level-card {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+    height: 100% !important;
+    user-select: none !important;
 }
 
-.card-content p{
-
-    color:#6b7280;
-
-    font-size:14px;
-
-    line-height:1.6;
-
+/* 3. CARD CONTENT CONTAINER - LARGER & BALANCED */
+.account-card .card-content,
+.level-card .card-content {
+    flex: 1 !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--border-dark) !important;
+    border-radius: 12px !important;
+    padding: 18px 14px !important; /* Increased padding makes cards bigger */
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+    box-sizing: border-box !important;
 }
 
-
-/* ==========================================
-   BUTTONS
-========================================== */
-
-.step-buttons{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    margin-top:45px;
-
+/* 4. SELECTED STATE GLOW & HIGHLIGHT */
+.account-card input[type="radio"]:checked + .card-content,
+.level-card input[type="radio"]:checked + .card-content {
+    background: rgba(57, 130, 220, 0.2) !important;
+    border-color: var(--bright-blue) !important;
+    box-shadow: 0 0 15px rgba(57, 130, 220, 0.4) !important;
+    transform: translateY(-2px) !important;
 }
 
-.btn-back,
-.btn-secondary,
-.btn-next,
-.btn-submit{
-
-    border:none;
-
-    padding:14px 32px;
-
-    border-radius:12px;
-
-    cursor:pointer;
-
-    font-size:15px;
-
-    font-weight:600;
-
-    transition:.3s;
-
-    text-decoration:none;
-
+/* 5. LARGER ICON & TEXT */
+.account-card .icon, .level-card .icon {
+    width: 38px !important;         /* Increased from 28px */
+    height: 38px !important;        /* Increased from 28px */
+    border-radius: 50% !important;
+    background: var(--bright-blue) !important;
+    color: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;   /* Increased from 0.9rem */
+    margin-bottom: 8px !important;
 }
 
-.btn-back,
-.btn-secondary{
-
-    background:#f3f4f6;
-
-    color:#374151;
-
+.account-card h3, .level-card h3 {
+    font-size: 0.95rem !important;  /* Increased from 0.82rem */
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    margin: 0 0 4px 0 !important;
 }
 
-.btn-back:hover,
-.btn-secondary:hover{
-
-    background:#e5e7eb;
-
+.account-card p, .level-card p {
+    font-size: 0.78rem !important;  /* Increased from 0.7rem */
+    color: var(--text-muted) !important;
+    line-height: 1.35 !important;
+    margin: 0 !important;
 }
 
-.btn-next,
-.btn-submit{
-
-    background:#2563eb;
-
-    color:#fff;
-
+/* STEP 3 INPUT FIELDS */
+.form-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px 14px !important;
+    margin-bottom: 12px !important;
 }
 
-.btn-next:hover,
-.btn-submit:hover{
-
-    background:#1d4ed8;
-
+.form-group {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
 }
 
-/* ==========================================
-   LEVEL SELECTION
-========================================== */
-
-.level-selection{
-
-    display:grid;
-
-    grid-template-columns:repeat(3,1fr);
-
-    gap:22px;
-
-}
-
-.level-card{
-
-    cursor:pointer;
-
-}
-
-.level-card input{
-
-    display:none;
-
-}
-
-.level-card .card-content{
-
-    border:2px solid #e5e7eb;
-
-    border-radius:18px;
-
-    padding:30px;
-
-    text-align:center;
-
-    transition:.3s;
-
-    background:#fff;
-
-}
-
-.level-card .card-content:hover{
-
-    border-color:#2563eb;
-
-    transform:translateY(-5px);
-
-    box-shadow:0 15px 35px rgba(37,99,235,.15);
-
-}
-
-.level-card input:checked + .card-content{
-
-    background:#eff6ff;
-
-    border-color:#2563eb;
-
-}
-
-
-/* ==========================================
-   FORM GRID
-========================================== */
-
-.form-grid{
-
-    display:grid;
-
-    grid-template-columns:repeat(2,1fr);
-
-    gap:20px;
-
-}
-
-.form-group{
-
-    display:flex;
-
-    flex-direction:column;
-
-}
-
-.form-group label{
-
-    font-size:14px;
-
-    font-weight:600;
-
-    color:#374151;
-
-    margin-bottom:8px;
-
+.form-group label {
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
 }
 
 .form-group input,
-.form-group select,
-.form-group textarea{
-
-    width:100%;
-
-    padding:14px 16px;
-
-    border:2px solid #dbe4f3;
-
-    border-radius:12px;
-
-    outline:none;
-
-    font-size:15px;
-
-    transition:.3s;
-
-    background:#fff;
-
+.form-group select {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid var(--border-dark) !important;
+    border-radius: 8px !important;
+    padding: 10px 12px !important;
+    font-size: 0.88rem !important;
+    color: #ffffff !important;
+    outline: none !important;
+    width: 100% !important;
 }
 
 .form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus{
-
-    border-color:#2563eb;
-
-    box-shadow:0 0 0 4px rgba(37,99,235,.15);
-
-}
-
-.form-group textarea{
-
-    resize:vertical;
-
-}
-
-
-/* ==========================================
-   FULL WIDTH
-========================================== */
-
-.form-group.full{
-
-    grid-column:1 / -1;
-
-}
-
-
-/* ==========================================
-   REVIEW PAGE
-========================================== */
-
-.review-page{
-
-    width:100%;
-
-}
-
-.review-card{
-
-    background:#fff;
-
-    border:1px solid #e5e7eb;
-
-    border-radius:16px;
-
-    padding:22px;
-
-    margin-bottom:20px;
-
-    box-shadow:0 10px 25px rgba(0,0,0,.05);
-
-}
-
-.review-card h3{
-
-    color:#1e3a8a;
-
-    margin-bottom:18px;
-
-    display:flex;
-
-    align-items:center;
-
-    gap:10px;
-
-}
-
-.review-item{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    padding:12px 0;
-
-    border-bottom:1px solid #edf2f7;
-
-}
-
-.review-item:last-child{
-
-    border-bottom:none;
-
-}
-
-.review-item span{
-
-    color:#6b7280;
-
-}
-
-.review-item strong{
-
-    color:#111827;
-
-}
-
-
-/* ==========================================
-   AGREEMENT
-========================================== */
-
-.agreement-box{
-
-    background:#eff6ff;
-
-    border:1px solid #bfdbfe;
-
-    padding:18px;
-
-    border-radius:12px;
-
-    margin-top:20px;
-
-    margin-bottom:20px;
-
-}
-
-.agreement-box label{
-
-    display:flex;
-
-    align-items:flex-start;
-
-    gap:12px;
-
-    cursor:pointer;
-
-    color:#374151;
-
-    line-height:1.6;
-
-}
-
-.agreement-box input{
-
-    width:18px;
-
-    height:18px;
-
-    margin-top:2px;
-
-}
-
-
-/* ==========================================
-   PARENT FORM
-========================================== */
-
-.divider{
-
-    margin:35px 0;
-
-    border:none;
-
-    border-top:1px solid #e5e7eb;
-
-}
-
-.student-note{
-
-    color:#6b7280;
-
-    margin-bottom:20px;
-
-}
-
-.student-card{
-
-    background:#f9fbff;
-
-    border:2px dashed #bfdbfe;
-
-    border-radius:15px;
-
-    padding:20px;
-
-    margin-bottom:20px;
-
-}
-
-
-/* ==========================================
-   ADD STUDENT BUTTON
-========================================== */
-
-.btn-add-student{
-
-    width:100%;
-
-    padding:14px;
-
-    border:none;
-
-    border-radius:12px;
-
-    background:#dbeafe;
-
-    color:#1d4ed8;
-
-    font-weight:600;
-
-    cursor:pointer;
-
-    transition:.3s;
-
-    margin-top:10px;
-
-}
-
-.btn-add-student:hover{
-
-    background:#bfdbfe;
-
-}
-
-
-/* ==========================================
-   ERROR MODAL
-========================================== */
-
-.modal-error{
-
-    position:fixed;
-
-    inset:0;
-
-    background:rgba(0,0,0,.45);
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    z-index:9999;
-
-}
-
-.modal-box{
-
-    width:420px;
-
-    background:#fff;
-
-    padding:35px;
-
-    border-radius:20px;
-
-    text-align:center;
-
-    animation:popup .35s ease;
-
-}
-
-.error-icon{
-
-    font-size:60px;
-
-    color:#ef4444;
-
-    margin-bottom:20px;
-
-}
-
-.modal-box h3{
-
-    color:#ef4444;
-
-    margin-bottom:12px;
-
-}
-
-.modal-box p{
-
-    color:#6b7280;
-
-    margin-bottom:25px;
-
-    line-height:1.6;
-
-}
-
-.modal-box button{
-
-    width:130px;
-
-    padding:12px;
-
-    border:none;
-
-    border-radius:10px;
-
-    background:#2563eb;
-
-    color:#fff;
-
-    cursor:pointer;
-
-}
-
-.modal-box button:hover{
-
-    background:#1d4ed8;
-
-}
-
-
-/* ==========================================
-   ANIMATION
-========================================== */
-
-@keyframes popup{
-
-    from{
-
-        opacity:0;
-
-        transform:scale(.85);
-
-    }
-
-    to{
-
-        opacity:1;
-
-        transform:scale(1);
-
-    }
-
-}
-
-/* ==========================================
-   RESPONSIVE DESIGN
-========================================== */
-
-@media (max-width:1200px){
-
-    .register-container{
-
-        width:100%;
-
-        margin:20px;
-
-    }
-
-}
-
-@media (max-width:992px){
-
-    .register-container{
-
-        flex-direction:column;
-
-        min-height:auto;
-
-    }
-
-    .left-panel{
-
-        width:100%;
-
-        padding:40px 30px;
-
-    }
-
-    .right-panel{
-
-        width:100%;
-
-        padding:40px 30px;
-
-    }
-
-    .illustration{
-
-        width:320px;
-
-        max-width:100%;
-
-    }
-
-}
-
-@media (max-width:768px){
-
-    .progress{
-
-        overflow-x:auto;
-
-        gap:15px;
-
-        margin-bottom:35px;
-
-    }
-
-    .line{
-
-        min-width:60px;
-
-    }
-
-    .account-selection{
-
-        grid-template-columns:1fr;
-
-    }
-
-    .level-selection{
-
-        grid-template-columns:1fr;
-
-    }
-
-    .form-grid{
-
-        grid-template-columns:1fr;
-
-    }
-
-    .step-buttons{
-
-        flex-direction:column;
-
-        gap:15px;
-
-    }
-
-    .btn-back,
-    .btn-secondary,
-    .btn-next,
-    .btn-submit{
-
-        width:100%;
-
-    }
-
-}
-
-@media (max-width:480px){
-
-    body{
-
-        padding:15px;
-
-    }
-
-    .left-panel{
-
-        padding:30px 20px;
-
-    }
-
-    .right-panel{
-
-        padding:25px 20px;
-
-    }
-
-    .left-panel h1{
-
-        font-size:28px;
-
-    }
-
-    .step-header h2{
-
-        font-size:24px;
-
-    }
-
-    .card-content{
-
-        padding:25px;
-
-    }
-
-    .icon{
-
-        width:60px;
-        height:60px;
-
-    }
-
-    .icon i{
-
-        font-size:24px;
-
-    }
-
-}
-
-
-/* ==========================================
-   ACTIVE STEP
-========================================== */
-
-.step.completed .circle{
-
-    background:#22c55e;
-
-    border-color:#22c55e;
-
-    color:#fff;
-
-}
-
-.step.completed span{
-
-    color:#22c55e;
-
-    font-weight:600;
-
-}
-
-.step.active span{
-
-    color:#2563eb;
-
-    font-weight:700;
-
-}
-
-
-/* ==========================================
-   INPUT VALIDATION
-========================================== */
-
-input:invalid{
-
-    box-shadow:none;
-
-}
-
-input.error,
-select.error{
-
-    border-color:#ef4444 !important;
-
-}
-
-input.success,
-select.success{
-
-    border-color:#22c55e !important;
-
-}
-
-
-/* ==========================================
-   CARD ANIMATION
-========================================== */
-
-.account-card .card-content,
-.level-card .card-content{
-
-    transition:
-    transform .3s ease,
-    box-shadow .3s ease,
-    border-color .3s ease,
-    background .3s ease;
-
-}
-
-.account-card:hover .card-content,
-.level-card:hover .card-content{
-
-    transform:translateY(-6px);
-
-}
-
-.account-card input:checked + .card-content,
-.level-card input:checked + .card-content{
-
-    transform:translateY(-6px);
-
-}
-
-
-/* ==========================================
-   BUTTON ICONS
-========================================== */
-
-.btn-next i,
-.btn-secondary i,
-.btn-submit i,
-.btn-back i{
-
-    margin-left:8px;
-
-}
-
-.btn-secondary i{
-
-    margin-left:0;
-    margin-right:8px;
-
-}
-
-.btn-back i{
-
-    margin-left:0;
-    margin-right:8px;
-
-}
-
-
-/* ==========================================
-   LINKS
-========================================== */
-
-a{
-
-    text-decoration:none;
-
-}
-
-a:hover{
-
-    text-decoration:none;
-
-}
-
-
-/* ==========================================
-   SCROLLBAR
-========================================== */
-
-::-webkit-scrollbar{
-
-    width:10px;
-
-}
-
-::-webkit-scrollbar-track{
-
-    background:#eef5ff;
-
-}
-
-::-webkit-scrollbar-thumb{
-
-    background:#2563eb;
-
-    border-radius:50px;
-
-}
-
-::-webkit-scrollbar-thumb:hover{
-
-    background:#1d4ed8;
-
-}
-
-
-/* ==========================================
-   UTILITIES
-========================================== */
-
-.text-center{
-
-    text-align:center;
-
-}
-
-.mt-20{
-
-    margin-top:20px;
-
-}
-
-.mt-30{
-
-    margin-top:30px;
-
-}
-
-.mb-20{
-
-    margin-bottom:20px;
-
-}
-
-.hidden{
-
-    display:none !important;
-
-}
-
-.show{
-
-    display:block !important;
-
-}
-
-
-/* ==========================================
-   LOADING EFFECT
-========================================== */
-
-.loading{
-
-    opacity:.6;
-
-    pointer-events:none;
-
-}
-
-
-/* ==========================================
-   FADE ANIMATION
-========================================== */
-
-.fade-in{
-
-    animation:fade .4s ease;
-
-}
-
-@keyframes fade{
-
-    from{
-
-        opacity:0;
-
-        transform:translateY(15px);
-
-    }
-
-    to{
-
-        opacity:1;
-
-        transform:translateY(0);
-
-    }
-
-}
-
-/* =====================================
-   REGISTER MOBILE FINAL FIX
-===================================== */
-
-
-html,body{
-
-    width:100%;
-
-    overflow-x:hidden;
-
-}
-
-
-/* MAIN CONTAINER */
-
-.register-container{
-
-    width:100% !important;
-
-    max-width:1400px;
-
-    min-height:auto !important;
-
-}
-
-
-
-/* TABLET */
-
-@media(max-width:992px){
-
-
-    body{
-
-        padding:20px;
-
-    }
-
-
-    .register-container{
-
-        flex-direction:column !important;
-
-    }
-
-
-    .left-panel{
-
-        width:100% !important;
-
-        padding:40px 25px;
-
-    }
-
-
-    .right-panel{
-
-        width:100% !important;
-
-        padding:35px 25px;
-
-    }
-
-
-    .illustration{
-
-        width:300px;
-
-        max-width:90%;
-
-    }
-
-
-}
-
-
-
-/* MOBILE */
-
-@media(max-width:600px){
-
-
-    body{
-
-        padding:10px;
-
-        align-items:flex-start;
-
-    }
-
-
-    .register-container{
-
-        width:100% !important;
-
-        border-radius:15px;
-
-    }
-
-
-    .left-panel{
-
-        padding:25px 15px;
-
-    }
-
-
-    .left-panel .logo{
-
-        width:70px;
-
-    }
-
-
-    .left-panel h1{
-
-        font-size:24px;
-
-    }
-
-
-    .left-panel p{
-
-        font-size:14px;
-
-    }
-
-
-    .illustration{
-
-        width:220px;
-
-    }
-
-
-
-    .right-panel{
-
-        padding:20px 15px;
-
-    }
-
-
-
-    /* Progress */
-
-    .progress{
-
-        overflow-x:auto;
-
-        justify-content:flex-start;
-
-        padding-bottom:10px;
-
-    }
-
-
-    .step{
-
-        min-width:70px;
-
-    }
-
-
-    .circle{
-
-        width:35px;
-
-        height:35px;
-
-        font-size:14px;
-
-    }
-
-
-    .step span{
-
-        font-size:11px;
-
-    }
-
-
-    .line{
-
-        min-width:35px;
-
-    }
-
-
-
-    /* Cards */
-
-    .card-content{
-
-        padding:20px;
-
-    }
-
-
-
-    /* Buttons */
-
-    .step-buttons{
-
-        flex-direction:column;
-
-    }
-
-
-    .btn-back,
-    .btn-secondary,
-    .btn-next,
-    .btn-submit{
-
-        width:100%;
-
-        padding:13px;
-
-    }
-
-
-
-    /* Modal */
-
-    .modal-box{
-
-        width:90%;
-
-        padding:25px;
-
-    }
-
-
-}
-
-
-
-
-@media(max-width:600px){
-
-.mobile-step-title{
-
-    display:block;
-
-}
-
-}
-
-/* ================================
-   CLEAN MOBILE STEPS
-================================ */
-
-.progress{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    width:100%;
-}
-
-
-.step{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    position:relative;
-}
-
-
-.circle{
-
-    width:42px;
-    height:42px;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    border-radius:50%;
-
-    background:#fff;
-    border:3px solid #dbe4f3;
-
-    color:#9ca3af;
-
-    font-weight:700;
-
-}
-
-
-.step.active .circle{
-
-    background:#2563eb;
-    border-color:#2563eb;
-    color:white;
-
-}
-
-
-.step.completed .circle{
-
-    background:#22c55e;
-    border-color:#22c55e;
-    color:white;
-
-}
-
-
-.step span{
-
-    margin-top:8px;
-    font-size:12px;
-
-}
-
-
-.line{
-
-    height:3px;
-    background:#dbe4f3;
-
-    flex:1;
-
-    margin:0 12px;
-
-}
-
-
-/* MOBILE */
-
-@media(max-width:600px){
-
-
-    .progress{
-
-        margin-bottom:25px;
-
-    }
-
-
-    .circle{
-
-        width:34px;
-        height:34px;
-
-        font-size:13px;
-
-    }
-
-
-    .step span{
-
-        display:none;
-
-    }
-
-
-    .line{
-
-        min-width:25px;
-
-        margin:0 5px;
-
-    }
-
-
-}
-.mobile-header{
-    display:none;
-}
-
-@media (max-width:768px){
-
-.mobile-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:30px;
-}
-
-.mobile-back{
-    width:45px;
-    height:45px;
-    border-radius:50%;
-    background:#f5f5f5;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    color:#333;
-    font-size:18px;
-    text-decoration:none;
-}
-
-.mobile-counter{
-    color:#777;
-    font-size:15px;
-}
-
-}
-@media (max-width:768px){
-
-body{
-    background:#fff;
-    padding:0;
-}
-
-.register-container{
-    width:100%;
-    border-radius:0;
-    box-shadow:none;
-    min-height:100vh;
-}
-
-.right-panel{
-    padding:25px;
-}
-
-.step-header h2{
-    font-size:38px;
-    margin-bottom:8px;
-}
-
-.step-header p{
-    font-size:16px;
-    color:#777;
-}
-
-.form-group input,
-.form-group select{
-    height:56px;
-    border-radius:14px;
-    font-size:16px;
-}
-
-.form-group textarea{
-    border-radius:14px;
-}
-
-.step-buttons{
-    flex-direction:column;
-    gap:12px;
-}
-
-.btn-next,
-.btn-submit,
-.btn-back,
-.btn-secondary{
-    width:100%;
-    height:56px;
-    border-radius:14px;
-    font-size:16px;
-}
-
-}
-/* ===========================================
-   MOBILE REGISTRATION
-===========================================*/
-@media (max-width:600px){
-
-body{
-    background:#fff;
-    padding:0;
-    display:block;
-}
-
-.register-container{
-    width:100%;
-    box-shadow:none;
-    border-radius:0;
-    display:block;
-}
-
-.left-panel{
-    display:none;
-}
-
-.right-panel{
-    width:100%;
-    padding:25px;
-}
-
-/* Progress */
-
-.progress{
-    margin-top:10px;
-    margin-bottom:30px;
-}
-
-.circle{
-    width:32px;
-    height:32px;
-    font-size:13px;
-}
-
-.line{
-    margin:0 5px;
-}
-
-.step span{
-    display:none;
-}
-
-/* Heading */
-
-.step-header{
-    margin-bottom:25px;
-}
-
-.step-header h2{
-    font-size:38px;
-    line-height:1.2;
-}
-
-.step-header p{
-    font-size:16px;
-    color:#666;
-}
-
-/* Cards */
-
-.account-selection,
-.level-selection{
-    display:flex;
-    flex-direction:column;
-    gap:18px;
-}
-
-.card-content{
-    padding:30px 20px;
-    border-radius:18px;
-}
-
-.icon{
-    width:70px;
-    height:70px;
-}
-
-.icon i{
-    font-size:30px;
-}
-
-.card-content h3{
-    font-size:26px;
-}
-
-.card-content p{
-    font-size:15px;
-}
-
-/* Forms */
-
-.form-grid{
-    grid-template-columns:1fr;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea{
-    padding:16px;
-    font-size:16px;
-}
-
-/* Buttons */
-
-.step-buttons{
-    flex-direction:column;
-    gap:15px;
-}
-
-.btn-next,
-.btn-back,
-.btn-submit{
-    width:100%;
-    height:55px;
-    border-radius:14px;
-    font-size:17px;
-}
-
-}
-
-/* ==========================
-   DESKTOP / MOBILE SWITCH
-========================== */
-
-.mobile-register{
-    display:none;
-}
-
-.desktop-register{
-    display:flex;
-}
-
-@media(max-width:768px){
-
-.desktop-register{
-    display:none;
-}
-
-.mobile-register{
-    display:block;
-    min-height:100vh;
-    background:#fff;
-}
-
-}
-
-/* =========================================
-   STEP 1 - MOBILE LAYOUT
-========================================= */
-
-.mobile-header{
-    display:none;
-}
-
-@media (max-width:768px){
-
-    body{
-        padding:0;
-        background:#f5f7fb;
-    }
-
-    .register-container{
-        width:100%;
-        min-height:100vh;
-        border-radius:0;
-        display:block;
-        box-shadow:none;
-    }
-
-    /* Hide blue panel */
-    .left-panel{
-        display:none;
-    }
-
-    /* Registration takes whole screen */
-    .right-panel{
-        width:100%;
-        padding:20px;
-    }
-
-    /* Show mobile header */
-    .mobile-header{
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        margin-bottom:25px;
-    }
-
-    .mobile-back{
-        width:40px;
-        height:40px;
-        border-radius:50%;
-        background:#eef3ff;
-        color:#2563eb;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        font-size:18px;
-    }
-
-    .mobile-counter{
-        font-size:14px;
-        font-weight:600;
-        color:#666;
-    }
-
-}
-
-/* ======================================
-   MOBILE REGISTER
-====================================== */
-@media (max-width:768px){
-
-body{
-    background:#f5f7fb;
-    padding:0;
-}
-
-.register-container{
-    display:block;
-    width:100%;
-    min-height:100vh;
-    border-radius:0;
-    box-shadow:none;
-}
-
-.left-panel{
-    display:none;
-}
-
-.right-panel{
-    width:100%;
-    padding:20px;
-}
-
-/* Header */
-
-.mobile-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-}
-
-.mobile-back{
-    width:42px;
-    height:42px;
-    border-radius:50%;
-    background:#eef4ff;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#2563eb;
-    font-size:18px;
-}
-
-.mobile-counter{
-    font-size:15px;
-    font-weight:600;
-}
-
-/* Progress */
-
-.progress{
-    margin-bottom:25px;
-}
-
-.circle{
-    width:32px;
-    height:32px;
-    font-size:13px;
-}
-
-.step span{
-    display:none;
-}
-
-.line{
-    margin:0 5px;
-}
-
-/* Heading */
-
-.step-header h2{
-    font-size:30px;
-}
-
-.step-header p{
-    font-size:15px;
-}
-
-/* Cards */
-
-.account-selection,
-.level-selection{
-    grid-template-columns:1fr;
-}
-
-.card-content{
-    padding:20px;
-}
-
-/* Form */
-
-.form-grid{
-    grid-template-columns:1fr;
-}
-
-/* Buttons */
-
-.step-buttons{
-    flex-direction:column;
-    gap:12px;
-}
-
-.btn-back,
-.btn-next,
-.btn-secondary,
-.btn-submit{
-    width:100%;
-}
-
-}
-
-@media (max-width:768px){
-
-.account-selection{
-    display:flex;
-    flex-direction:column;
-    gap:15px;
-}
-
-.card-content{
-
-    display:flex;
-    align-items:center;
-
-    text-align:left;
-
-    padding:18px;
-
-    border-radius:18px;
-}
-
-.icon{
-
-    width:60px;
-    height:60px;
-
-    margin:0;
-    flex-shrink:0;
-}
-
-.card-text{
-
-    flex:1;
-
-    margin-left:15px;
-}
-
-.card-text h3{
-
-    font-size:20px;
-
-    margin-bottom:6px;
-}
-
-.card-text p{
-
-    font-size:14px;
-
-    line-height:1.5;
-}
-
-.card-arrow{
-
-    font-size:18px;
-
-    color:#2563eb;
-}
-
-}
-
-.mobile-header{
-    display:none;
-}
-
-@media (max-width:768px){
-
-.mobile-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-}
-
-}
-
-.mobile-hero{
-    display:none;
-}
-
-@media(max-width:768px){
-
-.left-panel{
-    display:none;
-}
-
-.right-panel{
-    width:100%;
-}
-
-.mobile-hero{
-    display:block;
-    text-align:center;
-    margin-bottom:25px;
-}
-
-.mobile-logo{
-    width:70px;
-    margin-bottom:15px;
-}
-
-.mobile-hero h2{
-    color:#1d4ed8;
-    font-size:28px;
-    margin-bottom:10px;
-}
-
-.mobile-hero p{
-    color:#666;
-    font-size:15px;
-    margin-bottom:20px;
-}
-
-.mobile-illustration{
-    width:220px;
-    max-width:100%;
-}
-
-}
-
-@media (max-width:768px){
-
-.mobile-illustration{
-    display:none;
+.form-group select:focus {
+    border-color: var(--bright-blue) !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 0 0 3px rgba(57, 130, 220, 0.2) !important;
 }
 
+.divider {
+    border: 0 !important;
+    height: 1px !important;
+    background: var(--border-dark) !important;
+    margin: 12px 0 !important;
 }
 
-@media (max-width:768px){
-
-.mobile-hero{
-
-    margin-bottom:15px;
-    padding-bottom:10px;
-
-}
-
-.mobile-logo{
-
-    width:65px;
-    margin-bottom:15px;
-
-}
-
-.mobile-hero h2{
-
-    font-size:32px;
-    margin-bottom:8px;
-
-}
-
-.mobile-hero p{
-
-    font-size:15px;
-    margin-bottom:0;
-
-}
-
-}
-
-/* ======================================
-   MOBILE PROGRESS DESIGN
-====================================== */
-
-@media (max-width:768px){
-
-.progress{
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    margin:20px 0 30px;
-    padding:0 5px;
-
-}
-
-.step{
-
-    flex:none;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-}
-
-.circle{
-
-    width:38px;
-    height:38px;
-
-    border-radius:50%;
-    font-size:14px;
-    font-weight:600;
-
-    border:2px solid #dbeafe;
-    background:#fff;
-    color:#94a3b8;
-
-    transition:.3s;
-}
-
-.step.active .circle{
-
-    background:#2563eb;
-    border-color:#2563eb;
-    color:#fff;
-
-    box-shadow:0 4px 12px rgba(37,99,235,.25);
-
-}
-
-.step.completed .circle{
-
-    background:#22c55e;
-    border-color:#22c55e;
-    color:#fff;
-
-}
-
-.step span{
-
-    display:none;
-
-}
-
-.line{
-
-    width:45px;
-    height:2px;
-
-    background:#dbeafe;
-
-    margin:0 8px;
-
-}
-
-}
-
-@media (max-width:768px){
-
-.register-container{
-
-    width:100%;
-    max-width:100%;
-
-    display:block;
-
-    background:transparent;
-
-    box-shadow:none;
-
-    border-radius:0;
-
-    overflow:visible;
-
-    min-height:auto;
-
-}
-
-}
-
-/* ==========================================
-   FINAL MOBILE FIX
-   (Place this at the very bottom)
-========================================== */
-
-@media only screen and (max-width:768px){
-
-    html,
-    body{
-        width:100%;
-        overflow-x:hidden;
-        background:#f5f7fb;
-        padding:0;
-    }
-
-    .register-container{
-        width:100% !important;
-        max-width:100% !important;
-        display:block !important;
-        border-radius:0;
-        box-shadow:none;
-        overflow:hidden;
-    }
-
-    /* Hide desktop panel */
-    .left-panel{
-        display:none !important;
-    }
-
-    /* Show mobile welcome */
-    .mobile-hero{
-        display:block !important;
-    }
-
-    .right-panel{
-        width:100% !important;
-        padding:20px !important;
-    }
-
-    /* Progress */
-
-    .progress{
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        overflow-x:auto;
-        padding-bottom:10px;
-        margin:20px 0 30px;
-    }
-
-    .step{
-        min-width:55px;
-    }
-
-    .step span{
-        display:none;
-    }
-
-    .circle{
-        width:36px;
-        height:36px;
-        font-size:14px;
-    }
-
-    .line{
-        min-width:30px;
-        margin:0 6px;
-    }
-
-    /* Cards */
-
-    .account-selection,
-    .level-selection{
-        display:flex;
-        flex-direction:column;
-        gap:15px;
-    }
-
-    .card-content{
-        padding:18px;
-    }
-
-    /* Forms */
-
-    .form-grid{
-        display:grid;
-        grid-template-columns:1fr;
-        gap:15px;
-    }
-
-    .form-group.full{
-        grid-column:auto;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea{
-        width:100%;
-        font-size:16px;
-        padding:15px;
-    }
-
-    /* Buttons */
-
-    .step-buttons{
-        display:flex;
-        flex-direction:column;
-        gap:12px;
-    }
-
-    .btn-back,
-    .btn-next,
-    .btn-secondary,
-    .btn-submit{
-        width:100%;
-        height:52px;
-        font-size:16px;
-    }
-
-    /* Modal */
-
-    .modal-box{
-        width:90%;
-        max-width:360px;
-    }
-
-}
-
-.account-selection{
-    display: flex;
-    gap: 20px;
+#parentForm h3, #studentForm h3 {
+    font-size: 0.92rem !important;
+    color: #ffffff !important;
+    margin: 0 0 4px 0 !important;
+}
+
+.student-note {
+    font-size: 0.76rem !important;
+    color: var(--text-muted) !important;
+    margin: 0 0 10px 0 !important;
 }
-
-.account-card{
-    flex: 1;
-    display: flex;
-}
-
-.card-content{
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    min-height: 230px; /* Adjust as needed */
-    padding: 20px;
-}
-
-.login-link{
-    text-align:center;
-    margin-top:20px;
-}
-
-.login-link p{
-    color:#666;
-    font-size:15px;
-}
-
-.login-link a{
-    color:#0d6efd;
-    text-decoration:none;
-    font-weight:600;
-}
-
-.login-link a:hover{
-    text-decoration:none;
-}
-/* ==========================================
-   MOBILE RESPONSIVE FIX FOR LOGIN PAGE
-   ========================================== */
-
-@media screen and (max-width: 768px) {
-
-    /* Stack elements vertically and add top padding for space */
-    .login-wrapper {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: flex-start !important;
-        width: 100% !important;
-        min-height: 100vh !important;
-        padding: 20px 15px !important;
-        box-sizing: border-box !important;
-        position: relative !important;
-    }
-
-    /* Keep Back button positioned top-left outside the card */
-    .back-button {
-        position: absolute !important;
-        top: 15px !important;
-        left: 15px !important;
-        z-index: 20 !important;
-        padding: 8px 16px !important;
-        background-color: #ffffff !important;
-        color: #334155 !important;
-        border: 1px solid #cbd5e1 !important;
-        border-radius: 20px !important;
-        font-size: 13px !important;
-        font-weight: 600 !important;
-        text-decoration: none !important;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
-    }
-
-    /* Hide heavy desktop illustration on mobile */
-    .login-image {
-        display: none !important;
-    }
-
-    /* Push card down below Back button */
-    .login-card {
-        width: 100% !important;
-        max-width: 400px !important;
-        margin-top: 55px !important; /* Prevents button overlap */
-        padding: 25px 20px !important;
-        box-sizing: border-box !important;
-        background: #ffffff !important;
-        border-radius: 16px !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-    }
-
-    .login-card .logo {
-        max-width: 60px !important;
-        height: auto !important;
-        display: block !important;
-        margin: 0 auto 10px auto !important;
-    }
-
-    .login-card h2 {
-        font-size: 22px !important;
-        text-align: center !important;
-        margin-bottom: 20px !important;
-    }
-
-    /* Form Fields & Submit Button */
-    .login-card form {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 12px !important;
-    }
-
-    .login-card input[type="email"],
-    .login-card input[type="password"] {
-        width: 100% !important;
-        height: 45px !important;
-        padding: 10px 12px !important;
-        font-size: 14px !important;
-        box-sizing: border-box !important;
-        border: 1px solid #cbd5e1 !important;
-        border-radius: 8px !important;
-    }
-
-    .login-card button[type="submit"] {
-        width: 100% !important;
-        height: 45px !important;
-        font-size: 15px !important;
-        font-weight: 600 !important;
-        margin-top: 8px !important;
-        border-radius: 8px !important;
-        cursor: pointer !important;
-    }
-}
-/* ==========================================
-   FIX OFF-CENTER / SHIFTED CONTENT ON MOBILE
-   ========================================== */
-
-@media screen and (max-width: 768px) {
-
-    /* 1. Reset root containers to prevent off-screen overflow */
-    html, body {
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow-x: hidden !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    /* 2. Completely eliminate the desktop left panel from space calculation */
-    .left-panel {
-        display: none !important;
-        width: 0 !important;
-        height: 0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    /* 3. Force main container to occupy 100% full width, centered */
-    .register-container {
-        display: flex !important;
-        flex-direction: column !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 auto !important;
-        padding: 10px !important;
-        box-sizing: border-box !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
-    }
-
-    /* 4. Force right panel (form) to fill screen width with equal side padding */
-    .right-panel {
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 !important;
-        padding: 10px !important;
-        box-sizing: border-box !important;
-    }
-
-    /* 5. Center and fit cards perfectly inside screen */
-    .account-selection,
-    .account-card,
-    .card-content {
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-    }
-
-    /* 6. Prevent step indicator line from pushing screen out */
-    .progress {
-        width: 100% !important;
-        box-sizing: border-box !important;
-        padding: 0 10px !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-    }
-}
-
-/* ==========================================
-   MOBILE RESPONSIVE STYLING
-   ========================================== */
-
-@media (max-width: 768px) {
-    /* Container setup */
-    body {
-        padding: 0;
-        margin: 0;
-        background-color: #f4f6f9;
-    }
 
+#studentContainer {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    margin-bottom: 10px !important;
+}
+
+.student-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid var(--border-dark) !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+}
+
+.btn-add-student {
+    background: rgba(57, 130, 220, 0.15) !important;
+    color: var(--sky-blue) !important;
+    border: 1px dashed var(--bright-blue) !important;
+    border-radius: 8px !important;
+    padding: 8px 14px !important;
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    width: 100% !important;
+    margin-bottom: 12px !important;
+}
+
+/* LOGIN LINK */
+.login-link {
+    text-align: center !important;
+    margin: 10px 0 4px 0 !important;
+}
+
+.login-link p {
+    font-size: 0.8rem !important;
+    color: var(--text-muted) !important;
+    margin: 0 !important;
+}
+
+.login-link a {
+    color: var(--bright-blue) !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+}
+
+/* STEP 4 REVIEW CARDS */
+.review-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid var(--border-dark) !important;
+    border-radius: 10px !important;
+    padding: 12px 14px !important;
+    margin-bottom: 10px !important;
+}
+
+.review-card h3 {
+    font-size: 0.88rem !important;
+    color: var(--bright-blue) !important;
+    margin: 0 0 8px 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+.review-item {
+    display: flex !important;
+    justify-content: space-between !important;
+    font-size: 0.78rem !important;
+    margin-bottom: 5px !important;
+}
+
+.review-item span { color: var(--text-muted) !important; }
+.review-item strong { color: #ffffff !important; }
+
+.agreement-box { margin: 12px 0 !important; }
+.agreement-box label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    font-size: 0.78rem !important;
+    color: #cbd5e1 !important;
+    cursor: pointer !important;
+}
+
+/* NAVIGATION BUTTONS */
+.step-buttons {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-top: auto !important;
+    padding-top: 14px !important;
+    border-top: 1px solid var(--border-dark) !important;
+    flex-shrink: 0 !important;
+}
+
+.btn-back, .btn-secondary {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+    padding: 9px 20px !important;
+    border-radius: 8px !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    border: 1px solid var(--border-dark) !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+.btn-next {
+    background: var(--bright-blue) !important;
+    color: #ffffff !important;
+    padding: 9px 24px !important;
+    border-radius: 8px !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    box-shadow: 0 4px 12px rgba(57, 130, 220, 0.35) !important;
+}
+
+.btn-submit {
+    background: #10b981 !important;
+    color: #ffffff !important;
+    padding: 9px 24px !important;
+    border-radius: 8px !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
     .register-container {
         flex-direction: column !important;
-        width: 100% !important;
-        min-height: 100vh !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
+        max-width: 100% !important;
     }
-
-    /* Hide desktop left side panel on mobile screens */
-    .left-panel {
-        display: none !important;
-    }
-
-    /* Adjust right panel container */
-    .right-panel {
-        width: 100% !important;
-        padding: 20px 15px !important;
-    }
-
-    /* Mobile Hero/Header adjustments */
-    .mobile-hero {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
-    .mobile-logo {
-        max-width: 70px;
-        height: auto;
-    }
-
-    .mobile-illustration {
-        max-width: 180px;
-        height: auto;
-        margin: 10px auto;
-    }
-
-    /* Responsive Progress Stepper */
-    .progress {
-        width: 100% !important;
-        justify-content: space-between !important;
-        padding: 0 5px !important;
-        margin-bottom: 25px !important;
-    }
-
-    .step .circle {
-        width: 32px !important;
-        height: 32px !important;
-        font-size: 13px !important;
-    }
-
-    .step span {
-        font-size: 10px !important;
-    }
-
-    .line {
-        flex-grow: 1 !important;
-        margin: 0 4px !important;
-    }
-
-    /* Option Cards (Student vs Parent) stacked vertically */
-    .cards-container,
-    .account-cards,
-    .options-grid {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 15px !important;
-    }
-
-    .card,
-    .option-card {
-        width: 100% !important;
-        margin: 0 !important;
-    }
-
-    /* Form Fields & Inputs */
-    .form-group, 
-    .input-group {
-        width: 100% !important;
-    }
-
-    input, select, textarea {
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-
-    /* Form Action Buttons */
-    .btn-group,
-    .button-container {
-        display: flex !important;
-        flex-direction: column-reverse !important;
-        gap: 10px !important;
-        width: 100% !important;
-    }
-
-    .btn, button {
-        width: 100% !important;
-    }
+    .left-panel { display: none !important; }
+    .right-panel { padding: 24px 20px !important; }
 }
 
-/* ==========================================
-   FIX TERMS / CERTIFICATION CHECKBOX ON MOBILE
-   ========================================== */
 
-@media screen and (max-width: 768px) {
-
-    /* Keep the terms container aligned horizontally */
-    .terms-container,
-    .checkbox-container,
-    .certify-wrapper,
-    label:has(input[type="checkbox"]) {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: flex-start !important;
-        gap: 12px !important;
-        width: 100% !important;
-        background: transparent !important;
-        border: none !important;
-        padding: 5px 0 !important;
-    }
-
-    /* Force the checkbox to stay normal size and not stretch */
-    input[type="checkbox"] {
-        width: 20px !important;
-        height: 20px !important;
-        min-width: 20px !important;
-        min-height: 20px !important;
-        max-width: 20px !important;
-        max-height: 20px !important;
-        flex-shrink: 0 !important;
-        margin-top: 2px !important;
-        cursor: pointer;
-    }
-
-    /* Allow the agreement text to wrap cleanly next to the checkbox */
-    .terms-text,
-    .checkbox-label,
-    label:has(input[type="checkbox"]) span,
-    label:has(input[type="checkbox"]) p {
-        flex: 1 !important;
-        width: auto !important;
-        font-size: 13px !important;
-        line-height: 1.4 !important;
-        color: #334155 !important;
-        white-space: normal !important;
-        word-break: break-word !important;
-    }
-}

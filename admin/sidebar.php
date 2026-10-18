@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <?php
-// Safely initiate session without throwing "Ignoring session_start()" notice
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -9,32 +9,33 @@ if (session_status() === PHP_SESSION_NONE) {
 $current_page = basename($_SERVER['PHP_SELF']);
 $admin_id = $_SESSION['user_id'] ?? 1;
 
-// Fetch the admin's latest details directly from the database for instant syncing
 $admin_query = mysqli_query($conn, "SELECT fullname, profile_pic FROM users WHERE user_id = '$admin_id' LIMIT 1");
 $admin_data = mysqli_fetch_assoc($admin_query);
 $sidebar_fullname = $admin_data['fullname'] ?? ($_SESSION['fullname'] ?? 'Administrator');
 $sidebar_profile_pic = !empty($admin_data['profile_pic']) ? "../" . $admin_data['profile_pic'] : "../assets/images/default-avatar.png";
 
-// Fetch notification count
 $notifResult = mysqli_query($conn, "SELECT COUNT(*) AS total FROM notifications WHERE user_id='$admin_id' AND (is_read = 0 OR is_read IS NULL)");
 $notifCount = ($notifResult) ? (int)mysqli_fetch_assoc($notifResult)['total'] : 0;
 
-// Fetch TOTAL unread message count for badge
 $msgResult = mysqli_query($conn, "SELECT COUNT(*) AS total FROM messages WHERE receiver_id='$admin_id' AND status='Unread'");
 $unreadMsgCount = ($msgResult) ? (int)mysqli_fetch_assoc($msgResult)['total'] : 0;
-
-$user_initial = !empty($sidebar_fullname) ? strtoupper(substr($sidebar_fullname, 0, 1)) : 'A';
 ?>
 
 <style>
-/* ==========================================
-   SIDEBAR & LAYOUT STYLES (COMPACT FIT)
-   ========================================== */
+:root {
+    --deep-blue: #1F5CAB;
+    --bright-blue: #3982DC;
+    --sky-blue: #75AAE7;
+    --light-sky: #B9D4F3;
+    --navbar-dark: #0f2d59;
+    --radius-md: 12px;
+}
+
 .sidebar {
     width: 260px;
     height: 100vh;
-    background: #ffffff;
-    border-right: 1px solid #e2e8f0;
+    background: var(--navbar-dark);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
     position: fixed;
     top: 0;
     left: 0;
@@ -43,60 +44,82 @@ $user_initial = !empty($sidebar_fullname) ? strtoupper(substr($sidebar_fullname,
     z-index: 10001;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-sizing: border-box;
-    overflow: hidden; /* Prevents outer scrollbar */
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 4px 0 20px rgba(15, 45, 89, 0.2);
 }
-
 .sidebar-brand {
-    padding: 12px 16px;
+    padding: 16px 12px;
     display: flex;
     align-items: center;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .sidebar-brand .brand-content {
     display: flex;
     align-items: center;
     gap: 10px;
+    width: 100%;
 }
 
 .portal-logo {
-    width: 32px;
-    height: 32px;
+    width: 40px !important;
+    height: 40px !important;
     object-fit: contain;
+    flex-shrink: 0;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Prevents text overflow */
 }
 
 .brand-text h2 {
     margin: 0;
     font-size: 1.05rem;
-    font-weight: 700;
-    color: #0f172a;
+    font-weight: 800;
     line-height: 1.1;
+    letter-spacing: -0.02em;
+    display: inline-flex !important; /* Forces 'e' and 'Registrar' to stay locked on one line */
+    align-items: center;
+    white-space: nowrap;
 }
 
-.brand-text span {
-    font-size: 0.7rem;
-    color: #64748b;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+.brand-e {
+    color: #3982DC !important;
 }
 
-/* Profile Dropdown Container Below Brand */
+.brand-registrar {
+    color: #ffffff !important;
+    margin-left: -8px;
+}
+
+.brand-text span.sub-title {
+    font-size: 0.68rem;
+    color: var(--light-sky);
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.2px;
+    display: block;
+    margin-top: 2px;
+    
+}
 .sidebar-profile-dropdown {
-    padding: 8px 12px;
-    border-bottom: 1px solid #f1f5f9;
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     position: relative;
-    background: #fafafa;
+    background: rgba(0, 0, 0, 0.15);
 }
 
 .user-profile-card {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 8px;
-    border-radius: 6px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     cursor: pointer;
     transition: all 0.2s ease;
     width: 100%;
@@ -104,17 +127,17 @@ $user_initial = !empty($sidebar_fullname) ? strtoupper(substr($sidebar_fullname,
 }
 
 .user-profile-card:hover {
-    background-color: #f8fafc;
-    border-color: #cbd5e1;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: var(--light-sky);
 }
 
 .user-profile-card .avatar {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
-    border: 1px solid #cbd5e1;
+    border: 2px solid var(--light-sky);
 }
 
 .user-profile-card .user-details {
@@ -125,39 +148,38 @@ $user_initial = !empty($sidebar_fullname) ? strtoupper(substr($sidebar_fullname,
 }
 
 .user-profile-card .user-details strong {
-    font-size: 0.8rem;
-    color: #0f172a;
+    font-size: 0.85rem;
+    color: #ffffff;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-weight: 700;
 }
 
 .user-profile-card .user-details small {
-    font-size: 0.68rem;
-    color: #64748b;
+    font-size: 0.7rem;
+    color: var(--light-sky);
 }
 
 .user-profile-card .dropdown-arrow {
-    font-size: 0.65rem;
-    color: #64748b;
+    font-size: 0.7rem;
+    color: var(--light-sky);
     margin-left: auto;
     transition: transform 0.2s ease;
 }
 
-/* Downward Popup Dropdown Menu */
-/* Downward Popup Dropdown Menu */
 .sidebar-dropdown-menu {
     display: none;
     position: absolute;
-    top: calc(100% + 4px);
-    left: 8px;
-    right: 8px;
+    top: calc(100% + 6px);
+    left: 12px;
+    right: 12px;
     background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    
-    
+    border: 1px solid #cbd5e1;
+    border-radius: var(--radius-md);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
+    padding: 6px;
+    z-index: 100;
 }
 
 .sidebar-dropdown-menu.show {
@@ -167,94 +189,99 @@ $user_initial = !empty($sidebar_fullname) ? strtoupper(substr($sidebar_fullname,
 .sidebar-dropdown-menu a {
     display: flex;
     align-items: center;
-    gap: 5px;
-    padding: 8px 10px;
-    color: #333333;
+    gap: 8px;
+    padding: 9px 12px;
+    color: #0f172a;
     text-decoration: none;
-    font-size: 0.85rem;
-    font-weight: 400;
-    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    border-radius: 8px;
     transition: background 0.2s ease;
 }
 
 .sidebar-dropdown-menu a:hover {
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: #DBE9F9;
+    color: #1F5CAB;
 }
 
 .sidebar-dropdown-menu a.logout-link {
-    color: #dc2626;
-    font-weight: 600;
+    color: #ef4444;
 }
 
 .sidebar-dropdown-menu a.logout-link:hover {
-    background-color: #ffeeec;
-    color: #dc2626;
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
 }
 
 .sidebar-nav {
     display: flex;
     flex-direction: column;
-    padding: 8px 10px;
-    gap: 2px;
+    padding: 12px 10px;
+    gap: 4px;
     flex-grow: 1;
-    overflow: hidden; /* Removed scrolling */
+    overflow: hidden;
 }
 
 .sidebar-nav a {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 7px 12px;
-    color: #64748b;
+    padding: 10px 14px;
+    color: #cbd5e1;
     text-decoration: none;
-    font-weight: 500;
-    font-size: 0.86rem;
-    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: var(--radius-md);
     transition: all 0.2s ease;
 }
 
 .sidebar-nav a .nav-link-content {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .sidebar-nav a i {
     font-size: 1rem;
-    width: 18px;
+    width: 20px;
     text-align: center;
+    color: var(--sky-blue);
 }
 
 .sidebar-nav a:hover {
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.sidebar-nav a:hover i {
+    color: #ffffff;
 }
 
 .sidebar-nav a.active {
-    background-color: #eff6ff;
-    color: #2563eb;
-    font-weight: 600;
+    background-color: var(--deep-blue);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(31, 92, 171, 0.35);
+    font-weight: 700;
 }
 
 .sidebar-nav a.active i {
-    color: #2563eb;
+    color: #ffffff;
 }
 
 .notif-badge {
     background-color: #ef4444;
     color: #ffffff;
     font-size: 0.7rem;
-    font-weight: 700;
-    padding: 2px 6px;
+    font-weight: 800;
+    padding: 2px 7px;
     border-radius: 10px;
     line-height: 1.1;
 }
 
 .mobile-header-toggle { display: none; }
 .mobile-actions { display: flex; align-items: center; gap: 12px; }
-.toggle-btn { background: #ffffff; border: 1px solid #cbd5e1; font-size: 1.2rem; color: #0f172a; cursor: pointer; padding: 6px 12px; border-radius: 6px; outline: none; }
-.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(2px); z-index: 10000; }
+.toggle-btn { background: var(--navbar-dark); border: 1px solid rgba(255, 255, 255, 0.2); font-size: 1.2rem; color: #ffffff; cursor: pointer; padding: 6px 12px; border-radius: 8px; outline: none; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(2px); z-index: 10000; }
 .sidebar-overlay.show { display: block !important; }
 
 @media (max-width: 768px) {
@@ -262,18 +289,18 @@ $user_initial = !empty($sidebar_fullname) ? strtoupper(substr($sidebar_fullname,
         display: flex !important;
         position: fixed;
         top: 0; left: 0; right: 0;
-        height: 60px;
-        background: #ffffff;
-        border-bottom: 1px solid #e2e8f0;
-        padding: 0 16px;
+        height: 64px;
+        background: var(--navbar-dark);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 0 20px;
         align-items: center;
         justify-content: space-between;
         z-index: 9999;
     }
-    .mobile-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: #0f172a; font-size: 1.05rem; }
+    .mobile-brand { display: flex; align-items: center; gap: 10px; font-weight: 800; color: #ffffff; font-size: 1.1rem; }
     .sidebar { transform: translateX(-100%); }
-    .sidebar.open { transform: translateX(0) !important; box-shadow: 10px 0 25px -5px rgba(0, 0, 0, 0.1); }
-    body { padding-top: 60px !important; }
+    .sidebar.open { transform: translateX(0) !important; box-shadow: 10px 0 25px -5px rgba(0, 0, 0, 0.3); }
+    body { padding-top: 64px !important; }
     .admin-content { margin-left: 0 !important; }
 }
 
@@ -285,8 +312,8 @@ $user_initial = !empty($sidebar_fullname) ? strtoupper(substr($sidebar_fullname,
 <!-- Mobile Top Bar Header -->
 <div class="mobile-header-toggle">
     <div class="mobile-brand">
-        <img src="../assets/images/logosss.png" class="portal-logo" alt="Logo">
-        <span>eRegistrar Admin</span>
+        <img src="../assets/images/logo1.png" class="portal-logo" alt="Logo">
+        <span><span class="brand-e">e</span><span class="brand-registrar">Registrar</span> Admin</span>
     </div>
     <div class="mobile-actions">
         <button type="button" class="toggle-btn" id="sidebarToggle" aria-label="Toggle Navigation">
@@ -300,14 +327,14 @@ $user_initial = !empty($sidebar_fullname) ? strtoupper(substr($sidebar_fullname,
 <!-- Sidebar Component -->
 <aside class="sidebar" id="adminSidebar">
     <div class="sidebar-brand">
-        <div class="brand-content">
-            <img src="../assets/images/logosss.png" class="portal-logo" alt="eRegistrar Logo">
-            <div class="brand-text">
-                <h2>eRegistrar</h2>
-                <span>Admin Panel</span>
-            </div>
+    <div class="brand-content">
+        <img src="../assets/images/logo1.png" class="portal-logo" alt="eRegistrar Logo">
+        <div class="brand-text">
+            <h2><span class="brand-e">e</span><span class="brand-registrar">Registrar</span></h2>
+            <span class="sub-title">Admin Panel</span>
         </div>
     </div>
+</div>
 
     <!-- Admin Profile Section Directly Below Brand Header -->
     <div class="sidebar-profile-dropdown" id="profileDropdownContainer">
@@ -321,7 +348,7 @@ $user_initial = !empty($sidebar_fullname) ? strtoupper(substr($sidebar_fullname,
         </div>
 
         <div class="sidebar-dropdown-menu" id="sidebarDropdownMenu">
-            <a href="../logout.php">
+            <a href="../logout.php" class="logout-link">
                 <i class="fa-solid fa-right-from-bracket"></i>
                 <span>Logout</span>
             </a>
@@ -421,7 +448,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (toggleBtn) toggleBtn.addEventListener('click', toggleMenu);
     if (overlay) overlay.addEventListener('click', toggleMenu);
 
-    // Profile Dropdown Toggle
     const profileToggle = document.getElementById('profileCardToggle');
     const dropdownMenu = document.getElementById('sidebarDropdownMenu');
     const dropdownArrow = document.getElementById('dropdownArrow');
@@ -437,7 +463,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', function (e) {
             if (!profileToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
                 dropdownMenu.classList.remove('show');

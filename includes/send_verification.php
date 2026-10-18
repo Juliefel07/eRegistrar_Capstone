@@ -57,3 +57,65 @@ function sendVerificationEmail($email, $fullname, $otpCode)
         return false;
     }
 }
+
+function sendStatusUpdateEmail($email, $fullname, $trackingNo, $newStatus, $documentName)
+{
+    $apiKey = getenv('BREVO_API_KEY');
+    $url = 'https://api.brevo.com/v3/smtp/email';
+
+    $data = [
+        'sender' => [
+            'name'  => 'eRegistrar System',
+            'email' => 'eregistrarcctc@gmail.com'
+        ],
+        'to' => [
+            [
+                'email' => $email,
+                'name'  => $fullname
+            ]
+        ],
+        'subject' => "eRegistrar - Status Update for Request #{$trackingNo}",
+        'htmlContent' => "
+            <!DOCTYPE html>
+            <html>
+            <body style='margin:0; padding:0; background-color: #f8fafc; font-family: Arial, sans-serif;'>
+                <div style='max-width: 500px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 24px;'>
+                    <h2 style='color: #1e3a8a; margin-top: 0; text-align: center;'>eRegistrar Status Update</h2>
+                    <p style='color: #475569; font-size: 15px;'>Hello <strong>" . htmlspecialchars($fullname) . "</strong>,</p>
+                    <p style='color: #475569; font-size: 15px;'>Your document request for <strong>" . htmlspecialchars($documentName) . "</strong> has been updated.</p>
+                    
+                    <div style='background-color: #f1f5f9; border-radius: 10px; padding: 16px; margin: 20px 0; text-align: center;'>
+                        <p style='margin: 0 0 6px 0; font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: bold;'>Tracking No: " . htmlspecialchars($trackingNo) . "</p>
+                        <span style='font-size: 20px; font-weight: 800; color: #1e3a8a;'>Status: " . htmlspecialchars($newStatus) . "</span>
+                    </div>
+
+                    <p style='color: #475569; font-size: 14px;'>You can log in to your student portal anytime to track further progress.</p>
+                    <p style='color: #94a3b8; font-size: 12px; margin-top: 25px; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 15px;'>This is an automated notification from the CCTC eRegistrar Office.</p>
+                </div>
+            </body>
+            </html>
+        "
+    ];
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'accept: application/json',
+        'api-key: ' . $apiKey,
+        'content-type: application/json'
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode === 201 || $httpCode === 200) {
+        return true;
+    } else {
+        error_log("Brevo API Status Update Mail Error [$httpCode]: " . $response);
+        return false;
+    }
+}

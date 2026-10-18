@@ -85,241 +85,597 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Document - CCTC eRegistrar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Request Document - eRegistrar</title>
     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
-    <!-- Base Stylesheets -->
-    <link rel="stylesheet" href="../assets/css/request.css?v=<?php echo time(); ?>">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <!-- Anti-Flicker Script: Load dark mode before page render -->
-<script>
-    if (localStorage.getItem("darkMode") === "enabled") {
-        document.documentElement.classList.add("dark-mode");
-        document.addEventListener("DOMContentLoaded", () => {
-            document.body.classList.add("dark-mode");
-        });
-    }
-</script>
+    <script>
+        if (localStorage.getItem("darkMode") === "enabled") {
+            document.documentElement.classList.add("dark-mode");
+            document.addEventListener("DOMContentLoaded", () => {
+                document.body.classList.add("dark-mode");
+            });
+        }
+    </script>
+    
     <style>
+    /* =========================================================
+       ACADEMIC BLUE DARK THEME REQUEST STYLING (MATCHING register.php)
+       ========================================================= */
+    :root {
+        --deep-blue: #1F5CAB;
+        --bright-blue: #3982DC;
+        --sky-blue: #75AAE7;
+        --light-sky: #B9D4F3;
+        --pale-bg: #DBE9F9;
+        --navbar-dark: #0f2d59;
+        --card-dark: #0a192f;
+        --card-bg: #ffffff;
+        --text-light: #f8fafc;
+        --text-muted: #94a3b8;
+        --heading-color: #0f172a;
+        --border-color: #cbd5e1;
+        --border-dark: rgba(255, 255, 255, 0.12);
+        --radius-md: 12px;
+        --radius-lg: 20px;
+        --shadow-sm: 0 1px 3px rgba(31, 92, 171, 0.08);
+        --shadow-md: 0 10px 25px -3px rgba(57, 130, 220, 0.12);
+        --shadow-lg: 0 25px 50px -12px rgba(15, 23, 42, 0.4);
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box !important;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        color: var(--heading-color);
+        background-color: #f8fafc;
+        margin: 0;
+        min-height: 100vh;
+    }
+
+    .request-container {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 0 16px;
+        display: flex;
+        gap: 28px;
+        justify-content: center;
+        align-items: flex-start;
+        box-sizing: border-box;
+        position: relative;
+        z-index: 5;
+    }
+
+    .request-card {
+        flex: 1.4;
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-color);
+        padding: 36px;
+        box-shadow: var(--shadow-md);
+    }
+
+    .summary-card {
+        flex: 0.9;
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-color);
+        padding: 32px;
+        box-shadow: var(--shadow-md);
+        position: sticky;
+        top: 90px;
+    }
+
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--heading-color);
+        margin: 0 0 6px 0;
+        letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        margin: 0 0 28px 0;
+    }
+
+    /* PROGRESS STEPS */
+    .steps {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 16px;
+    }
+
+    .step {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .step span {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+    }
+
+    .step.active {
+        color: var(--bright-blue);
+    }
+
+    .step.active span {
+        background: var(--bright-blue);
+        color: #ffffff;
+    }
+
+    .form-step {
+        display: none;
+    }
+
+    .form-step.active {
+        display: block;
+    }
+
+    .form-step h3 {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--heading-color);
+        margin: 0 0 20px 0;
+    }
+
+    .document-item {
+        background: #f8fafc;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 20px;
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+    .item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .doc-number-badge {
+        background-color: var(--pale-bg);
+        color: var(--deep-blue);
+        font-size: 0.85rem;
+        font-weight: 700;
+        padding: 6px 14px;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        width: 100%;
+        margin-bottom: 16px;
+    }
+
+    label {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--heading-color);
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-color);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.95rem;
+        background-color: #ffffff;
+        color: var(--heading-color);
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: var(--bright-blue);
+        box-shadow: 0 0 0 4px rgba(57, 130, 220, 0.2);
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 90px;
+    }
+
+    .row {
+        display: flex;
+        gap: 16px;
+    }
+
+    .row .form-group {
+        flex: 1;
+    }
+
+    .document-info {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .doc-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--heading-color);
+        margin: 0 0 6px 0;
+    }
+
+    .doc-desc {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin: 0 0 12px 0;
+        line-height: 1.5;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        padding-top: 10px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .info-row strong {
+        color: var(--heading-color);
+    }
+
+    .requirements h4 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--heading-color);
+        margin: 12px 0 6px 0;
+    }
+
+    .btn-add-doc {
+        background-color: #ecfdf5;
+        color: #047857;
+        border: 1px dashed #10b981;
+        width: 100%;
+        padding: 14px;
+        border-radius: var(--radius-md);
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        margin: 10px 0 24px 0;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-add-doc:hover {
+        background-color: #d1fae5;
+    }
+
+    .btn-remove-doc {
+        background-color: #fef2f2;
+        color: #ef4444;
+        border: 1px solid #fecaca;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-remove-doc:hover {
+        background-color: #fee2e2;
+        color: #dc2626;
+    }
+
+    /* BUTTONS */
+    .button-group {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 24px;
+    }
+
+    .next-btn, .submit-btn {
+        background-color: var(--bright-blue);
+        color: #ffffff;
+        padding: 14px 28px;
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 800;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 14px rgba(57, 130, 220, 0.3);
+        margin-left: auto;
+    }
+
+    .next-btn:hover, .submit-btn:hover {
+        background-color: #2563eb;
+        transform: translateY(-2px);
+    }
+
+    .back-btn {
+        background-color: #f1f5f9;
+        color: var(--heading-color);
+        padding: 14px 28px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+        background-color: #e2e8f0;
+    }
+
+    /* SUMMARY SIDEBAR */
+    .summary-card h3 {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--heading-color);
+        margin: 0 0 20px 0;
+    }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        margin-bottom: 14px;
+    }
+
+    .summary-item strong {
+        color: var(--heading-color);
+    }
+
+    .summary-card hr {
+        border: none;
+        border-top: 1px solid #e2e8f0;
+        margin: 20px 0;
+    }
+
+    .summary-card .total {
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--heading-color);
+    }
+
+    .summary-card .total strong {
+        color: var(--deep-blue);
+        font-size: 1.3rem;
+    }
+
+    /* REVIEW CARD */
+    .review-card {
+        background: #f8fafc;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .review-item {
+        margin-bottom: 14px;
+    }
+
+    .review-item label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 0.5px;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .review-item p, .review-item div {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--heading-color);
+        margin: 0;
+    }
+
+    /* MODALS */
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(6px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        padding: 16px;
+        box-sizing: border-box;
+    }
+
+    .modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .modal-card {
+        position: relative;
+        background-color: #ffffff;
+        width: 100%;
+        max-width: 420px;
+        border-radius: var(--radius-lg);
+        padding: 32px 24px;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        border: 1px solid var(--border-color);
+        z-index: 10;
+    }
+
+    .modal-icon {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+    }
+
+    .modal-title {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: var(--heading-color);
+        margin: 0 0 10px 0;
+    }
+
+    .modal-message {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin: 0 0 24px 0;
+    }
+
+    .simple-steps-box {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--radius-md);
+        padding: 16px;
+        margin-bottom: 24px;
+        text-align: left;
+        font-size: 0.9rem;
+        color: var(--heading-color);
+    }
+
+    .steps-heading {
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--heading-color);
+    }
+
+    .simple-steps-box ul {
+        margin: 0;
+        padding-left: 20px;
+        line-height: 1.6;
+        color: var(--text-muted);
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .btn {
+        font-size: 0.95rem;
+        font-weight: 700;
+        padding: 12px 24px;
+        border-radius: var(--radius-md);
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary { background-color: var(--bright-blue); color: #ffffff; }
+    .btn-primary:hover { background-color: #2563eb; }
+    .btn-secondary { background-color: #f1f5f9; color: var(--heading-color); border: 1px solid var(--border-color); }
+    .btn-secondary:hover { background-color: #e2e8f0; }
+    .btn-danger { background-color: #ef4444; color: #ffffff; }
+    .btn-danger:hover { background-color: #dc2626; }
+
+    /* DARK MODE OVERRIDES */
+    body.dark-mode {
+        background-color: #0f172a !important;
+        color: var(--text-light) !important;
+    }
+
+    body.dark-mode .request-card,
+    body.dark-mode .summary-card,
+    body.dark-mode .modal-card {
+        background: var(--card-dark) !important;
+        border-color: var(--border-dark) !important;
+        color: var(--text-light) !important;
+    }
+
+    body.dark-mode .page-title,
+    body.dark-mode .form-step h3,
+    body.dark-mode .summary-card h3,
+    body.dark-mode label,
+    body.dark-mode .modal-title,
+    body.dark-mode .doc-name,
+    body.dark-mode .review-item p,
+    body.dark-mode .review-item div {
+        color: #ffffff !important;
+    }
+
+    body.dark-mode input,
+    body.dark-mode select,
+    body.dark-mode textarea {
+        background-color: rgba(255, 255, 255, 0.06) !important;
+        border-color: var(--border-dark) !important;
+        color: #ffffff !important;
+    }
+
+    body.dark-mode .document-item,
+    body.dark-mode .document-info,
+    body.dark-mode .review-card,
+    body.dark-mode .simple-steps-box {
+        background: rgba(255, 255, 255, 0.03) !important;
+        border-color: var(--border-dark) !important;
+    }
+
+    @media (max-width: 992px) {
         .request-container {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 16px;
-            display: flex;
-            gap: 24px;
-            justify-content: center;
-            align-items: flex-start;
-            box-sizing: border-box;
-            position: relative;
-            z-index: 5;
+            flex-direction: column;
+            margin-top: 20px;
+            padding: 0 12px;
         }
-
-        .request-card {
-            flex: 1;
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-        }
-
-        .page-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #0f172a;
-            margin: 0 0 4px 0;
-        }
-
-        .subtitle {
-            font-size: 0.9rem;
-            color: #64748b;
-            margin: 0 0 24px 0;
-        }
-
-        .document-item {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 18px;
-            margin-bottom: 16px;
-            position: relative;
-        }
-
-        .item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 12px;
-            margin-bottom: 16px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .btn-add-doc {
-            background-color: #ecfdf5;
-            color: #047857;
-            border: 1px dashed #10b981;
+        .request-card, .summary-card {
             width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            margin: 10px 0 20px 0;
-            transition: all 0.2s ease;
         }
-
-        .btn-add-doc:hover {
-            background-color: #d1fae5;
-        }
-
-        .doc-number-badge {
-            background-color: #e0f2fe;
-            color: #0369a1;
-            font-size: 0.85rem;
-            font-weight: 700;
-            padding: 4px 12px;
-            border-radius: 20px;
-            letter-spacing: 0.3px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-remove-doc {
-            background-color: #fef2f2;
-            color: #ef4444;
-            border: 1px solid #fecaca;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-remove-doc:hover {
-            background-color: #fee2e2;
-            color: #dc2626;
-            border-color: #fca5a5;
-            transform: translateY(-1px);
-        }
-
-        .modal {
-            position: fixed;
+        .summary-card {
+            position: relative;
             top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0.4);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            padding: 16px;
-            box-sizing: border-box;
         }
-
-        .modal-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .modal-card {
-            position: relative;
-            background-color: #ffffff;
-            width: 100%;
-            max-width: 400px;
-            border-radius: 8px;
-            padding: 24px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 10;
-        }
-
-        .modal-icon {
-            font-size: 2rem;
-            margin-bottom: 8px;
-        }
-
-        .modal-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #111827;
-            margin: 0 0 8px 0;
-        }
-
-        .modal-message {
-            font-size: 0.9rem;
-            color: #4b5563;
-            line-height: 1.4;
-            margin: 0 0 16px 0;
-        }
-
-        .simple-steps-box {
-            background-color: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            padding: 12px 14px;
-            margin-bottom: 20px;
-            text-align: left;
-            font-size: 0.85rem;
-            color: #374151;
-        }
-
-        .steps-heading {
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #1f2937;
-        }
-
-        .simple-steps-box ul {
-            margin: 0;
-            padding-left: 18px;
-            line-height: 1.5;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-        }
-
-        .btn {
-            font-size: 0.875rem;
-            font-weight: 500;
-            padding: 8px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            cursor: pointer;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-primary { background-color: #2563eb; color: #ffffff; }
-        .btn-primary:hover { background-color: #1d4ed8; }
-        .btn-secondary { background-color: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
-        .btn-secondary:hover { background-color: #e5e7eb; }
-        .btn-danger { background-color: #dc2626; color: #ffffff; }
-        .btn-danger:hover { background-color: #b91c1c; }
-
-        @media (max-width: 768px) {
-            .request-container {
-                flex-direction: column;
-                margin-top: 20px;
-                padding: 0 12px;
-            }
-            .request-card, .summary-card {
-                width: 100%;
-                box-sizing: border-box;
-            }
-        }
+    }
     </style>
 </head>
 <body>
@@ -357,14 +713,14 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {
                             <select name="documents[0][id]" class="document-select" onchange="handleDocChange(this)" required>
                                 <option value="">Choose Document</option>
                                 <?php 
-                                mysqli_data_seek($documents, 0);$current_category = "";
+                                mysqli_data_seek($documents, 0); $current_category = "";
                                 while($row = mysqli_fetch_assoc($documents)){ 
-                                    $cat =$row['category'] ?? 'Others';
-                                    if ($current_category !==$cat) {
+                                    $cat = $row['category'] ?? 'Others';
+                                    if ($current_category !== $cat) {
                                         if ($current_category !== "") {
                                             echo "</optgroup>";
                                         }
-                                        $current_category =$cat;
+                                        $current_category = $cat;
                                         echo "<optgroup label='" . htmlspecialchars($current_category) . "'>";
                                     }
                                 ?>
@@ -411,7 +767,7 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {
                 </button>
 
                 <!-- CCTC ID SURRENDER NOTE -->
-                <div class="alert-note" style="background-color: #fffbeeb0; border-left: 4px solid #f59e0b; padding: 12px 16px; margin: 15px 0; border-radius: 4px; font-size: 0.875rem; color: #92400e;">
+                <div class="alert-note" style="background-color: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 14px 18px; margin: 20px 0; border-radius: var(--radius-md); font-size: 0.9rem; color: #d97706;">
                     <strong>Note:</strong> Students shall surrender their ID as they apply for Transfer/Graduation.
                 </div>
 
@@ -422,46 +778,46 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {
 
                 <!-- DYNAMIC ID UPLOADS BASED ON ACCOUNT TYPE -->
                 <?php if ($user_role === 'Parent'): ?>
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 18px; border-radius: 8px; margin-top: 20px;">
-                        <h4 style="margin: 0 0 12px 0; color: #0f172a; font-size: 1rem;">
-                            <i class="fa-solid fa-folder-open" style="color: #2563eb;"></i> Parent Request Requirements
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 20px; border-radius: var(--radius-md); margin-top: 20px;">
+                        <h4 style="margin: 0 0 16px 0; color: var(--heading-color); font-size: 1rem;">
+                            <i class="fa-solid fa-folder-open" style="color: var(--bright-blue);"></i> Parent Request Requirements
                         </h4>
 
                         <div class="form-group" style="margin-bottom: 16px;">
-    <label><i class="fa-solid fa-id-card-clip"></i> 1. Upload Student ID / Record Reference <span style="color: red;">*</span></label>
-    <input type="file" name="student_id_file" id="student_id_file" accept="image/*,.pdf" required>
-    <small style="color:#64748b; display:block; margin-top:4px;">Upload Student ID, or student record reference if ID was surrendered upon graduation.</small>
-</div>
+                            <label><i class="fa-solid fa-id-card-clip"></i> Upload Student ID / Record Reference <span style="color: red;">*</span></label>
+                            <input type="file" name="student_id_file" id="student_id_file" accept="image/*,.pdf" required>
+                            <small style="color:var(--text-muted); display:block; margin-top:4px;">Upload Student ID, or student record reference if ID was surrendered upon graduation.</small>
+                        </div>
 
-                        <div class="row" style="gap: 15px;">
+                        <div class="row" style="gap: 16px;">
                             <div class="form-group" style="flex: 1;">
-                                <label><i class="fa-solid fa-id-card"></i> 2. Upload Front of Parent's Valid ID <span style="color: red;">*</span></label>
+                                <label><i class="fa-solid fa-id-card"></i> Upload Front of Parent's Valid ID <span style="color: red;">*</span></label>
                                 <input type="file" name="valid_id_front" id="valid_id_front" accept="image/*,.pdf" required>
-                                <small style="color:#64748b; display:block; margin-top:4px;">Parent's government ID (Front photo).</small>
+                                <small style="color:var(--text-muted); display:block; margin-top:4px;">Parent's government ID (Front photo).</small>
                             </div>
                             <div class="form-group" style="flex: 1;">
                                 <label><i class="fa-solid fa-id-card"></i> Upload Back of Parent's Valid ID <span style="color: red;">*</span></label>
                                 <input type="file" name="valid_id_back" id="valid_id_back" accept="image/*,.pdf" required>
-                                <small style="color:#64748b; display:block; margin-top:4px;">Parent's government ID (Back photo).</small>
+                                <small style="color:var(--text-muted); display:block; margin-top:4px;">Parent's government ID (Back photo).</small>
                             </div>
                         </div>
                     </div>
                 <?php else: ?>
-                    <div class="row" style="margin-top: 15px; gap: 15px;">
+                    <div class="row" style="margin-top: 20px; gap: 16px;">
                         <div class="form-group" style="flex: 1;">
                             <label><i class="fa-solid fa-id-card"></i> Upload Front of Valid ID <span style="color: red;">*</span></label>
                             <input type="file" name="valid_id_front" id="valid_id_front" accept="image/*,.pdf" required>
-                            <small style="color:#666; display:block; margin-top:4px;">Upload front photo of valid school ID or government ID.</small>
+                            <small style="color:var(--text-muted); display:block; margin-top:4px;">Upload front photo of valid school ID or government ID.</small>
                         </div>
                         <div class="form-group" style="flex: 1;">
                             <label><i class="fa-solid fa-id-card"></i> Upload Back of Valid ID <span style="color: red;">*</span></label>
                             <input type="file" name="valid_id_back" id="valid_id_back" accept="image/*,.pdf" required>
-                            <small style="color:#666; display:block; margin-top:4px;">Upload back photo of valid school ID or government ID.</small>
+                            <small style="color:var(--text-muted); display:block; margin-top:4px;">Upload back photo of valid school ID or government ID.</small>
                         </div>
                     </div>
                 <?php endif; ?>
 
-                <button type="button" class="next-btn" style="margin-top: 20px;" onclick="nextStep(2)">Next</button>
+                <button type="button" class="next-btn" style="margin-top: 24px;" onclick="nextStep(2)">Next</button>
             </div>
 
             <!-- STEP 2: STUDENT INFORMATION -->
@@ -512,7 +868,6 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {
                         </select>
                     </div>
                     
-                    <!-- SEMESTER SELECTOR -->
                     <div class="form-group">
                         <label>Last Semester / Term</label>
                         <select name="last_semester" id="last_semester" required>
@@ -523,7 +878,6 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {
                         </select>
                     </div>
 
-                    <!-- SCHOOL YEAR SELECTOR -->
                     <div class="form-group">
                         <label>Last School Year in CCTC</label>
                         <select name="last_school_year" id="last_school_year" required>
@@ -540,13 +894,12 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {
                     </div>
                 </div>
 
-                <!-- FIRST-TIME REQUEST CHECKBOX (DYNAMICS FOR GRADUATES) -->
-                <div class="form-group" id="first_time_container" style="display: none; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 6px; margin-top: 10px;">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #166534; font-weight: 600;">
-                        <input type="checkbox" name="is_first_time_request" id="is_first_time_request" value="1" style="width: 18px; height: 18px; accent-color: #16a34a;">
+                <div class="form-group" id="first_time_container" style="display: none; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 14px; border-radius: var(--radius-md); margin-top: 10px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #10b981; font-weight: 700;">
+                        <input type="checkbox" name="is_first_time_request" id="is_first_time_request" value="1" style="width: 18px; height: 18px; accent-color: #10b981;">
                         <span>Is this your First-Time Request after graduation?</span>
                     </label>
-                    <small style="color: #15803d; display: block; margin-top: 4px; padding-left: 26px;">
+                    <small style="color: var(--text-muted); display: block; margin-top: 4px; padding-left: 26px;">
                         A first time requesting graduate must proceed to School Registrar's Office.
                     </small>
                 </div>
@@ -643,7 +996,7 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {
 <!-- ERROR MODAL: MISSING INFORMATION -->
 <div class="modal" id="errorModal">
     <div class="modal-card">
-        <div class="modal-icon error-icon">⚠️</div>
+        <div class="modal-icon">⚠️</div>
         <h3 class="modal-title">Missing Information</h3>
         <p class="modal-message" id="errorText">Please complete all required fields before submitting your request.</p>
         <div class="modal-actions">
@@ -656,8 +1009,8 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {
 <div class="modal" id="registrarNoticeModal">
     <div class="modal-overlay" onclick="closeRegistrarNotice()"></div>
     <div class="modal-card">
-        <div class="modal-icon" style="font-size: 2.5rem; margin-bottom: 8px;">🏛️</div>
-        <h3 class="modal-title" style="color: #0369a1;">A first time requesting graduate must proceed to registrar office</h3>
+        <div class="modal-icon">🏛️</div>
+        <h3 class="modal-title" style="color: var(--bright-blue);">A first time requesting graduate must proceed to registrar office</h3>
         <p class="modal-message">
             Since this is your first time requesting documents after graduation, please proceed directly to the Registrar's and Accounting Office to clear any remaining accountability or obligations first.
         </p>
@@ -672,7 +1025,7 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {
     <div class="modal-overlay" onclick="closeSuccess()"></div>
     
     <div class="modal-card">
-        <div class="modal-icon success-icon">✅</div>
+        <div class="modal-icon">✅</div>
         <h3 class="modal-title">Request Submitted</h3>
         <p class="modal-message">
             Your request has been filed and sent to the Registrar's Office for review.
@@ -701,7 +1054,6 @@ let docIndexCounter = 1;
 function handleDocChange(selectElement) {
     const itemCard = selectElement.closest('.document-item');
     const docId = selectElement.value;
-    const index = itemCard.dataset.index;
 
     const docName = itemCard.querySelector('.doc-name');
     const docDesc = itemCard.querySelector('.doc-desc');
@@ -716,7 +1068,7 @@ function handleDocChange(selectElement) {
         docFee.innerText = "₱" + parseFloat(documents[docId].fee).toFixed(2);
 
         reqContainer.innerHTML = `
-            <p style="font-size: 0.85rem; color: #475569; margin: 4px 0 0 0;">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 4px 0 0 0;">
                 <i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Standard requirement (Valid ID) applies.
             </p>
         `;
@@ -795,87 +1147,77 @@ function addDocumentItem() {
     `;
 
     container.appendChild(itemDiv);
-    renumberItems();
+    updateDocumentNumbers();
     calculateTotal();
-}
-
-function renumberItems() {
-    const items = document.querySelectorAll('#documentItemsContainer .document-item');
-    items.forEach((item, idx) => {
-        const headerSpan = item.querySelector('.doc-number-badge');
-        if (headerSpan) {
-            headerSpan.innerHTML = `<i class="fa-solid fa-file-lines"></i> Document ${idx + 1}`;
-        }
-    });
 }
 
 function removeDocumentItem(button) {
-    const item = button.closest('.document-item');
-    item.remove();
-    renumberItems();
+    const itemCard = button.closest('.document-item');
+    itemCard.remove();
+    updateDocumentNumbers();
     calculateTotal();
 }
 
-function calculateTotal() {
-    let grandTotal = 0;
-    let totalQty = 0;
-    let summaryListHtml = "";
+function updateDocumentNumbers() {
+    const items = document.querySelectorAll('.document-item');
+    items.forEach((item, index) => {
+        const badge = item.querySelector('.doc-number-badge');
+        badge.innerHTML = `<i class="fa-solid fa-file-lines"></i> Document ${index + 1}`;
+    });
+}
 
-    const items = document.querySelectorAll('#documentItemsContainer .document-item');
+function calculateTotal() {
+    let totalQty = 0;
+    let totalPrice = 0;
+    let summaryDocsHtml = "";
+
+    const items = document.querySelectorAll('.document-item');
     items.forEach(item => {
         const select = item.querySelector('.document-select');
         const qtyInput = item.querySelector('.doc-quantity');
-        const docId = select ? select.value : null;
-        const qty = parseInt(qtyInput ? qtyInput.value : 1) || 1;
+        const docId = select.value;
+        const qty = parseInt(qtyInput.value) || 0;
 
         if (docId && documents[docId]) {
-            const fee = parseFloat(documents[docId].fee);
-            const subtotal = fee * qty;
-            grandTotal += subtotal;
+            let docName = documents[docId].name;
+            let fee = parseFloat(documents[docId].fee) || 0;
             totalQty += qty;
-            summaryListHtml += `<div style="margin-bottom: 4px;">• ${documents[docId].name} (${qty}x)</div>`;
+            totalPrice += (fee * qty);
+            summaryDocsHtml += `<div>${docName} (x${qty})</div>`;
         }
     });
 
-    document.getElementById("summaryDocument").innerHTML = summaryListHtml || "-";
-    document.getElementById("summaryQuantity").innerHTML = totalQty;
-    document.getElementById("summaryTotal").innerHTML = "₱" + grandTotal.toFixed(2);
+    document.getElementById('summaryQuantity').innerText = totalQty;
+    document.getElementById('summaryTotal').innerText = "₱" + totalPrice.toFixed(2);
+    document.getElementById('summaryDocument').innerHTML = summaryDocsHtml || "-";
 }
 
-document.getElementById("purpose").addEventListener("input", function(){
-    document.getElementById("reviewPurpose").innerHTML = this.value;
-});
-
-function toggleGraduateOptions(val) {
-    const container = document.getElementById("first_time_container");
-    if (val === "Yes") {
-        container.style.display = "block";
-    } else {
-        container.style.display = "none";
-        document.getElementById("is_first_time_request").checked = false;
-    }
-}
-
-function nextStep(step) {
-    if (step === 2) {
-        let valid = true;
+function nextStep(stepNumber) {
+    if (stepNumber === 2) {
         const selects = document.querySelectorAll('.document-select');
-        selects.forEach(s => {
-            if (!s.value) valid = false;
-        });
+        let valid = true;
+        selects.forEach(sel => { if (!sel.value) valid = false; });
+
+        if (!valid) {
+            showError("Please select a document for all items before proceeding.");
+            return;
+        }
 
         const purpose = document.getElementById('purpose').value.trim();
-        const idFront = document.getElementById('valid_id_front') ? document.getElementById('valid_id_front').files.length : 1;
-        const idBack = document.getElementById('valid_id_back') ? document.getElementById('valid_id_back').files.length : 1;
-        const studentIdFile = document.getElementById('student_id_file') ? document.getElementById('student_id_file').files.length : 1;
+        if (!purpose) {
+            showError("Please enter your purpose for requesting.");
+            return;
+        }
 
-        if (!valid || !purpose || !idFront || !idBack || !studentIdFile) {
-            showError("Please complete all document selections, purpose, and upload all required ID files.");
+        const idFront = document.getElementById('valid_id_front');
+        const idBack = document.getElementById('valid_id_back');
+        if (idFront && idBack && (!idFront.files.length || !idBack.files.length)) {
+            showError("Please upload both the front and back of your valid ID.");
             return;
         }
     }
 
-    if (step === 3) {
+    if (stepNumber === 3) {
         const lastName = document.querySelector('input[name="last_name"]').value.trim();
         const firstName = document.querySelector('input[name="first_name"]').value.trim();
         const address = document.querySelector('input[name="address"]').value.trim();
@@ -883,51 +1225,63 @@ function nextStep(step) {
         const contactNo = document.querySelector('input[name="contact_no"]').value.trim();
         const email = document.querySelector('input[name="email"]').value.trim();
         const lastSem = document.getElementById('last_semester').value;
-        const lastSY = document.getElementById('last_school_year').value;
+        const lastSy = document.getElementById('last_school_year').value;
 
-        if (!lastName || !firstName || !address || !courseYear || !contactNo || !email || !lastSem || !lastSY) {
-            showError("Please complete all required student information fields.");
+        if (!lastName || !firstName || !address || !courseYear || !contactNo || !email || !lastSem || !lastSy) {
+            showError("Please fill in all required student information fields.");
             return;
         }
 
-        const isGraduate = document.getElementById('is_graduate').value;
-        const isFirstTime = document.getElementById('is_first_time_request').checked;
-
-        if (isGraduate === "Yes" && isFirstTime) {
-            document.getElementById('registrarNoticeModal').style.display = 'flex';
-        }
-
-        document.getElementById('reviewApplicantName').innerText = `${firstName} ${lastName}`;
-        document.getElementById('reviewSY').innerText = `${lastSem}, SY ${lastSY}`;
-        
-        let docsReview = "";
-        const items = document.querySelectorAll('#documentItemsContainer .document-item');
-        items.forEach(item => {
-            const select = item.querySelector('.document-select');
-            const qtyInput = item.querySelector('.doc-quantity');
-            const docId = select ? select.value : null;
-            const qty = qtyInput ? qtyInput.value : 1;
-            if (docId && documents[docId]) {
-                docsReview += `<div>• ${documents[docId].name} (${qty} copy/ies)</div>`;
-            }
-        });
-        document.getElementById('reviewDocument').innerHTML = docsReview || "-";
+        document.getElementById('reviewPurpose').innerText = document.getElementById('purpose').value;
         document.getElementById('reviewQuantity').innerText = document.getElementById('summaryQuantity').innerText;
+        document.getElementById('reviewApplicantName').innerText = lastName + ", " + firstName;
+        document.getElementById('reviewSY').innerText = lastSem + " (" + lastSy + ")";
+        document.getElementById('reviewDocument').innerHTML = document.getElementById('summaryDocument').innerHTML;
     }
 
     document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+    document.getElementById('step' + stepNumber).classList.add('active');
 
-    document.getElementById('step' + step).classList.add('active');
-    document.getElementById('step' + step + 'Indicator').classList.add('active');
+    document.querySelectorAll('.steps .step').forEach(el => el.classList.remove('active'));
+    document.getElementById('step' + stepNumber + 'Indicator').classList.add('active');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function previousStep(step) {
+function previousStep(stepNumber) {
     document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+    document.getElementById('step' + stepNumber).classList.add('active');
 
-    document.getElementById('step' + step).classList.add('active');
-    document.getElementById('step' + step + 'Indicator').classList.add('active');
+    document.querySelectorAll('.steps .step').forEach(el => el.classList.remove('active'));
+    document.getElementById('step' + stepNumber + 'Indicator').classList.add('active');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleGraduateOptions(value) {
+    const firstTimeContainer = document.getElementById('first_time_container');
+    const noticeModal = document.getElementById('registrarNoticeModal');
+
+    if (value === 'Yes') {
+        firstTimeContainer.style.display = 'block';
+        noticeModal.style.display = 'flex';
+    } else {
+        firstTimeContainer.style.display = 'none';
+        document.getElementById('is_first_time_request').checked = false;
+    }
+}
+
+function confirmRequest() {
+    document.getElementById('confirmModal').style.display = 'flex';
+}
+
+function closeConfirm() {
+    document.getElementById('confirmModal').style.display = 'none';
+}
+
+function submitRequest() {
+    document.getElementById('confirmModal').style.display = 'none';
+    document.getElementById('requestForm').submit();
 }
 
 function showError(msg) {
@@ -943,21 +1297,10 @@ function closeRegistrarNotice() {
     document.getElementById('registrarNoticeModal').style.display = 'none';
 }
 
-function confirmRequest() {
-    document.getElementById('confirmModal').style.display = 'flex';
-}
-
-function closeConfirm() {
-    document.getElementById('confirmModal').style.display = 'none';
-}
-
-function submitRequest() {
-    document.getElementById('requestForm').submit();
-}
-
 function closeSuccess() {
     document.getElementById('successModal').style.display = 'none';
 }
 </script>
+
 </body>
 </html>

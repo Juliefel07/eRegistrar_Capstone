@@ -15,7 +15,6 @@ $success = '';
 
 // Handle OTP Form Verification
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
-    // Combine the 6 individual inputs into one string
     $entered_otp = implode('', $_POST['otp_digits'] ?? []);
 
     if (strlen($entered_otp) < 6) {
@@ -34,12 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
             } elseif ($now > $user['otp_expires_at']) {
                 $error = "The verification code has expired. Please click 'Resend Code'.";
             } else {
-                // Mark user as verified
                 $update = $conn->prepare("UPDATE users SET is_verified = 1, otp_code = NULL, otp_expires_at = NULL WHERE user_id = ?");
                 $update->bind_param("i", $user['user_id']);
                 $update->execute();
 
-                // Clear temporary session and set success login state
                 unset($_SESSION['pending_email']);
                 $_SESSION['success'] = "Account verified successfully! You can now log in.";
                 header("Location: login.php");
@@ -58,75 +55,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>eRegistrar | Verify OTP</title>
     <!-- FontAwesome & Google Fonts -->
-     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         * {
-            box-sizing: border-box;
+            box-sizing: border-box !important;
             margin: 0;
             padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         body {
-            background-color: #f1f5f9;
+            /* Replace 'assets/images/background.jpg' with your actual background image path */
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.9) 100%), 
+                        url('assets/images/verifybackground.png') no-repeat center center fixed;
+            background-size: cover;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            color: #f8fafc;
         }
 
         .otp-card {
-            background: #ffffff;
+            background: #0a192f;
             width: 100%;
             max-width: 440px;
             padding: 40px 32px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             text-align: center;
         }
 
         .icon-box {
-            width: 60px;
-            height: 60px;
-            background-color: #eff6ff;
-            color: #2563eb;
+            width: 56px;
+            height: 56px;
+            background: rgba(57, 130, 220, 0.15);
+            color: #3982DC;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 22px;
             margin: 0 auto 20px;
+            border: 1px solid rgba(57, 130, 220, 0.3);
         }
 
         .otp-card h2 {
-            color: #0f172a;
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
+            color: #ffffff;
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 6px;
         }
 
         .otp-card p {
-            color: #64748b;
-            font-size: 14px;
-            line-height: 1.5;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            line-height: 1.4;
             margin-bottom: 24px;
         }
 
         .user-email {
-            color: #1e3a8a;
-            font-weight: 600;
+            color: #75AAE7;
+            font-weight: 700;
             word-break: break-all;
         }
 
         .alert {
-            padding: 12px 16px;
+            padding: 10px 14px;
             border-radius: 8px;
-            font-size: 13.5px;
+            font-size: 0.8rem;
             margin-bottom: 20px;
             display: flex;
             align-items: center;
@@ -135,70 +137,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
         }
 
         .alert-error {
-            background-color: #fef2f2;
-            color: #dc2626;
-            border: 1px solid #fecaca;
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
         .alert-success {
-            background-color: #f0fdf4;
-            color: #16a34a;
-            border: 1px solid #bbf7d0;
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
         .otp-inputs {
             display: flex;
             gap: 8px;
             justify-content: center;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
 
         .otp-digit {
-            width: 48px;
-            height: 56px;
+            width: 46px;
+            height: 52px;
             border-radius: 10px;
-            border: 1.5px solid #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.12);
             text-align: center;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
-            color: #1e293b;
+            color: #ffffff;
             outline: none;
             transition: all 0.2s ease;
-            background: #f8fafc;
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .otp-digit:focus {
-            border-color: #2563eb;
-            background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+            border-color: #3982DC;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 3px rgba(57, 130, 220, 0.25);
         }
 
         .btn-submit {
             width: 100%;
-            background-color: #2563eb;
+            background-color: #3982DC;
             color: #ffffff;
             border: none;
-            padding: 14px;
+            padding: 12px;
             border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
+            font-size: 0.9rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: background 0.2s ease;
+            box-shadow: 0 4px 12px rgba(57, 130, 220, 0.35);
+            transition: all 0.2s ease;
         }
 
         .btn-submit:hover {
-            background-color: #1d4ed8;
+            background-color: #2563eb;
+            transform: translateY(-1px);
         }
 
         .resend-box {
-            margin-top: 24px;
-            font-size: 14px;
-            color: #64748b;
+            margin-top: 20px;
+            font-size: 0.82rem;
+            color: #94a3b8;
         }
 
         .resend-btn {
-            color: #2563eb;
-            font-weight: 600;
+            color: #3982DC;
+            font-weight: 700;
             text-decoration: none;
             background: none;
             border: none;
@@ -206,10 +210,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
             padding: 0;
         }
 
+        .resend-btn:hover:not(:disabled) {
+            text-decoration: underline;
+        }
+
         .resend-btn:disabled {
-            color: #94a3b8;
+            color: #64748b;
             cursor: not-allowed;
-            text-decoration: none;
         }
 
         .timer-text {
@@ -261,28 +268,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
         <span id="timerContainer" class="timer-text">(<span id="timer">60</span>s)</span>
     </div>
 </div>
+
 <script>
-    // 1. Request Notification Permission on Page Load
     document.addEventListener('DOMContentLoaded', () => {
         if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
             Notification.requestPermission();
         }
     });
 
-    // Helper function to show Push Notification
     function showPushNotification(title, message, iconUrl = '') {
         if ("Notification" in window && Notification.permission === "granted") {
             new Notification(title, {
                 body: message,
-                icon: iconUrl || 'https://cdn-icons-png.flaticon.com/512/732/732200.png' // Default email icon
+                icon: iconUrl || 'https://cdn-icons-png.flaticon.com/512/732/732200.png'
             });
         } else {
-            // Fallback to standard alert if notifications are blocked or unsupported
             alert(message);
         }
     }
 
-    // 2. Auto-Focus Logic for 6 Single-Digit Inputs
     const inputs = document.querySelectorAll('.otp-digit');
 
     inputs.forEach((input, index) => {
@@ -314,7 +318,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
         });
     });
 
-    // 3. Countdown Timer Logic for Resend Link
     let timeLeft = 60;
     const timerElement = document.getElementById('timer');
     const timerContainer = document.getElementById('timerContainer');
@@ -337,10 +340,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
         }, 1000);
     }
 
-    // Start timer on load
     startTimer();
 
-    // 4. Resend OTP Action with Push Notification
     function resendOTP() {
         if (resendBtn.disabled) return;
 
@@ -363,7 +364,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
         })
         .then(data => {
             if (data.status === 'success') {
-                // Trigger Native Push Notification
                 showPushNotification(
                     'eRegistrar Verification',
                     'A new 6-digit OTP verification code has been sent to your email.'
