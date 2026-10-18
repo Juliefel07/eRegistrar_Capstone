@@ -561,8 +561,7 @@ if ($percent >= 100) {$progressColor = "#059669"; // Green
                             </button>
                             <?php if ($idFile['status'] == "Pending"): ?>
                                 <a class="btn btn-primary" href="verify_requirement.php?id=<?= $idFile['id']; ?>&request=<?=$request_id; ?>">
-                                    <i class="fa-solid fa-check"></i> Verify
-                                </a>
+                                    <i class="fa-solid fa-check"></i> Verify</a>
                                 <button type="button" class="btn btn-danger" onclick="openRejectModal(<?= $idFile['id']; ?>)">
                                     <i class="fa-solid fa-xmark"></i> Reject
                                 </button>

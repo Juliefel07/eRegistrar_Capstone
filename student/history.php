@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_proof'])) {
 }
 
 // ==============================================
-// 2. Handle Single Rejected File Re-upload
+// 2. Handle Single Rejected File Re-upload (Cloudinary Integration)
 // ==============================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reupload_single_file'])) {
     $file_table_id = intval($_POST['file_table_id']); 
@@ -98,24 +98,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reupload_single_file'
 
     if (mysqli_num_rows($check_res) > 0) {
         if (isset($_FILES['new_file']) && $_FILES['new_file']['error'] === UPLOAD_ERR_OK) {
-            $tmp_name = $_FILES['new_file']['tmp_name'];
-            $filename = $_FILES['new_file']['name'];$ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));$allowed_exts = ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'doc'];
+            $file_tmp = $_FILES['new_file']['tmp_name'];
+            $filename = $_FILES['new_file']['name'];
+            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+            $allowed_exts = ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'doc'];
 
-            if (in_array($ext, $allowed_exts)) {$upload_dir = __DIR__ . "/../assets/uploads/requirements/";
-                if (!is_dir($upload_dir)) {
-                    mkdir($upload_dir, 0777, true);
-                }
+            if (in_array($ext, $allowed_exts)) {
+                
+                // Cloudinary Configuration
+                $cloud_name = "wfz1gkkl"; 
+                $upload_preset = "eregistrar_preset";
+                $target_url = "https://api.cloudinary.com/v1_1/" . $cloud_name . "/image/upload";
+                
+                $data = [
+                    'file' => new CURLFile($file_tmp),
+                    'upload_preset' => $upload_preset
+                ];
 
-                $new_filename = time() . "_" . $file_table_id . "_" . preg_replace("/[^a-zA-Z0-9\._-]/", "_", $filename);
-                $relative_path = "assets/uploads/requirements/" . $new_filename;
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $target_url);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                $response = curl_exec($ch);
+                curl_close($ch);
 
-                if (move_uploaded_file($tmp_name, $upload_dir .$new_filename)) {
+                $responseData = json_decode($response, true);
+
+                // Check if Cloudinary upload succeeded
+                if (isset($responseData['secure_url'])) {
+                    $cloudinary_url = $responseData['secure_url'];
+
                     $update_file = mysqli_prepare($conn, "
                         UPDATE request_requirement_files 
                         SET file_name = ?, file_path = ?, status = 'Pending', remarks = NULL, uploaded_at = NOW() 
                         WHERE id = ?
                     ");
-                    mysqli_stmt_bind_param($update_file, "ssi", $filename, $relative_path,$file_table_id);
+                    mysqli_stmt_bind_param($update_file, "ssi", $filename, $cloudinary_url, $file_table_id);
                     mysqli_stmt_execute($update_file);
 
                     $update_req = mysqli_prepare($conn, "UPDATE requests SET status = 'Pending' WHERE request_id = ?");
@@ -124,6 +143,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reupload_single_file'
 
                     header("Location: history.php?success=file_replaced");
                     exit();
+                } else {
+                    // Fallback to local storage if Cloudinary fails (will only work if local storage has write access)
+                    $upload_dir = __DIR__ . "/../assets/uploads/requirements/";
+                    if (!is_dir($upload_dir)) {
+                        @mkdir($upload_dir, 0777, true);
+                    }
+
+                    $new_filename = time() . "_" . $file_table_id . "_" . preg_replace("/[^a-zA-Z0-9\._-]/", "_", $filename);
+                    $relative_path = "assets/uploads/requirements/" . $new_filename;
+
+                    if (@move_uploaded_file($file_tmp, $upload_dir . $new_filename)) {
+                        $update_file = mysqli_prepare($conn, "
+                            UPDATE request_requirement_files 
+                            SET file_name = ?, file_path = ?, status = 'Pending', remarks = NULL, uploaded_at = NOW() 
+                            WHERE id = ?
+                        ");
+                        mysqli_stmt_bind_param($update_file, "ssi", $filename, $relative_path, $file_table_id);
+                        mysqli_stmt_execute($update_file);
+
+                        $update_req = mysqli_prepare($conn, "UPDATE requests SET status = 'Pending' WHERE request_id = ?");
+                        mysqli_stmt_bind_param($update_req, "i", $request_id);
+                        mysqli_stmt_execute($update_req);
+
+                        header("Location: history.php?success=file_replaced");
+                        exit();
+                    }
                 }
             }
         }
