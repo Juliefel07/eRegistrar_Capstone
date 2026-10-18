@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_proof'])) {
 }
 
 // ==============================================
-// 2. Handle Single Rejected File Re-upload
+// 2. Handle Single Rejected File Re-upload (Debug Version)
 // ==============================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reupload_single_file'])) {
     $file_table_id = intval($_POST['file_table_id']); 
@@ -121,10 +121,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reupload_single_file'
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 $response = curl_exec($ch);
+                
+                if (curl_errno($ch)) {
+                    echo 'Curl error: ' . curl_error($ch);
+                    exit();
+                }
                 curl_close($ch);
 
                 $responseData = json_decode($response, true);
 
+                // Check if Cloudinary upload succeeded
                 if (isset($responseData['secure_url'])) {
                     $cloudinary_url = $responseData['secure_url'];
 
@@ -143,37 +149,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reupload_single_file'
                     header("Location: history.php?success=file_replaced");
                     exit();
                 } else {
-                    // Fallback to local storage (Only works locally, will fail on Render)
-                    $upload_dir = __DIR__ . "/../assets/uploads/requirements/";
-                    if (!is_dir($upload_dir)) {
-                        @mkdir($upload_dir, 0777, true);
-                    }
-
-                    $new_filename = time() . "_" . $file_table_id . "_" . preg_replace("/[^a-zA-Z0-9\._-]/", "_", $filename);
-                    $relative_path = "assets/uploads/requirements/" . $new_filename;
-
-                    if (@move_uploaded_file($file_tmp, $upload_dir . $new_filename)) {
-                        $update_file = mysqli_prepare($conn, "
-                            UPDATE request_requirement_files 
-                            SET file_name = ?, file_path = ?, status = 'Pending', remarks = NULL, uploaded_at = NOW() 
-                            WHERE id = ?
-                        ");
-                        mysqli_stmt_bind_param($update_file, "ssi", $filename, $relative_path, $file_table_id);
-                        mysqli_stmt_execute($update_file);
-
-                        $update_req = mysqli_prepare($conn, "UPDATE requests SET status = 'Pending' WHERE request_id = ?");
-                        mysqli_stmt_bind_param($update_req, "i", $request_id);
-                        mysqli_stmt_execute($update_req);
-
-                        header("Location: history.php?success=file_replaced");
-                        exit();
-                    }
+                    // PRINT THE EXACT CLOUDINARY ERROR INSTEAD OF FAILING SILENTLY
+                    echo "<h3>Cloudinary Upload Failed:</h3>";
+                    echo "<pre>";
+                    print_r($responseData);
+                    echo "</pre>";
+                    exit();
                 }
             }
         }
     }
 }
-
 // ==========================================
 // 3. Fetch Requests with Requirement Files & Processor Name
 // ==========================================
