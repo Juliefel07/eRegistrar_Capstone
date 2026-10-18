@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_proof'])) {
                 $cloud_name = "wfz1gkkl"; 
                 $upload_preset = "custom_media_preset";
 
-                $target_url = "https://api.cloudinary.com/v1_1/" . $cloud_name . "/image/upload";
+                $target_url = "https://api.cloudinary.com/v1_1/" . $cloud_name . "/auto/upload";
                 
                 $data = [
                     'file' => new CURLFile($file_tmp),
@@ -108,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reupload_single_file'
                 // Cloudinary Configuration
                 $cloud_name = "wfz1gkkl"; 
                 $upload_preset = "custom_media_preset";
-                $target_url = "https://api.cloudinary.com/v1_1/" . $cloud_name . "/image/upload";
+                $target_url = "https://api.cloudinary.com/v1_1/" . $cloud_name . "/auto/upload";
                 
                 $data = [
                     'file' => new CURLFile($file_tmp),
