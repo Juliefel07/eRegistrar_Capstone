@@ -524,7 +524,7 @@ if ($percent >= 100) {$progressColor = "#059669"; // Green
         <?php if (!empty($idFiles)): ?>
             <div class="request-grid">
                 <?php foreach ($idFiles as $index =>$idFile): ?>
-                    <?>
+                    
                     <?php 
                         $rawPath =$idFile['file_path'];
                         if (strpos($rawPath, 'http://') === 0 || strpos($rawPath, 'https://') === 0) {
