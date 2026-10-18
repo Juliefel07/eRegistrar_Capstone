@@ -299,6 +299,93 @@ $student_announcements = mysqli_query($conn, "
             align-items: center;
             gap: 4px;
         }
+        /* =========================================================
+   HERO BANNER RESPONSIVE STYLES
+   ========================================================= */
+.hero-banner {
+    background: linear-gradient(135deg, #0f2d59 0%, #1F5CAB 100%);
+    border-radius: var(--radius-lg, 16px);
+    padding: 32px 28px;
+    color: #ffffff;
+    box-shadow: 0 10px 25px rgba(15, 45, 89, 0.25);
+    margin-bottom: 24px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.hero-text h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0 0 10px 0;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+}
+
+.hero-text .welcome-text {
+    color: #e2e8f0;
+    font-weight: 600;
+}
+
+.hero-text .student-name {
+    color: #75AAE7;
+}
+
+.hero-text p {
+    font-size: 0.95rem;
+    color: #cbd5e1;
+    margin: 0 0 20px 0;
+    max-width: 600px;
+    line-height: 1.5;
+}
+
+.btn-request {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #ffffff;
+    color: #1F5CAB;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 12px 22px;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-request:hover {
+    background-color: #f1f5f9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* MOBILE RESPONSIVE ADJUSTMENTS */
+@media (max-width: 768px) {
+    .hero-banner {
+        padding: 22px 18px !important;
+        border-radius: 12px !important;
+        text-align: center; /* Centers layout for mobile touch targets */
+    }
+
+    .hero-text h1 {
+        font-size: 1.35rem !important;
+        margin-bottom: 8px !important;
+    }
+
+    .hero-text p {
+        font-size: 0.88rem !important;
+        line-height: 1.45 !important;
+        margin-bottom: 16px !important;
+    }
+
+    .btn-request {
+        width: 100% !important; /* Full width button on small screens */
+        padding: 12px 16px !important;
+        font-size: 0.9rem !important;
+        box-sizing: border-box !important;
+    }
+}
 
         /* MEDIA QUERIES */
         @media (max-width: 992px) {
