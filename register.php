@@ -81,7 +81,82 @@ body {
     background: rgba(255, 255, 255, 0.2);
     transform: translateX(-3px);
 }
+/* ==========================================
+   MOBILE-FRIENDLY FLOATING ERROR MODAL STYLES
+   ========================================== */
+.modal-error {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 16px; /* Prevents modal from touching screen edges on mobile */
+}
 
+.modal-box {
+    background: var(--card-dark, #0a192f);
+    border: 1px solid var(--border-dark, rgba(255, 255, 255, 0.12));
+    padding: 24px 20px;
+    border-radius: var(--radius-lg, 20px);
+    text-align: center;
+    width: 100%;
+    max-width: 360px; /* Keeps it compact on desktop */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    animation: modalPop 0.3s ease;
+}
+
+.modal-box .error-icon {
+    font-size: 2.5rem; /* Slightly smaller for mobile layout */
+    color: #ef4444;
+    margin-bottom: 12px;
+}
+
+.modal-box h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.15rem;
+    color: #ffffff;
+}
+
+.modal-box p {
+    color: var(--text-muted, #94a3b8);
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.modal-box button {
+    background: var(--bright-blue, #3982DC);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    width: 100%; /* Makes the button full-width and easier to tap on phones */
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.modal-box button:hover {
+    background: var(--deep-blue, #1F5CAB);
+}
+
+@keyframes modalPop {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Extra safety for very small mobile screens */
+@media (max-width: 400px) {
+    .modal-box {
+        padding: 20px 16px;
+    }
+}
 /* MAIN CONTAINER - EXACT MATCH TO LOGIN DIMENSIONS */
 .register-container {
     display: flex;
@@ -468,7 +543,7 @@ unset($_SESSION['error']);
 
 </div>
 
-<script src="assets/js/register.js"></script>
+<script src="assets/js/register.js?v=<?php echo time(); ?>"></script>
 
 <script>
 
