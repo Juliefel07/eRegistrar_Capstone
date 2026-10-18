@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_proof'])) {
 }
 
 // ==============================================
-// 2. Handle Single Rejected File Re-upload (Cloudinary Integration)
+// 2. Handle Single Rejected File Re-upload
 // ==============================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reupload_single_file'])) {
     $file_table_id = intval($_POST['file_table_id']); 
@@ -125,7 +125,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reupload_single_file'
 
                 $responseData = json_decode($response, true);
 
-                // Check if Cloudinary upload succeeded
                 if (isset($responseData['secure_url'])) {
                     $cloudinary_url = $responseData['secure_url'];
 
@@ -144,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reupload_single_file'
                     header("Location: history.php?success=file_replaced");
                     exit();
                 } else {
-                    // Fallback to local storage if Cloudinary fails (will only work if local storage has write access)
+                    // Fallback to local storage (Only works locally, will fail on Render)
                     $upload_dir = __DIR__ . "/../assets/uploads/requirements/";
                     if (!is_dir($upload_dir)) {
                         @mkdir($upload_dir, 0777, true);
