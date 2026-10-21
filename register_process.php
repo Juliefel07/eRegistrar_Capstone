@@ -110,7 +110,10 @@ if ($account_type == "Student") {
     $student_status = mysqli_real_escape_string($conn, $_POST['student_status'] ?? 'Enrolled');
     $student_no     = mysqli_real_escape_string($conn, $_POST['student_no'] ?? '');
     $lrn            = mysqli_real_escape_string($conn, $_POST['lrn'] ?? '');
-    $fullname       = mysqli_real_escape_string($conn, $_POST['fullname'] ?? '');
+    
+    // Catch Full Name from college or basic inputs
+    $fullname       = mysqli_real_escape_string($conn, trim($_POST['fullname_college'] ?? $_POST['fullname_basic'] ?? $_POST['fullname'] ?? ''));
+    
     $course         = mysqli_real_escape_string($conn, $_POST['course'] ?? '');
     $grade_level    = mysqli_real_escape_string($conn, $_POST['grade_level'] ?? '');
     $section        = mysqli_real_escape_string($conn, $_POST['section'] ?? '');
@@ -121,11 +124,23 @@ if ($account_type == "Student") {
         $year_level = mysqli_real_escape_string($conn, $_POST['year_level'] ?? '');
     }
 
-    $school_year   = mysqli_real_escape_string($conn, $_POST['school_year'] ?? '');
-    $contact_no    = mysqli_real_escape_string($conn, $_POST['contact_no'] ?? '');
-    $email         = mysqli_real_escape_string($conn, trim($_POST['email'] ?? ''));
-    $password      = $_POST['password'] ?? '';
-    $confirm_pass  = $_POST['confirm_password'] ?? '';
+    // Catch School Year, Contact, Email, and Passwords from either college or basic inputs
+    $school_year   = mysqli_real_escape_string($conn, $_POST['school_year'] ?? $_POST['school_year_basic'] ?? '');
+    $contact_no    = mysqli_real_escape_string($conn, trim($_POST['contact_no_college'] ?? $_POST['contact_no_basic'] ?? $_POST['contact_no'] ?? ''));
+    $email         = mysqli_real_escape_string($conn, trim($_POST['email_college'] ?? $_POST['email_basic'] ?? $_POST['email'] ?? ''));
+    $password      = $_POST['password_college'] ?? $_POST['password_basic'] ?? $_POST['password'] ?? '';
+    $confirm_pass  = $_POST['confirm_password_college'] ?? $_POST['confirm_password_basic'] ?? $_POST['confirm_password'] ?? '';
+
+    // Debug log if email is empty
+    if (empty($email)) {
+        error_log("STUDENT REGISTRATION DEBUG - POST Data received: " . json_encode($_POST));
+    }
+
+    if (empty($email) || empty($fullname) || empty($password)) {
+        $_SESSION['error'] = "Please complete all required fields.";
+        header("Location: register.php");
+        exit();
+    }
 
     if ($password !== $confirm_pass) {
         $_SESSION['error'] = "Passwords do not match.";
@@ -133,12 +148,11 @@ if ($account_type == "Student") {
         exit();
     }
 
-    // Check if email exists
+    // Check if email already exists
     $check = mysqli_query($conn, "SELECT user_id, is_verified FROM users WHERE email='$email'");
     if (mysqli_num_rows($check) > 0) {
         $existing_user = mysqli_fetch_assoc($check);
         if ($existing_user['is_verified'] == 0) {
-            // Unverified from previous failed attempt: update OTP and resend
             mysqli_query($conn, "UPDATE users SET otp_code='$otp', otp_expires_at='$expires_at' WHERE email='$email'");
             
             $mail_sent = sendOTPEmail($email, $fullname, $otp);
