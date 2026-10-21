@@ -98,7 +98,7 @@ $student_announcements = mysqli_query($conn, "
         /* Hero Banner with Background Image & Gradient Overlay */
         .hero-banner {
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(0, 86, 179, 0.75) 100%), 
-                        url('../assets/images/welcome-admin.png') no-repeat center center / cover;
+                        url('../assets/images/welcome-admin.png') no-repeat center center / cover !important;
             color: white;
             border-radius: var(--radius-lg);
             padding: 36px;

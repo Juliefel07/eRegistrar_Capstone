@@ -11,10 +11,15 @@ require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 
-// Helper function to send OTP email via PHPMailer
+// Helper function to send OTP email via Brevo API
 function sendOTPEmail($recipientEmail, $recipientName, $otpCode) {
-    $apiKey = getenv('BREVO_API_KEY');
+    // Safety check: Stop immediately if the email is empty
+    if (empty($recipientEmail)) {
+        error_log("Error: Recipient email is empty! Cannot send OTP.");
+        return false;
+    }
 
+    $apiKey = getenv('BREVO_API_KEY');
     $url = 'https://api.brevo.com/v3/smtp/email';
 
     $data = [
@@ -72,6 +77,7 @@ function sendOTPEmail($recipientEmail, $recipientName, $otpCode) {
         return false;
     }
 }
+
 $account_type = $_POST['account_type'] ?? '';
 
 // Generate 6-digit OTP & 10-minute expiry
@@ -100,7 +106,7 @@ if ($account_type == "Student") {
 
     $school_year   = mysqli_real_escape_string($conn, $_POST['school_year'] ?? '');
     $contact_no    = mysqli_real_escape_string($conn, $_POST['contact_no'] ?? '');
-    $email         = mysqli_real_escape_string($conn, $_POST['email'] ?? '');
+    $email         = mysqli_real_escape_string($conn, trim($_POST['email'] ?? ''));
     $password      = $_POST['password'] ?? '';
     $confirm_pass  = $_POST['confirm_password'] ?? '';
 
@@ -125,34 +131,40 @@ if ($account_type == "Student") {
             ('Student', '$student_level', '$student_status', '$student_no', '$lrn', '$fullname', '$course', '$grade_level', '$section', '$year_level', '$school_year', '$contact_no', '$email', '$hash', 'Student', '$otp', '$expires_at', 0)";
 
     if (mysqli_query($conn, $sql)) {
-        // Force the script to stop and show the error if email fails
-        // Inside register_process.php (Parent section around line 160)
-$mail_sent = sendOTPEmail($email, $fullname, $otp);
-if (!$mail_sent) {
-    die("Email failed to send! Please check your Render application logs for details.");
-}
+        $mail_sent = sendOTPEmail($email, $fullname, $otp);
+        if (!$mail_sent) {
+            die("Email failed to send! Please check your Render application logs for details.");
+        }
 
-$_SESSION['pending_email'] = $email;
-header("Location: verify_otp.php");
-exit();
+        $_SESSION['pending_email'] = $email;
+        header("Location: verify_otp.php");
+        exit();
     } else {
         die("Student Registration Error: " . mysqli_error($conn));
     }
 }
-
 // ===============================
 // PARENT REGISTRATION
 // ===============================
 if ($account_type == "Parent") {
 
-    $fullname   = mysqli_real_escape_string($conn, trim($_POST['parent_name'] ?? ''));
-    $contact_no = mysqli_real_escape_string($conn, trim($_POST['parent_contact'] ?? ''));
-    $email      = mysqli_real_escape_string($conn, trim($_POST['parent_email'] ?? ''));
-    $password   = $_POST['parent_password'] ?? '';
-    $confirm    = $_POST['parent_confirm_password'] ?? '';
+    // Catch name from any possible input name
+    $fullname   = mysqli_real_escape_string($conn, trim($_POST['parent_name'] ?? $_POST['fullname'] ?? ''));
+    $contact_no = mysqli_real_escape_string($conn, trim($_POST['parent_contact'] ?? $_POST['contact_no'] ?? ''));
+    
+    // Fallback chain to catch email no matter what the frontend named it
+    $email      = mysqli_real_escape_string($conn, trim($_POST['parent_email'] ?? $_POST['email'] ?? $_POST['user_email'] ?? ''));
+    
+    $password   = $_POST['parent_password'] ?? $_POST['password'] ?? '';
+    $confirm    = $_POST['parent_confirm_password'] ?? $_POST['confirm_password'] ?? '';
+
+    // Debug log if email is still empty so you see it instantly in Render logs
+    if (empty($email)) {
+        error_log("PARENT REGISTRATION DEBUG - POST Data received: " . json_encode($_POST));
+    }
 
     if (empty($fullname) || empty($contact_no) || empty($email) || empty($password) || empty($confirm)) {
-        $_SESSION['error'] = "Please complete all required fields.";
+        $_SESSION['error'] = "Please complete all required fields. (Email detected: " . ($email ? 'Yes' : 'No') . ")";
         header("Location: register.php");
         exit();
     }
@@ -191,9 +203,12 @@ if ($account_type == "Parent") {
         }
     }
 
-    sendOTPEmail($email, $fullname, $otp);
+    $mail_sent = sendOTPEmail($email, $fullname, $otp);
+    if (!$mail_sent) {
+        die("Email failed to send! Please check your Render application logs for details.");
+    }
+
     $_SESSION['pending_email'] = $email;
     header("Location: verify_otp.php");
     exit();
 }
-?>
