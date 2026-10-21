@@ -525,13 +525,19 @@ if(isset($_SESSION['registration_success']) && $_SESSION['registration_success']
 ?>
 <div class="modal-error" id="successModal" style="display: flex;">
     <div class="modal-box">
-        <i class="fa-solid fa-circle-check" style="font-size: 2.5rem; color: #10b981; margin-bottom: 12px;"></i>
-        <h3 style="color: #ffffff; margin-bottom: 8px;">Registered Successfully!</h3>
-        <p style="color: var(--text-muted, #94a3b8); font-size: 0.85rem; margin-bottom: 20px;">
-            Your account has been created and a verification code has been sent to your email. Click OK to verify.
+        <!-- Clean Professional Success Icon -->
+        <div style="width: 60px; height: 60px; background: rgba(16, 185, 129, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
+            <i class="fa-solid fa-check" style="font-size: 1.8rem; color: #10b981;"></i>
+        </div>
+        
+        <h3 style="color: #ffffff; margin-bottom: 8px; font-size: 1.25rem;">Registration Successful!</h3>
+        
+        <p style="color: var(--text-muted, #94a3b8); font-size: 0.9rem; margin-bottom: 24px; line-height: 1.5;">
+            Your account has been created successfully. A verification code has been sent to your email address.
         </p>
-        <button onclick="proceedToOTP()" style="background: #10b981; color: white; cursor: pointer;">
-            OK
+        
+        <button onclick="proceedToOTP()" style="background: #3982DC; color: white; cursor: pointer; padding: 12px; border-radius: 10px; font-weight: 700; width: 100%; border: none; transition: background 0.2s;">
+            Proceed to Verification
         </button>
     </div>
 </div>

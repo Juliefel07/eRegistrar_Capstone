@@ -12,13 +12,30 @@ require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 
 // Helper function to send OTP email via Brevo API
+// Helper function to send OTP email via Brevo API
 function sendOTPEmail($recipientEmail, $recipientName, $otpCode) {
     if (empty($recipientEmail)) {
         error_log("Error: Recipient email is empty! Cannot send OTP.");
         return false;
     }
 
+    // Check multiple ways to grab the API key on cloud hosting like Render
     $apiKey = getenv('BREVO_API_KEY');
+    if (!$apiKey && isset($_ENV['BREVO_API_KEY'])) {
+        $apiKey = $_ENV['BREVO_API_KEY'];
+    }
+    if (!$apiKey && isset($_SERVER['BREVO_API_KEY'])) {
+        $apiKey = $_SERVER['BREVO_API_KEY'];
+    }
+
+    // Absolute fallback: If your key is still not detected, paste it directly here as a string temporarily to test
+    // $apiKey = "xkeysib-YOUR_ACTUAL_KEY_HERE";
+
+    if (empty($apiKey)) {
+        error_log("CRITICAL ERROR: BREVO_API_KEY is completely missing or empty on Render!");
+        return false;
+    }
+
     $url = 'https://api.brevo.com/v3/smtp/email';
 
     $data = [
