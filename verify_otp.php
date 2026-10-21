@@ -68,7 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
         }
 
         body {
-            /* Replace 'assets/images/background.jpg' with your actual background image path */
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.9) 100%), 
                         url('assets/images/verifybackground.png') no-repeat center center fixed;
             background-size: cover;
@@ -223,6 +222,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
             color: #64748b;
             font-weight: 500;
         }
+
+        /* CUSTOM FLOATING MODAL STYLES */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 16px;
+        }
+
+        .modal-box {
+            background: #0a192f;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 24px 20px;
+            border-radius: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: modalPop 0.3s ease;
+        }
+
+        @keyframes modalPop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -269,22 +301,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
-            Notification.requestPermission();
-        }
-    });
+<!-- CUSTOM FLOATING MODAL CONTAINER -->
+<div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+        <div id="modalIconContainer" style="width: 60px; height: 60px; background: rgba(16, 185, 129, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
+            <i id="modalIcon" class="fa-solid fa-check" style="font-size: 1.8rem; color: #10b981;"></i>
+        </div>
+        <h3 id="modalTitle" style="color: #ffffff; margin-bottom: 8px; font-size: 1.25rem;">Notification</h3>
+        <p id="modalMessage" style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 24px; line-height: 1.5;"></p>
+        <button onclick="closeCustomModal()" style="background: #3982DC; color: white; cursor: pointer; padding: 12px; border-radius: 10px; font-weight: 700; width: 100%; border: none;">OK</button>
+    </div>
+</div>
 
-    function showPushNotification(title, message, iconUrl = '') {
-        if ("Notification" in window && Notification.permission === "granted") {
-            new Notification(title, {
-                body: message,
-                icon: iconUrl || 'https://cdn-icons-png.flaticon.com/512/732/732200.png'
-            });
+<script>
+    function showCustomModal(title, message, isError = false) {
+        const modal = document.getElementById('customModal');
+        const titleEl = document.getElementById('modalTitle');
+        const msgEl = document.getElementById('modalMessage');
+        const iconBox = document.getElementById('modalIconContainer');
+        const iconEl = document.getElementById('modalIcon');
+
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+
+        if (isError) {
+            iconBox.style.background = "rgba(239, 68, 68, 0.15)";
+            iconEl.className = "fa-solid fa-circle-exclamation";
+            iconEl.style.color = "#ef4444";
         } else {
-            alert(message);
+            iconBox.style.background = "rgba(16, 185, 129, 0.15)";
+            iconEl.className = "fa-solid fa-check";
+            iconEl.style.color = "#10b981";
         }
+
+        modal.style.display = 'flex';
+    }
+
+    function closeCustomModal() {
+        document.getElementById('customModal').style.display = 'none';
     }
 
     const inputs = document.querySelectorAll('.otp-digit');
@@ -364,26 +418,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
         })
         .then(data => {
             if (data.status === 'success') {
-                showPushNotification(
-                    'eRegistrar Verification',
+                showCustomModal(
+                    'Code Sent!',
                     'A new 6-digit OTP verification code has been sent to your email.'
                 );
-
                 resendBtn.innerText = "Resend Code";
                 startTimer();
             } else {
-                showPushNotification(
-                    'eRegistrar Error',
-                    data.message || 'Failed to resend code.'
+                showCustomModal(
+                    'Error',
+                    data.message || 'Failed to resend code.',
+                    true
                 );
                 resendBtn.innerText = "Resend Code";
                 resendBtn.disabled = false;
             }
         })
         .catch(err => {
-            showPushNotification(
-                'eRegistrar Error',
-                err.message || 'An error occurred while resending the code.'
+            showCustomModal(
+                'Error',
+                err.message || 'An error occurred while resending the code.',
+                true
             );
             resendBtn.innerText = "Resend Code";
             resendBtn.disabled = false;

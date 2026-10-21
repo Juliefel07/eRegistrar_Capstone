@@ -519,13 +519,13 @@ unset($_SESSION['error']);
 ?>
 
 <?php
-// SUCCESS MODAL (Triggers when registration succeeds & OTP email is sent)
+// SUCCESS MODAL (Clean Registration Successful Popup)
 if(isset($_SESSION['registration_success']) && $_SESSION['registration_success'] === true){
     unset($_SESSION['registration_success']);
 ?>
 <div class="modal-error" id="successModal" style="display: flex;">
     <div class="modal-box">
-        <!-- Clean Professional Success Icon -->
+        <!-- Clean Green Check Badge -->
         <div style="width: 60px; height: 60px; background: rgba(16, 185, 129, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
             <i class="fa-solid fa-check" style="font-size: 1.8rem; color: #10b981;"></i>
         </div>
@@ -550,7 +550,6 @@ function proceedToOTP() {
 <?php
 }
 ?>
-
 <a href="index.php" class="back-button">
     <i class="fa-solid fa-arrow-left"></i> Back to Home
 </a>

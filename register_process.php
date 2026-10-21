@@ -1,7 +1,6 @@
 <?php
 session_start();
 // TEMPORARY DEBUG: See what the form is actually posting
-error_log("FULL POST DATA RECEIVED: " . print_r($_POST, true));
 date_default_timezone_set('Asia/Manila');
 include "includes/db.php";
 
