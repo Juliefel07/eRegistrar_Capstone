@@ -369,20 +369,43 @@ body {
     grid-template-columns: 1fr 1fr !important;
     gap: 12px 14px !important;
     margin-bottom: 12px !important;
+    overflow: visible !important;
 }
 
 .form-group {
     display: flex !important;
     flex-direction: column !important;
     gap: 4px !important;
+    overflow: visible !important;
 }
 
 .form-group label {
     font-size: 0.8rem !important;
     font-weight: 700 !important;
+    color: #d4d5ce !important;
+    overflow: visible !important;
+}
+/* Style the select element to match your dark inputs */
+select {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid var(--border-dark) !important;
     color: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 12px !important;
 }
 
+/* Style the dropdown options when opened in browsers that support it */
+select option {
+    background-color: #0f172a !important; /* Deep dark blue */
+    color: #ffffff !important;           /* Clean white text */
+    padding: 10px !important;
+}
+
+/* Fix focus state */
+select:focus {
+    border-color: #3b82f6 !important;
+    outline: none !important;
+}
 .form-group input,
 .form-group select {
     background: rgba(255, 255, 255, 0.06) !important;
@@ -390,7 +413,7 @@ body {
     border-radius: 8px !important;
     padding: 10px 12px !important;
     font-size: 0.88rem !important;
-    color: #ffffff !important;
+    color: #d4d5ce !important;
     outline: none !important;
     width: 100% !important;
 }
@@ -568,43 +591,7 @@ body {
         flex-direction: column !important;
     }
 }
-@media (max-width: 850px) {
-    /* Equalize button container layout */
-    .step-buttons, 
-    .form-buttons, 
-    .btn-container {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        gap: 12px !important;
-        width: 100% !important;
-        margin-top: 20px !important;
-    }
 
-    /* Force both Back and Next buttons to have matching height & flex behavior */
-    .step-buttons button,
-    .step-buttons .btn-secondary,
-    .step-buttons .btn-next,
-    .step-buttons .btn-submit,
-    #parentBack,
-    #parentNext,
-    #toStep2,
-    #toStep3,
-    #toStep4 {
-        flex: 1 !important; /* Makes both buttons take equal 50% width */
-        height: 48px !important; /* Fixed touch-friendly height for both */
-        min-height: 48px !important;
-        max-height: 48px !important;
-        line-height: normal !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        margin: 0 !important;
-        padding: 0 16px !important;
-        font-size: 0.95rem !important;
-        box-sizing: border-box !important;
-    }
-}
 /* RESPONSIVE */
 @media (max-width: 900px) {
     .register-container {
