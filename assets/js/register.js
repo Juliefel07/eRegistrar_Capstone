@@ -1,4 +1,3 @@
-
 // ==========================================
 // CUSTOM FLOATING MODAL ALERT HELPER
 // ==========================================
@@ -33,6 +32,7 @@ function closeCustomModal() {
         modal.style.display = 'none';
     }
 }
+
 // ==========================================
 // STEP ELEMENTS
 // ==========================================
@@ -102,7 +102,7 @@ if(btnStep2){
         const account = document.querySelector("input[name='account_type']:checked");
 
         if(!account){
-            showModalAlert("Please select an account type.");
+            showModalAlert("Account Type Required", "Please select an account type.");
             return;
         }
 
@@ -142,7 +142,7 @@ if(btnStep3){
         const level = document.querySelector("input[name='student_level']:checked");
 
         if (!level) {
-            showModalAlert("Please choose a student level.");
+            showModalAlert("Student Level Required", "Please choose a student level.");
             return;
         }
 
@@ -192,11 +192,55 @@ if(btnParentBack){
 }
 
 // ==========================================
-// STEP 3 -> STEP 4 (REVIEW)
+// STEP 3 -> STEP 4 (REVIEW) WITH VALIDATION
 // ==========================================
 
 if(btnStep4){
     btnStep4.addEventListener("click", () => {
+        const level = document.querySelector("input[name='student_level']:checked");
+        
+        if (!level) {
+            showModalAlert("Error", "Student level is missing.");
+            return;
+        }
+
+        // Validate based on whether College or Basic Education is active
+        if (level.value === "College") {
+            const studentNo = document.getElementById("student_no")?.value.trim();
+            const fullName = document.getElementById("fullname_college")?.value.trim();
+            const course = document.getElementById("course")?.value;
+            const email = document.getElementById("email_college")?.value.trim();
+            const pass = document.getElementById("password_college")?.value;
+            const confirmPass = document.getElementById("confirm_password_college")?.value;
+
+            if (!studentNo || !fullName || !course || !email || !pass || !confirmPass) {
+                showModalAlert("Incomplete Fields", "Please fill out all required College student fields before proceeding.");
+                return;
+            }
+            if (pass !== confirmPass) {
+                showModalAlert("Password Mismatch", "Passwords do not match.");
+                return;
+            }
+        } else if (level.value === "Basic Education") {
+            const lrn = document.getElementById("lrn")?.value.trim();
+            const fullName = document.getElementById("fullname_basic")?.value.trim();
+            const gradeLevel = document.getElementById("grade_level")?.value;
+            const section = document.getElementById("section")?.value.trim();
+            const schoolYearBasic = document.getElementById("school_year_basic")?.value;
+            const email = document.getElementById("email_basic")?.value.trim();
+            const pass = document.getElementById("password_basic")?.value;
+            const confirmPass = document.getElementById("confirm_password_basic")?.value;
+
+            if (!lrn || !fullName || !gradeLevel || !section || !schoolYearBasic || !email || !pass || !confirmPass) {
+                showModalAlert("Incomplete Fields", "Please fill out all required Basic Education fields before proceeding.");
+                return;
+            }
+            if (pass !== confirmPass) {
+                showModalAlert("Password Mismatch", "Passwords do not match.");
+                return;
+            }
+        }
+
         fillReview();
         showStep(3);
     });
@@ -210,12 +254,12 @@ if(btnParentNext){
         const confirm = document.getElementById("parent_confirm_password")?.value || "";
 
         if(name === "" || email === "" || password === "" || confirm === ""){
-            showModalAlert("Please complete parent information.");
+            showModalAlert("Incomplete Fields", "Please complete parent information.");
             return;
         }
 
         if(password !== confirm){
-            showModalAlert("Passwords do not match.");
+            showModalAlert("Password Mismatch", "Passwords do not match.");
             return;
         }
 
@@ -245,22 +289,15 @@ if(btnBack3){
 }
 
 // ==========================================
-// REVIEW PAGE (EXACT ROW REMOVAL FOR PARENTS)
-// ==========================================
-// ==========================================
-// FAIL-SAFE REVIEW PAGE (PARENTS)
+// REVIEW PAGE POPULATOR
 // ==========================================
 
 function fillReview(){
-    // 1. Check account type radio button safely
     const accountInput = document.querySelector("input[name='account_type']:checked");
     const accountValue = accountInput ? accountInput.value.trim() : "";
 
-    // 2. Fallback check: Is the parent form currently active/visible on step 3?
     const parentForm = document.getElementById("parentForm");
     const isParentFormVisible = parentForm && parentForm.style.display !== "none";
-
-    // 3. Determine if this is a Parent registration
     const isParent = accountValue.toLowerCase().includes("parent") || isParentFormVisible;
 
     // Update Account Type label
@@ -270,39 +307,38 @@ function fillReview(){
     const level = document.querySelector("input[name='student_level']:checked");
     const linkedStudentsCard = document.getElementById("linkedStudentsCard");
 
+    // Elements for visibility rows
+    const rowStudentLevel = document.getElementById("rowStudentLevel");
+    const rowStudentNumber = document.getElementById("rowStudentNumber");
+    const rowCourse = document.getElementById("rowCourse");
+    const rowGradeLevel = document.getElementById("rowGradeLevel");
+    const rowSection = document.getElementById("rowSection");
+    const rowYearLevel = document.getElementById("rowYearLevel");
+    const rowStatus = document.getElementById("rowStatus");
+    const rowSchoolYear = document.getElementById("rowSchoolYear");
+    const reviewContact = document.getElementById("reviewContact");
+    const reviewEmail = document.getElementById("reviewEmail");
+
     if(isParent){
         // ==========================================
-        // PARENT VIEW: REMOVE ALL STUDENT ROWS
+        // PARENT VIEW
         // ==========================================
         if(linkedStudentsCard) linkedStudentsCard.style.display = "block";
 
-        // Target every row in the review page
-        const allReviewItems = document.querySelectorAll('.review-page .review-item');
-        allReviewItems.forEach(item => {
-            const text = item.textContent.toLowerCase();
-            
-            // Hide Student Level, Student Number, LRN, Course, and Year Level
-            if(text.includes('student level') || 
-               text.includes('student number') || 
-               text.includes('lrn') || 
-               text.includes('course') || 
-               text.includes('year level')){
-                item.style.setProperty("display", "none", "important");
-            } else {
-                item.style.setProperty("display", "flex", "important");
-            }
-        });
+        if(rowStudentLevel) rowStudentLevel.style.setProperty("display", "none", "important");
+        if(rowStudentNumber) rowStudentNumber.style.setProperty("display", "none", "important");
+        if(rowCourse) rowCourse.style.setProperty("display", "none", "important");
+        if(rowGradeLevel) rowGradeLevel.style.setProperty("display", "none", "important");
+        if(rowSection) rowSection.style.setProperty("display", "none", "important");
+        if(rowYearLevel) rowYearLevel.style.setProperty("display", "none", "important");
+        if(rowStatus) rowStatus.style.setProperty("display", "none", "important");
+        if(rowSchoolYear) rowSchoolYear.style.setProperty("display", "none", "important");
 
-        // Assign Parent Info safely
         const parentName = document.getElementById("parent_name")?.value || "-";
         const parentContact = document.getElementById("parent_contact")?.value || "-";
         const parentEmail = document.getElementById("parent_email")?.value || "-";
 
-        const reviewFullName = document.getElementById("reviewFullName");
-        const reviewContact = document.getElementById("reviewContact");
-        const reviewEmail = document.getElementById("reviewEmail");
-
-        if(reviewFullName) reviewFullName.innerText = parentName;
+        document.getElementById("reviewFullName").innerText = parentName;
         if(reviewContact) reviewContact.innerText = parentContact;
         if(reviewEmail) reviewEmail.innerText = parentEmail;
 
@@ -310,51 +346,81 @@ function fillReview(){
 
     } else {
         // ==========================================
-        // STUDENT VIEW: SHOW ALL ROWS
+        // STUDENT VIEW
         // ==========================================
         if(linkedStudentsCard) linkedStudentsCard.style.display = "none";
 
-        const allReviewItems = document.querySelectorAll('.review-page .review-item');
-        allReviewItems.forEach(item => {
-            item.style.setProperty("display", "flex", "important");
-        });
+        if(rowStudentLevel) rowStudentLevel.style.setProperty("display", "flex", "important");
+        if(rowStudentNumber) rowStudentNumber.style.setProperty("display", "flex", "important");
+        if(reviewContact) reviewContact.closest('.review-item').style.setProperty("display", "flex", "important");
+        if(reviewEmail) reviewEmail.closest('.review-item').style.setProperty("display", "flex", "important");
 
         const reviewStudentLevel = document.getElementById("reviewStudentLevel");
         if(reviewStudentLevel) reviewStudentLevel.innerText = level ? level.value : "-";
 
         if(level && level.value === "College"){
+            // Show College specific rows, hide Basic Education rows
+            if(rowCourse) rowCourse.style.setProperty("display", "flex", "important");
+            if(rowYearLevel) rowYearLevel.style.setProperty("display", "flex", "important");
+            if(rowStatus) rowStatus.style.setProperty("display", "flex", "important");
+            if(rowSchoolYear) rowSchoolYear.style.setProperty("display", "flex", "important");
+            if(rowGradeLevel) rowGradeLevel.style.setProperty("display", "none", "important");
+            if(rowSection) rowSection.style.setProperty("display", "none", "important");
+
             document.getElementById("reviewFullName").innerText = document.getElementById("fullname_college")?.value || "-";
             document.getElementById("reviewStudentNumber").innerText = document.getElementById("student_no")?.value || "-";
             document.getElementById("reviewCourse").innerText = document.getElementById("course")?.value || "-";
 
-            const status = document.getElementById("student_status")?.value;
+            const status = document.getElementById("student_status")?.value || "Enrolled";
             const reviewYearLevel = document.getElementById("reviewYearLevel");
             if(reviewYearLevel) {
-                if(status === "Graduated" || (status && status.toLowerCase().includes("graduated"))){
+                if(status === "Graduated" || status.toLowerCase().includes("graduated")){
                     reviewYearLevel.innerText = "Graduated / Alumni";
                 } else {
                     reviewYearLevel.innerText = document.getElementById("year_level")?.value || "-";
                 }
             }
 
-            document.getElementById("reviewContact").innerText = document.getElementById("contact_no_college")?.value || "-";
-            document.getElementById("reviewEmail").innerText = document.getElementById("email_college")?.value || "-";
+            const reviewStatus = document.getElementById("reviewStatus");
+            if(reviewStatus) reviewStatus.innerText = status;
+
+            const schoolYear = document.getElementById("school_year")?.value || "-";
+            const reviewSchoolYear = document.getElementById("reviewSchoolYear");
+            if(reviewSchoolYear) reviewSchoolYear.innerText = schoolYear;
+
+            if(reviewContact) reviewContact.innerText = document.getElementById("contact_no_college")?.value || "-";
+            if(reviewEmail) reviewEmail.innerText = document.getElementById("email_college")?.value || "-";
 
         } else if(level && level.value === "Basic Education"){
-            allReviewItems.forEach(item => {
-                const text = item.textContent.toLowerCase();
-                if(text.includes('course') || text.includes('year level')){
-                    item.style.setProperty("display", "none", "important");
-                }
-            });
+            // Hide college-only fields, show basic education fields
+            if(rowCourse) rowCourse.style.setProperty("display", "none", "important");
+            if(rowYearLevel) rowCourse.style.setProperty("display", "none", "important"); // handled by grade level/section
+            if(rowYearLevel) rowYearLevel.style.setProperty("display", "none", "important");
+            if(rowStatus) rowStatus.style.setProperty("display", "none", "important");
+            
+            if(rowGradeLevel) rowGradeLevel.style.setProperty("display", "flex", "important");
+            if(rowSection) rowSection.style.setProperty("display", "flex", "important");
+            if(rowSchoolYear) rowSchoolYear.style.setProperty("display", "flex", "important");
 
             document.getElementById("reviewFullName").innerText = document.getElementById("fullname_basic")?.value || "-";
             document.getElementById("reviewStudentNumber").innerText = document.getElementById("lrn")?.value || "-";
-            document.getElementById("reviewContact").innerText = document.getElementById("contact_no_basic")?.value || "-";
-            document.getElementById("reviewEmail").innerText = document.getElementById("email_basic")?.value || "-";
+
+            const reviewGradeLevel = document.getElementById("reviewGradeLevel");
+            if(reviewGradeLevel) reviewGradeLevel.innerText = document.getElementById("grade_level")?.value || "-";
+
+            const reviewSection = document.getElementById("reviewSection");
+            if(reviewSection) reviewSection.innerText = document.getElementById("section")?.value || "-";
+
+            const schoolYearBasic = document.getElementById("school_year_basic")?.value || "-";
+            const reviewSchoolYear = document.getElementById("reviewSchoolYear");
+            if(reviewSchoolYear) reviewSchoolYear.innerText = schoolYearBasic;
+
+            if(reviewContact) reviewContact.innerText = document.getElementById("contact_no_basic")?.value || "-";
+            if(reviewEmail) reviewEmail.innerText = document.getElementById("email_basic")?.value || "-";
         }
     }
 }
+
 // ==========================================
 // LOAD LINKED STUDENTS
 // ==========================================
@@ -397,7 +463,7 @@ function loadLinkedStudents(){
 }
 
 // ==========================================
-// ADD STUDENT
+// ADD STUDENT DYNAMICALLY
 // ==========================================
 
 const addStudentBtn = document.getElementById("addStudent");
@@ -426,7 +492,7 @@ if(addStudentBtn){
 }
 
 // ==========================================
-// SIMPLE VALIDATION
+// FORM SUBMISSION VALIDATION
 // ==========================================
 
 const registerForm = document.getElementById("registerForm");
@@ -437,11 +503,9 @@ if(registerForm){
 
         if(agree && !agree.checked){
             e.preventDefault();
-            showModalAlert("Please agree to the Terms and Conditions.");
+            showModalAlert("Terms Required", "Please agree to the Terms and Conditions before registering.");
             return false;
         }
-
-        showModalAlert("Registered Successfully");
     });
 }
 

@@ -17,7 +17,6 @@
             <strong id="reviewAccountType">-</strong>
         </div>
 
-        <!-- ID ADDED HERE -->
         <div class="review-item" id="rowStudentLevel">
             <span>Student Level</span>
             <strong id="reviewStudentLevel">-</strong>
@@ -36,7 +35,6 @@
             <strong id="reviewFullName">-</strong>
         </div>
 
-        <!-- IDs ADDED HERE FOR HIDING -->
         <div class="review-item" id="rowStudentNumber">
             <span>Student Number / LRN</span>
             <strong id="reviewStudentNumber">-</strong>
@@ -46,10 +44,32 @@
             <span>Course</span>
             <strong id="reviewCourse">-</strong>
         </div>
+        <div class="review-item" id="rowGradeLevel" style="display:none;">
+            <span>Grade Level</span>
+            <strong id="reviewGradeLevel">-</strong>
+        </div>
+
+        <!-- ADDED SECTION ROW -->
+        <div class="review-item" id="rowSection" style="display:none;">
+            <span>Section</span>
+            <strong id="reviewSection">-</strong>
+        </div>
 
         <div class="review-item" id="rowYearLevel">
             <span>Year Level</span>
             <strong id="reviewYearLevel">-</strong>
+        </div>
+
+        <!-- ADDED STATUS ROW -->
+        <div class="review-item" id="rowStatus">
+            <span>Status</span>
+            <strong id="reviewStatus">-</strong>
+        </div>
+
+        <!-- ADDED SCHOOL YEAR ROW -->
+        <div class="review-item" id="rowSchoolYear">
+            <span>School Year</span>
+            <strong id="reviewSchoolYear">-</strong>
         </div>
 
         <div class="review-item">
