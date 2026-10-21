@@ -1,3 +1,8 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,15 +11,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>About eRegistrar | Online Document Request System</title>
 
-<!-- Favicon & External Fonts/Icons matching Index -->
-<link rel="icon" type="image/png" href="<?php echo (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) ? '/eRegistrar/assets/images/logooo.png' : '/assets/images/logooo.png'; ?>?v=4">
+<!-- Favicon & External Fonts/Icons -->
+<link rel="icon" type="image/png" href="assets/images/logooo.png?v=3">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/public.css">
 
 <style>
 /* =========================================================
-   MATCHING ACADEMIC BLUE THEME & ABOUT PAGE STYLING
+   CLEAN ACADEMIC BLUE PALETTE & STYLING (MATCHING INDEX)
    ========================================================= */
 :root {
     --deep-blue: #1F5CAB;
@@ -31,6 +35,7 @@
     --radius-lg: 16px;
     --shadow-sm: 0 1px 3px rgba(31, 92, 171, 0.08);
     --shadow-md: 0 10px 25px -3px rgba(57, 130, 220, 0.12);
+    --shadow-lg: 0 20px 30px -10px rgba(31, 92, 171, 0.18);
 }
 
 body {
@@ -40,39 +45,113 @@ body {
     margin: 0;
 }
 
-/* Force Login Button Text Visibility */
-.navbar #nav-menu a.login-btn {
+/* =========================================================
+   STYLED NAVBAR (EXACT MATCH TO INDEX)
+   ========================================================= */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 48px;
+    background-color: var(--navbar-dark);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(15, 45, 89, 0.35);
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.logo-area img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}
+
+.logo-area h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.logo-area small {
+    font-size: 0.78rem;
+    color: var(--light-sky);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+#nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+#nav-menu a {
+    color: #e2e8f0;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: color 0.2s ease;
+}
+
+#nav-menu a:hover {
+    color: var(--light-sky);
+}
+
+#nav-menu a.login-btn {
     background-color: #ffffff !important;
     color: #1F5CAB !important;
     padding: 10px 24px;
     border-radius: var(--radius-md);
     font-weight: 800;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    text-decoration: none;
-}
-.navbar #nav-menu a.login-btn:hover {
-    background-color: var(--pale-bg) !important;
-    color: var(--deep-blue) !important;
+    transition: all 0.2s ease;
 }
 
-/* HERO SECTION */
+#nav-menu a.login-btn:hover {
+    background-color: var(--pale-bg);
+    transform: translateY(-1px);
+}
+
+.menu-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* HERO SECTION WITH PHOTO OVERLAY */
 .about-hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 90px 48px;
     background: linear-gradient(rgba(31, 92, 171, 0.88), rgba(15, 23, 42, 0.92)), url('assets/images/about.png') center/cover no-repeat;
     color: #ffffff;
-    padding: 80px 24px;
     text-align: center;
     position: relative;
     box-shadow: 0 10px 30px rgba(31, 92, 171, 0.25);
 }
 
-.hero-overlay h1 {
+.about-hero h1 {
     font-size: 3rem;
     font-weight: 800;
     margin: 0 0 16px 0;
     letter-spacing: -0.03em;
 }
 
-.hero-overlay p {
+.about-hero p {
     font-size: 1.15rem;
     color: var(--pale-bg);
     max-width: 600px;
@@ -133,6 +212,12 @@ body {
     font-weight: 800;
     color: var(--heading-color);
     margin: 0 0 10px 0;
+}
+
+.section-title p {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    margin: 0;
 }
 
 .team-description {
@@ -303,13 +388,37 @@ body {
 }
 
 /* Responsive layout adjustments */
-@media (max-width: 768px) {
+@media (max-width: 968px) {
+    .navbar {
+        padding: 16px 20px;
+    }
+    .menu-toggle {
+        display: block;
+    }
+    #nav-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: var(--navbar-dark);
+        flex-direction: column;
+        padding: 24px;
+        gap: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        box-sizing: border-box;
+    }
+    #nav-menu.show {
+        display: flex;
+    }
+
     .about-intro {
         flex-direction: column;
         padding: 28px;
         text-align: center;
     }
-    .hero-overlay h1 {
+    .about-hero h1 {
         font-size: 2.2rem;
     }
 }
@@ -318,7 +427,27 @@ body {
 
 <body>
 
-<?php include "navbar.php"; ?>
+<!-- STYLED DARK NAVBAR -->
+<header class="navbar">
+    <div class="logo-area">
+        <img src="assets/images/logo1.png" alt="eRegistrar Logo">
+        <div>
+            <h2><span style="color: #3982DC !important; display: inline;">e</span>Registrar</h2>
+            <small>Document Request System</small>
+        </div>
+    </div>
+
+    <button class="menu-toggle" id="menu-toggle">
+        ☰
+    </button>
+
+    <nav id="nav-menu">
+        <a href="index.php">Home</a>
+        <a href="about.php">About</a>
+        <a href="contact.php">Contact</a>
+        <a href="login.php" class="login-btn">Login</a>
+    </nav>
+</header>
 
 <!-- HERO -->
 <section class="about-hero">
@@ -447,5 +576,4 @@ if (toggle && menu) {
 }
 </script>
 </body>
-
 </html>
