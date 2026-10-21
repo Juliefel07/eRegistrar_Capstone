@@ -309,14 +309,27 @@ while ($doc = mysqli_fetch_assoc($docQuery)) {
         min-height: 90px;
     }
 
-    .row {
-        display: flex;
-        gap: 16px;
-    }
+    /* Update your .row class or add this media query */
+.row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap; /* Allows fields to wrap gracefully on smaller screens */
+}
 
-    .row .form-group {
-        flex: 1;
+.row .form-group {
+    flex: 1 1 220px; /* Minimum width before wrapping */
+}
+
+/* Force all elements inside form rows to stack 100% width on mobile */
+@media (max-width: 992px) {
+    .row {
+        display: block !important;
     }
+    .row .form-group {
+        width: 100% !important;
+        margin-bottom: 16px !important;
+    }
+}
 
     .document-info {
         background: #ffffff;
