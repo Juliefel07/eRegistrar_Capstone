@@ -37,19 +37,19 @@ function displayValue($value)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - CCTC eRegistrar</title>
-     <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
+    <link rel="icon" type="image/png" href="/assets/images/logooo.png?v=3">
     <!-- Base Stylesheets -->
     <link rel="stylesheet" href="../assets/css/student.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <!-- Anti-Flicker Script: Load dark mode before page render -->
-<script>
-    if (localStorage.getItem("darkMode") === "enabled") {
-        document.documentElement.classList.add("dark-mode");
-        document.addEventListener("DOMContentLoaded", () => {
-            document.body.classList.add("dark-mode");
-        });
-    }
-</script>
+    <script>
+        if (localStorage.getItem("darkMode") === "enabled") {
+            document.documentElement.classList.add("dark-mode");
+            document.addEventListener("DOMContentLoaded", () => {
+                document.body.classList.add("dark-mode");
+            });
+        }
+    </script>
 
     <style>
         body {
@@ -247,7 +247,7 @@ function displayValue($value)
 
 <body>
 
-   <?php require_once __DIR__ . "/navbar.php"; ?>
+    <?php require_once __DIR__ . "/navbar.php"; ?>
 
 <div class="student-main">
     <div class="profile-card">
@@ -261,7 +261,7 @@ function displayValue($value)
             </div>
 
             <h2><?= htmlspecialchars($user['fullname'] ?? ''); ?></h2>
-            <p>Student Profile</p>
+            <p><?= (($user['account_type'] ?? '') === 'Parent') ? 'Parent Portal Account' : 'Student Profile'; ?></p>
 
             <div class="profile-bio">
                 <?= displayValue($user['bio'] ?? ''); ?>
@@ -288,44 +288,80 @@ function displayValue($value)
             </div>
         </div>
 
-        <h3 class="profile-section-title">Academic Information</h3>
+        <h3 class="profile-section-title">Academic / Account Information</h3>
         <div class="profile-details">
             <div class="profile-item">
                 <label>Account Type</label>
                 <p><?= displayValue($user['account_type'] ?? ''); ?></p>
             </div>
-            <div class="profile-item">
-                <label>Student Level</label>
-                <p><?= displayValue($user['student_level'] ?? ''); ?></p>
-            </div>
-            <div class="profile-item">
-                <label>Student Number</label>
-                <p><?= displayValue($user['student_no'] ?? ''); ?></p>
-            </div>
-            <div class="profile-item">
-                <label>LRN</label>
-                <p><?= displayValue($user['lrn'] ?? ''); ?></p>
-            </div>
-            <div class="profile-item">
-                <label>Course</label>
-                <p><?= displayValue($user['course'] ?? ''); ?></p>
-            </div>
-            <div class="profile-item">
-                <label>Year Level</label>
-                <p><?= displayValue($user['year_level'] ?? ''); ?></p>
-            </div>
-            <div class="profile-item">
-                <label>Section</label>
-                <p><?= displayValue($user['section'] ?? ''); ?></p>
-            </div>
-            <div class="profile-item">
-                <label>Course Graduated</label>
-                <p><?= displayValue($user['course_graduated'] ?? ''); ?></p>
-            </div>
-            <div class="profile-item">
-                <label>Graduation Year</label>
-                <p><?= displayValue($user['graduation_year'] ?? ''); ?></p>
-            </div>
+
+            <?php if (($user['account_type'] ?? '') === 'Parent'): ?>
+                <!-- PARENT SPECIFIC VIEW -->
+                <div class="profile-item">
+                    <label>Portal Role</label>
+                    <p>Parent / Guardian</p>
+                </div>
+            <?php elseif (($user['student_level'] ?? '') === 'College'): ?>
+                <!-- COLLEGE SPECIFIC FIELDS -->
+                <div class="profile-item">
+                    <label>Student Level</label>
+                    <p><?= displayValue($user['student_level'] ?? ''); ?></p>
+                </div>
+                <div class="profile-item">
+                    <label>Student Number</label>
+                    <p><?= displayValue($user['student_no'] ?? ''); ?></p>
+                </div>
+                <div class="profile-item">
+                    <label>Course</label>
+                    <p><?= displayValue($user['course'] ?? ''); ?></p>
+                </div>
+                <div class="profile-item">
+                    <label>Year Level</label>
+                    <p><?= displayValue($user['year_level'] ?? ''); ?></p>
+                </div>
+                <div class="profile-item">
+                    <label>Status</label>
+                    <p><?= displayValue($user['status'] ?? $user['student_status'] ?? ''); ?></p>
+                </div>
+                <div class="profile-item">
+                    <label>School Year</label>
+                    <p><?= displayValue($user['school_year'] ?? ''); ?></p>
+                </div>
+
+                <?php if (strtolower($user['status'] ?? $user['student_status'] ?? '') === 'graduated'): ?>
+                    <div class="profile-item">
+                        <label>Course Graduated</label>
+                        <p><?= displayValue($user['course_graduated'] ?? ''); ?></p>
+                    </div>
+                    <div class="profile-item">
+                        <label>Graduation Year</label>
+                        <p><?= displayValue($user['graduation_year'] ?? ''); ?></p>
+                    </div>
+                <?php endif; ?>
+
+            <?php elseif (($user['student_level'] ?? '') === 'Basic Education'): ?>
+                <!-- BASIC EDUCATION SPECIFIC FIELDS -->
+                <div class="profile-item">
+                    <label>Student Level</label>
+                    <p><?= displayValue($user['student_level'] ?? ''); ?></p>
+                </div>
+                <div class="profile-item">
+                    <label>LRN</label>
+                    <p><?= displayValue($user['lrn'] ?? ''); ?></p>
+                </div>
+                <div class="profile-item">
+                    <label>Grade Level</label>
+                    <p><?= displayValue($user['grade_level'] ?? ''); ?></p>
+                </div>
+                <div class="profile-item">
+                    <label>Section</label>
+                    <p><?= displayValue($user['section'] ?? ''); ?></p>
+                </div>
+                <div class="profile-item">
+                    <label>School Year</label>
+                    <p><?= displayValue($user['school_year'] ?? ''); ?></p>
+                </div>
+            <?php endif; ?>
         </div>
 
         <h3 class="profile-section-title">Contact Information</h3>
