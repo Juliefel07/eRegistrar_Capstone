@@ -518,6 +518,33 @@ unset($_SESSION['error']);
 }
 ?>
 
+<?php
+// SUCCESS MODAL (Triggers when registration succeeds & OTP email is sent)
+if(isset($_SESSION['registration_success']) && $_SESSION['registration_success'] === true){
+    unset($_SESSION['registration_success']);
+?>
+<div class="modal-error" id="successModal" style="display: flex;">
+    <div class="modal-box">
+        <i class="fa-solid fa-circle-check" style="font-size: 2.5rem; color: #10b981; margin-bottom: 12px;"></i>
+        <h3 style="color: #ffffff; margin-bottom: 8px;">Registered Successfully!</h3>
+        <p style="color: var(--text-muted, #94a3b8); font-size: 0.85rem; margin-bottom: 20px;">
+            Your account has been created and a verification code has been sent to your email. Click OK to verify.
+        </p>
+        <button onclick="proceedToOTP()" style="background: #10b981; color: white; cursor: pointer;">
+            OK
+        </button>
+    </div>
+</div>
+
+<script>
+function proceedToOTP() {
+    window.location.href = "verify_otp.php";
+}
+</script>
+<?php
+}
+?>
+
 <a href="index.php" class="back-button">
     <i class="fa-solid fa-arrow-left"></i> Back to Home
 </a>

@@ -13,7 +13,6 @@ require 'PHPMailer/src/SMTP.php';
 
 // Helper function to send OTP email via Brevo API
 function sendOTPEmail($recipientEmail, $recipientName, $otpCode) {
-    // Safety check: Stop immediately if the email is empty
     if (empty($recipientEmail)) {
         error_log("Error: Recipient email is empty! Cannot send OTP.");
         return false;
@@ -116,11 +115,28 @@ if ($account_type == "Student") {
         exit();
     }
 
-    $check = mysqli_query($conn, "SELECT user_id FROM users WHERE email='$email'");
+    // Check if email exists
+    $check = mysqli_query($conn, "SELECT user_id, is_verified FROM users WHERE email='$email'");
     if (mysqli_num_rows($check) > 0) {
-        $_SESSION['error'] = "Email already exists.";
-        header("Location: register.php");
-        exit();
+        $existing_user = mysqli_fetch_assoc($check);
+        if ($existing_user['is_verified'] == 0) {
+            // Unverified from previous failed attempt: update OTP and resend
+            mysqli_query($conn, "UPDATE users SET otp_code='$otp', otp_expires_at='$expires_at' WHERE email='$email'");
+            
+            $mail_sent = sendOTPEmail($email, $fullname, $otp);
+            if (!$mail_sent) {
+                die("Email failed to send! Please check your Render application logs for details.");
+            }
+
+            $_SESSION['pending_email'] = $email;
+            $_SESSION['registration_success'] = true;
+            header("Location: register.php");
+            exit();
+        } else {
+            $_SESSION['error'] = "Email already exists and is already verified.";
+            header("Location: register.php");
+            exit();
+        }
     }
 
     $hash = password_hash($password, PASSWORD_DEFAULT);
@@ -137,34 +153,27 @@ if ($account_type == "Student") {
         }
 
         $_SESSION['pending_email'] = $email;
-        header("Location: verify_otp.php");
+        $_SESSION['registration_success'] = true;
+        header("Location: register.php");
         exit();
     } else {
         die("Student Registration Error: " . mysqli_error($conn));
     }
 }
+
 // ===============================
 // PARENT REGISTRATION
 // ===============================
 if ($account_type == "Parent") {
 
-    // Catch name from any possible input name
     $fullname   = mysqli_real_escape_string($conn, trim($_POST['parent_name'] ?? $_POST['fullname'] ?? ''));
     $contact_no = mysqli_real_escape_string($conn, trim($_POST['parent_contact'] ?? $_POST['contact_no'] ?? ''));
-    
-    // Fallback chain to catch email no matter what the frontend named it
     $email      = mysqli_real_escape_string($conn, trim($_POST['parent_email'] ?? $_POST['email'] ?? $_POST['user_email'] ?? ''));
-    
     $password   = $_POST['parent_password'] ?? $_POST['password'] ?? '';
     $confirm    = $_POST['parent_confirm_password'] ?? $_POST['confirm_password'] ?? '';
 
-    // Debug log if email is still empty so you see it instantly in Render logs
-    if (empty($email)) {
-        error_log("PARENT REGISTRATION DEBUG - POST Data received: " . json_encode($_POST));
-    }
-
     if (empty($fullname) || empty($contact_no) || empty($email) || empty($password) || empty($confirm)) {
-        $_SESSION['error'] = "Please complete all required fields. (Email detected: " . ($email ? 'Yes' : 'No') . ")";
+        $_SESSION['error'] = "Please complete all required fields.";
         header("Location: register.php");
         exit();
     }
@@ -175,11 +184,27 @@ if ($account_type == "Parent") {
         exit();
     }
 
-    $check = mysqli_query($conn, "SELECT user_id FROM users WHERE email='$email'");
+    // Check if email exists
+    $check = mysqli_query($conn, "SELECT user_id, is_verified FROM users WHERE email='$email'");
     if (mysqli_num_rows($check) > 0) {
-        $_SESSION['error'] = "Email already exists.";
-        header("Location: register.php");
-        exit();
+        $existing_user = mysqli_fetch_assoc($check);
+        if ($existing_user['is_verified'] == 0) {
+            mysqli_query($conn, "UPDATE users SET otp_code='$otp', otp_expires_at='$expires_at' WHERE email='$email'");
+            
+            $mail_sent = sendOTPEmail($email, $fullname, $otp);
+            if (!$mail_sent) {
+                die("Email failed to send! Please check your Render application logs for details.");
+            }
+
+            $_SESSION['pending_email'] = $email;
+            $_SESSION['registration_success'] = true;
+            header("Location: register.php");
+            exit();
+        } else {
+            $_SESSION['error'] = "Email already exists and is already verified.";
+            header("Location: register.php");
+            exit();
+        }
     }
 
     $hash = password_hash($password, PASSWORD_DEFAULT);
@@ -209,6 +234,8 @@ if ($account_type == "Parent") {
     }
 
     $_SESSION['pending_email'] = $email;
-    header("Location: verify_otp.php");
+    $_SESSION['registration_success'] = true;
+    header("Location: register.php");
     exit();
 }
+?>
