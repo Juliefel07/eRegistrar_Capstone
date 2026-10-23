@@ -527,10 +527,10 @@ if (empty($nav_profile_img)) {
         <a href="dashboard.php" class="nav-brand">
     <img src="../assets/images/logo1.png" alt="eRegistrar Logo" class="brand-logo-img">
     <div class="brand-text" style="min-width: 130px !important;">
-        <h2 style="margin: 0; font-size: 40px !important; font-weight: 800; line-height: 1.1; display: flex !important; align-items: center !important; white-space: nowrap !important;">
+        <h2 style="margin: 0; font-size: 50px !important; font-weight: 800; line-height: 1.1; display: flex !important; align-items: center !important; white-space: nowrap !important;">
             <span style="color: #3982DC !important;">e</span><span style="color: #ffffff !important;">Registrar</span>
         </h2>
-        <span style="font-size: 0.72rem; color: #B9D4F3; font-weight: 600; display: block; margin-top: 2px; white-space: nowrap;">Student Portal</span>
+        <span style="font-size: 1rem; color: #B9D4F3; font-weight: 600; display: block; margin-top: 2px; white-space: nowrap;">Student Portal</span>
     </div>
 </a>
 

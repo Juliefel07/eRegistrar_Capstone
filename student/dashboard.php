@@ -47,6 +47,8 @@ $student_announcements = mysqli_query($conn, "
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Google Fonts for Cursive Style -->
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <!-- Put this in your <head> -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <title>eRegistrar - Student Portal</title>
     <!-- Anti-Flicker Script: Load dark mode before page render -->
 <script>
@@ -120,23 +122,45 @@ $student_announcements = mysqli_query($conn, "
 
         /* Cursive Styling for "Welcome back," */
         .hero-text .welcome-text {
-            font-family: 'Great Vibes', cursive;
-            font-size: 2.8rem;
-            font-weight: 400;
-            color: #ffffff;
-            display: block;
-            margin-bottom: -10px;
-        }
+    font-family: 'Great Vibes', cursive;
+    font-size: 2.5rem; /* Slightly reduced for better fit */
+    font-weight: 400;
+    color: #ffffff;
+    display: block;
+    margin-bottom: -5px;
+    line-height: 1.2;
+}
 
-        /* Cursive Styling for Student Name */
-        .hero-text .student-name {
-            font-family: 'Great Vibes', cursive;
-            font-size: 3.5rem;
-            font-weight: 400;
-            color: #578EF5; /* Glowing gold */
-            text-shadow: 0 2px 20px rgba(253, 224, 71, 0.4);
-            display: inline-block;
-        }
+/* Mobile-specific adjustments for readability */
+@media (max-width: 768px) {
+    .hero-text .welcome-text {
+        font-family: 'Inter', 'Poppins', sans-serif !important; /* Switches to clean readable text on mobile */
+        font-size: 1.3rem !important;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+}
+
+    .hero-text .student-name {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #ffffff; /* Bright crisp white name */
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: inline-block;
+    line-height: 1.2;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+/* Compact Mobile Adjustments */
+@media (max-width: 768px) {
+    .hero-text .student-name {
+        font-size: 1.5rem !important; /* Small, delicate size for phone screens */
+        text-shadow: 0 1px 8px rgba(87, 142, 245, 0.25);
+    }
+}
 
         .hero-text p {
             font-size: 14px;
